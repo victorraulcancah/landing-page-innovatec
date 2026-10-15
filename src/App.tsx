@@ -91,7 +91,7 @@ function Header() {
                 </a>
                 <nav
                     aria-label="Principal"
-                    className="animate-fade flex items-center gap-6 text-sm xl:gap-7"
+                    className="animate-fade flex items-center gap-5 text-sm xl:gap-7"
                     style={{ ['--delay' as string]: '200ms' }}
                 >
                     {links.map((link) => (

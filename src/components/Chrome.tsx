@@ -80,7 +80,7 @@ export function tiltLeave(e: PointerEvent<HTMLElement>): void {
 }
 
 export const sections: { id: string; label: string; nav?: boolean }[] = [
-    { id: 'inicio', label: 'Inicio', nav: false },
+    { id: 'inicio', label: 'Inicio' },
     { id: 'partner', label: 'Aliado técnico' },
     { id: 'servicios', label: 'Servicios' },
     { id: 'valores', label: 'Valores' },
