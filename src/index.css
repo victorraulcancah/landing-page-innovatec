@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@import '@fontsource/michroma/400.css';
+@import '@fontsource/sora/400.css';
+@import '@fontsource/sora/500.css';
+@import '@fontsource/sora/600.css';
+
+@theme {
+    --font-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Michroma', 'Eurostile', 'Arial Narrow', sans-serif;
+
+    --color-night: #050b1a;
+    --color-night-2: #0a1630;
+    --color-signal: #06c2f0;
+    --color-signal-deep: #1f62d9;
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+    html {
+        background: var(--color-night);
+        color-scheme: dark;
+        scroll-behavior: smooth;
+        scroll-padding-top: 5rem;
+    }
+
+    body {
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        color: #fff;
+        background: var(--color-night);
+    }
+
+    ::selection {
+        background: var(--color-signal);
+        color: var(--color-night);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-signal);
+        outline-offset: 3px;
+        border-radius: 2px;
+    }
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@utility animate-rise {
+    animation: rise 0.9s var(--ease-out-expo) backwards;
+    animation-delay: var(--delay, 0ms);
+}
+
+@utility animate-fade {
+    animation: fade 1.4s ease-out backwards;
+    animation-delay: var(--delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .animate-rise,
+    .animate-fade {
+        animation: none;
+    }
+}
