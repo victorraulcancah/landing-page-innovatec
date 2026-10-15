@@ -79,8 +79,8 @@ export function tiltLeave(e: PointerEvent<HTMLElement>): void {
     e.currentTarget.style.setProperty('--ry', '0deg');
 }
 
-const sections = [
-    { id: 'inicio', label: 'Inicio' },
+export const sections: { id: string; label: string; nav?: boolean }[] = [
+    { id: 'inicio', label: 'Inicio', nav: false },
     { id: 'partner', label: 'Aliado técnico' },
     { id: 'servicios', label: 'Servicios' },
     { id: 'valores', label: 'Valores' },
@@ -88,6 +88,49 @@ const sections = [
     { id: 'experiencia', label: 'Experiencia' },
     { id: 'marcas', label: 'Marcas' },
 ];
+
+/** Id de la sección que está en pantalla (para resaltarla en los menús). */
+export function useActiveSection(): string {
+    const [active, setActive] = useState('inicio');
+
+    useEffect(() => {
+        let frame = 0;
+
+        const update = () => {
+            frame = 0;
+            const mark = window.innerHeight * 0.45;
+            let current = sections[0].id;
+
+            for (const section of sections) {
+                const el = document.getElementById(section.id);
+
+                if (el && el.getBoundingClientRect().top <= mark) {
+                    current = section.id;
+                }
+            }
+
+            setActive(current);
+        };
+
+        const onScroll = () => {
+            if (!frame) {
+                frame = requestAnimationFrame(update);
+            }
+        };
+
+        update();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+
+        return () => {
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onScroll);
+            cancelAnimationFrame(frame);
+        };
+    }, []);
+
+    return active;
+}
 
 /** Puntos de navegación a la derecha que marcan la sección actual, y un anillo de progreso para volver arriba. */
 export function PageRail() {

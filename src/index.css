@@ -216,9 +216,22 @@
     transition: transform 0.4s var(--ease-out-expo);
 }
 
-.nav-link:hover::after {
+.nav-link:hover::after,
+.nav-link.is-active::after {
     transform: scaleX(1);
     transform-origin: left;
+}
+
+/* Menú móvil: baja desde la barra. */
+.menu-drop {
+    animation: menu-drop 0.35s var(--ease-out-expo) both;
+}
+
+@keyframes menu-drop {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
 }
 
 /* Paralaje suave de imágenes ligado al scroll (donde el navegador lo permite). */
@@ -633,6 +646,12 @@
     }
 
     .marquee-reverse .marquee-track {
+        animation: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-drop {
         animation: none;
     }
 }

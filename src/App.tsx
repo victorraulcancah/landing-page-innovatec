@@ -1,7 +1,7 @@
 import { useRef, type PointerEvent } from 'react';
 import { content } from './content';
 import { LeadForm } from './components/LeadForm';
-import { Curtain, Hexes, Magnetic, PageRail, tiltLeave, tiltMove } from './components/Chrome';
+import { Curtain, Hexes, Magnetic, PageRail, sections, tiltLeave, tiltMove, useActiveSection } from './components/Chrome';
 import { InView, SplitText, trackPointer } from './components/Motion';
 import { NetworkMesh } from './components/NetworkMesh';
 import { Reveal, shell } from './components/Reveal';
@@ -51,9 +51,24 @@ function Check({ index }: { index: number }) {
 
 function Header() {
     const [scrolled, setScrolled] = useState(false);
+    const [open, setOpen] = useState(false);
     const bar = useRef<HTMLDivElement>(null);
+    const active = useActiveSection();
+    const links = sections.filter((section) => section.nav !== false);
 
     useScrollProgress(bar);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+
+        window.addEventListener('keydown', onKey);
+
+        return () => window.removeEventListener('keydown', onKey);
+    }, [open]);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 24);
@@ -67,28 +82,78 @@ function Header() {
     return (
         <header
             className={`fixed inset-x-0 top-0 z-30 transition-[background-color,backdrop-filter] duration-300 ${
-                scrolled ? 'bg-night/80 backdrop-blur-md' : 'bg-transparent'
+                scrolled || open ? 'bg-night/90 backdrop-blur-md' : 'bg-transparent'
             }`}
         >
             <div className={`${shell} flex h-[76px] items-center justify-between gap-6`}>
                 <a href="#inicio" aria-label={content.brand.name} className="animate-fade">
                     <img src={content.brand.logo} alt={content.brand.name} className="h-8 w-auto sm:h-9" />
                 </a>
-                <nav aria-label="Principal" className="animate-fade flex items-center gap-7 text-sm" style={{ ['--delay' as string]: '200ms' }}>
-                    <a href="#servicios" className="nav-link hidden text-white/75 transition-colors hover:text-white sm:inline">
-                        Servicios
-                    </a>
-                    <a href="#experiencia" className="nav-link hidden text-white/75 transition-colors hover:text-white sm:inline">
-                        Experiencia
-                    </a>
+                <nav
+                    aria-label="Principal"
+                    className="animate-fade flex items-center gap-6 text-sm xl:gap-7"
+                    style={{ ['--delay' as string]: '200ms' }}
+                >
+                    {links.map((link) => (
+                        <a
+                            key={link.id}
+                            href={`#${link.id}`}
+                            aria-current={active === link.id ? 'location' : undefined}
+                            className={`nav-link hidden whitespace-nowrap transition-colors hover:text-white lg:inline ${
+                                active === link.id ? 'is-active text-white' : 'text-white/70'
+                            }`}
+                        >
+                            {link.label}
+                        </a>
+                    ))}
                     <a
                         href="#contacto"
                         className="btn-shine inline-flex min-h-10 items-center rounded-full border border-white/80 px-5 font-medium text-white transition-colors hover:bg-white hover:text-night"
                     >
                         Contáctanos
                     </a>
+                    <button
+                        type="button"
+                        aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+                        aria-expanded={open}
+                        aria-controls="menu-movil"
+                        onClick={() => setOpen((v) => !v)}
+                        className="relative flex size-10 items-center justify-center rounded-full border border-white/30 text-white lg:hidden"
+                    >
+                        <span
+                            className={`absolute h-px w-4 bg-current transition-transform duration-300 ease-out-expo ${
+                                open ? 'rotate-45' : '-translate-y-1'
+                            }`}
+                        />
+                        <span
+                            className={`absolute h-px w-4 bg-current transition-transform duration-300 ease-out-expo ${
+                                open ? '-rotate-45' : 'translate-y-1'
+                            }`}
+                        />
+                    </button>
                 </nav>
             </div>
+            {open && (
+                <div id="menu-movil" className="menu-drop absolute inset-x-0 top-full border-t border-white/10 bg-night lg:hidden">
+                    <ul className={`${shell} py-3`}>
+                        {links.map((link) => (
+                            <li key={link.id}>
+                                <a
+                                    href={`#${link.id}`}
+                                    onClick={() => setOpen(false)}
+                                    aria-current={active === link.id ? 'location' : undefined}
+                                    className={`flex min-h-12 items-center justify-between border-b border-white/10 text-base ${
+                                        active === link.id ? 'text-signal' : 'text-white/85'
+                                    }`}
+                                >
+                                    {link.label}
+                                    {active === link.id && <span className="size-1.5 rounded-full bg-signal" />}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             <div
                 ref={bar}
                 aria-hidden="true"
