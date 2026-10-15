@@ -102,6 +102,32 @@ export const content = {
         ],
     },
 
+    stats: {
+        title: 'Lo que hemos hecho en campo',
+        items: [
+            { value: 10, prefix: '+', unit: 'años', text: 'de experiencia del equipo, con certificaciones técnicas de los principales fabricantes.' },
+            { value: 120, prefix: '+', unit: 'sedes', text: 'conectadas en una plataforma de comunicaciones unificadas, con interconexión en malla (SENATI).' },
+            { value: 200, prefix: '+', unit: 'equipos', text: 'con seguridad estandarizada mediante Sophos XDR y MDR para servidores (Minera Titán).' },
+            { value: 30, prefix: '+', unit: 'puntos de acceso', text: 'Wi-Fi Ubiquiti para aulas híbridas, con switch core y firewall (Colegio María de los Ángeles).' },
+        ],
+    },
+
+    brands: {
+        title: 'Marcas con las que trabajamos',
+        items: [
+            { name: 'Cisco', image: '/brands/cisco.png' },
+            { name: 'Fortinet', image: '/brands/fortinet.png' },
+            { name: 'Sophos', image: '/brands/sophos.png' },
+            { name: 'Yeastar', image: '/brands/yeastar.png' },
+            { name: 'Yealink', image: '/brands/yealink.png' },
+            { name: 'Audiocodes', image: '/brands/audiocodes.png' },
+            { name: 'Ubiquiti', image: '/brands/ubiquiti.png' },
+            { name: 'ONE ACCESS', image: '/brands/one-access.png' },
+            { name: 'Telefónica', image: '/brands/telefonica.png' },
+            { name: 'Huawei', image: '/brands/huawei.png' },
+        ],
+    },
+
     cta: {
         title: '¿Buscas potenciar tu red y maximizar tus resultados?',
         button: 'Hablemos',

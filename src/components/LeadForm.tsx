@@ -79,7 +79,10 @@ export function LeadForm() {
 
     if (status === 'sent') {
         return (
-            <div role="status" className="border border-signal/40 bg-signal/10 p-8">
+            <div role="status" className="is-in border border-signal/40 bg-signal/10 p-8">
+                <svg width="44" height="44" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="draw-check mb-4 text-signal">
+                    <path d="M3 8.5l3.2 3.2L13 4.8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 <h2 className="font-display text-lg uppercase text-white">Mensaje listo</h2>
                 <p className="mt-3 text-base leading-relaxed text-white/80">{content.form.success}</p>
                 <button
@@ -96,50 +99,50 @@ export function LeadForm() {
     return (
         <form onSubmit={submit} noValidate className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block">
+                <label className="animate-rise block" style={{ ['--delay' as string]: '1750ms' }}>
                     <span className="mb-1.5 block text-sm text-white/80">Nombre *</span>
-                    <input
+                    <span className="field-wrap"><input
                         className={input}
                         value={values.name}
                         onChange={set('name')}
                         autoComplete="name"
                         aria-invalid={!!errors.name || undefined}
-                    />
-                    {errors.name && <span role="alert" className="mt-1.5 block text-sm text-red-300">{errors.name}</span>}
+                    /></span>
+                    {errors.name && <span role="alert" className="field-error mt-1.5 block text-sm text-red-300">{errors.name}</span>}
                 </label>
-                <label className="block">
+                <label className="animate-rise block" style={{ ['--delay' as string]: '1840ms' }}>
                     <span className="mb-1.5 block text-sm text-white/80">Empresa</span>
-                    <input className={input} value={values.company} onChange={set('company')} autoComplete="organization" />
+                    <span className="field-wrap"><input className={input} value={values.company} onChange={set('company')} autoComplete="organization" /></span>
                 </label>
-                <label className="block">
+                <label className="animate-rise block" style={{ ['--delay' as string]: '1930ms' }}>
                     <span className="mb-1.5 block text-sm text-white/80">Correo *</span>
-                    <input
+                    <span className="field-wrap"><input
                         type="email"
                         className={input}
                         value={values.email}
                         onChange={set('email')}
                         autoComplete="email"
                         aria-invalid={!!errors.email || undefined}
-                    />
-                    {errors.email && <span role="alert" className="mt-1.5 block text-sm text-red-300">{errors.email}</span>}
+                    /></span>
+                    {errors.email && <span role="alert" className="field-error mt-1.5 block text-sm text-red-300">{errors.email}</span>}
                 </label>
-                <label className="block">
+                <label className="animate-rise block" style={{ ['--delay' as string]: '2020ms' }}>
                     <span className="mb-1.5 block text-sm text-white/80">Teléfono</span>
-                    <input type="tel" className={input} value={values.phone} onChange={set('phone')} autoComplete="tel" />
+                    <span className="field-wrap"><input type="tel" className={input} value={values.phone} onChange={set('phone')} autoComplete="tel" /></span>
                 </label>
             </div>
 
-            <label className="block">
+            <label className="animate-rise block" style={{ ['--delay' as string]: '2110ms' }}>
                 <span className="mb-1.5 block text-sm text-white/80">¿En qué podemos ayudarte? *</span>
-                <textarea
+                <span className="field-wrap"><textarea
                     className={`${input} resize-y`}
                     rows={4}
                     maxLength={3000}
                     value={values.message}
                     onChange={set('message')}
                     aria-invalid={!!errors.message || undefined}
-                />
-                {errors.message && <span role="alert" className="mt-1.5 block text-sm text-red-300">{errors.message}</span>}
+                /></span>
+                {errors.message && <span role="alert" className="field-error mt-1.5 block text-sm text-red-300">{errors.message}</span>}
             </label>
 
             {status === 'error' && (
@@ -151,7 +154,7 @@ export function LeadForm() {
             <button
                 type="submit"
                 disabled={status === 'sending'}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-signal bg-signal px-8 text-sm font-semibold text-night transition-colors hover:border-white hover:bg-white disabled:opacity-60 sm:w-auto"
+                className="btn-shine inline-flex min-h-12 w-full items-center justify-center rounded-full border border-signal bg-signal px-8 text-sm font-semibold text-night transition-colors hover:border-white hover:bg-white disabled:opacity-60 sm:w-auto"
             >
                 {status === 'sending' ? 'Enviando…' : content.form.submit}
             </button>
