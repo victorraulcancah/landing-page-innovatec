@@ -36,7 +36,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     };
 
     return (
-        <AuthLayout title="Panel de Innovatec" description="Ingresa tu correo y contraseña para administrar la landing">
+        <AuthLayout title="Panel de UCO360" description="Ingresa tu correo y contraseña para administrar la landing">
             <Head title="Iniciar sesión" />
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
