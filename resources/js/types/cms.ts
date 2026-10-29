@@ -3,8 +3,9 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 export interface FieldDef {
     key: string;
     label: string;
-    type: 'text' | 'textarea' | 'toggle' | 'select' | 'color' | 'image' | 'cta' | 'list';
+    type: 'text' | 'textarea' | 'toggle' | 'select' | 'color' | 'image' | 'cta' | 'list' | 'number';
     max?: number;
+    min?: number;
     options?: Record<string, string>;
     actions?: Record<string, string>;
     fields?: FieldDef[];

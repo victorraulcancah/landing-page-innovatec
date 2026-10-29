@@ -230,3 +230,25 @@ Triángulo `clip-path` (`cut-up` o `cut-down`) sobre el borde superior de una se
 - **Don't** usar azul sobre azul noche ni naranja sobre blanco como texto.
 - **Don't** introducir sombras de decoración; la profundidad es de fondos y cortes.
 - **Don't** inventar clientes, cifras ni precios (restricción de PRODUCT.md).
+
+## Movimiento
+
+Tesis: **la señal recorre la línea**. Todo el movimiento sale de esa idea; nada es decorativo suelto.
+
+- **Portada (momento principal, al cargar):** el titular se descubre de izquierda a derecha, el texto y los botones suben, la foto se abre desde el corte diagonal con un leve asentamiento, el filo azul y la hoja naranja llegan después, la línea se dibuja y cada estación se enciende; la terminal pulsa tres veces y se detiene.
+- **Al llegar a cada sección (una sola vez):** los titulares se descubren como un tren que pasa; en las estaciones la línea se dibuja de una a otra y cada anillo se enciende cuando llega la señal; en la comparativa las filas entran una a una y cada «sí» se marca al final; las fotos se abren desde su diagonal; el filo de color de cada corte barre de lado a lado; en el cierre la línea llega a la terminal y el anillo se enciende; las cifras cuentan hasta su valor.
+- **Respuesta a la interacción:** flecha de los botones que avanza, subrayado del menú que se dibuja, anillos que crecen al pasar el cursor, paquetes que se elevan, preguntas que se despliegan con suavidad.
+- **Continuidad:** una barra naranja bajo el menú avanza con la lectura y el menú se compacta al bajar.
+- **Control:** Ajustes del sitio → Colores y tipografía → «Animaciones» (Completas, Suaves, Ninguna). «Suaves» solo hace aparecer. Si el visitante pidió «reducir movimiento» se usa «Suaves» sin desplazamientos. Sin JavaScript todo queda visible.
+- **Material:** solo `transform`, `opacity` y `clip-path`; curva `cubic-bezier(0.16, 1, 0.3, 1)`; duraciones de 0,35 s (respuesta) a 1,2 s (portada); sin rebotes ni bucles infinitos.
+
+## Piezas de marketing interactivas
+
+Parte del mismo mundo (línea, anillos, azul noche, naranja); todas se administran como secciones.
+
+- **Calculadora de pérdida:** tres sliders (personas, horas de caída al mes, costo por persona por hora) y un resultado en naranja. Botón «Simular caída»: 1 segundo real = 1 minuto, con el costo acumulado en rojo suave. Puede ir dentro de la portada (reemplaza la foto) o como sección. Los valores iniciales son de ejemplo y llevan un aviso; no afirman un dato real. El botón final lleva el cálculo escrito al formulario.
+- **Autodiagnóstico:** filas marcables (la fila completa es el objetivo táctil) y una tarjeta de resultado con puntaje, barra y mensaje según el nivel (0, moderado, alto, crítico). El botón lleva las respuestas marcadas al formulario.
+- **Qué incluye:** paneles con anillo y listas con marca, y una franja azul noche final.
+- **Barra de anuncio:** franja superior con la oferta del mes; se puede cerrar y recuerda el cierre durante la visita.
+- **Pop-up:** tarjeta en la esquina o centrada con fondo; se activa por tiempo, al bajar un porcentaje o al intentar salir (en celular, por tiempo); una vez por visita; se cierra con Esc o con su botón.
+- **Colores de peligro:** rojo suave sobre fondo oscuro y rojo profundo sobre fondo claro, para que siempre se lea.

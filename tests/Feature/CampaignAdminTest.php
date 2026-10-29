@@ -183,6 +183,44 @@ class CampaignAdminTest extends TestCase
         $this->assertNull(SectionTypes::imageUrl('http://inseguro.test/x.png'));
     }
 
+    public function test_el_catalogo_incluye_las_piezas_de_marketing(): void
+    {
+        foreach (['promo', 'calculator', 'quiz', 'included', 'popup'] as $type) {
+            $this->assertContains($type, SectionTypes::keys());
+        }
+    }
+
+    public function test_los_campos_numericos_se_limitan_a_su_rango(): void
+    {
+        $clean = SectionTypes::sanitizeContent('calculator', [
+            'people_min' => '3', 'people_max' => 99999999, 'people_default' => -4, 'title' => 'x',
+        ]);
+
+        $this->assertSame(3, $clean['people_min']);
+        $this->assertSame(100000, $clean['people_max']);
+        $this->assertSame(1, $clean['people_default']);
+
+        $popup = SectionTypes::sanitizeContent('popup', ['seconds' => 1, 'trigger' => 'inventado', 'position' => 'center']);
+        $this->assertSame(3, $popup['seconds']);
+        $this->assertSame('delay', $popup['trigger']);
+        $this->assertSame('center', $popup['position']);
+    }
+
+    public function test_la_landing_recibe_la_barra_de_anuncio_la_calculadora_y_el_popup(): void
+    {
+        $campaign = $this->makeCampaign('Con piezas', 'active');
+        $this->addSection($campaign, 'promo', 1);
+        $this->addSection($campaign, 'hero', 2);
+        $this->addSection($campaign, 'calculator', 3);
+        $this->addSection($campaign, 'popup', 4);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->has('sections', 4)
+            ->where('sections.0.type', 'promo')
+            ->where('sections.2.type', 'calculator')
+            ->where('sections.3.type', 'popup'));
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();
@@ -308,7 +346,7 @@ class CampaignAdminTest extends TestCase
         $this->seed(CampaignSeeder::class);
 
         $campaign = Campaign::query()->active()->firstOrFail();
-        $this->assertSame(9, $campaign->sections()->count());
+        $this->assertSame(13, $campaign->sections()->count());
         $this->assertFalse((bool) $campaign->sections()->where('type', 'packages')->value('is_visible'));
     }
 }

@@ -1,4 +1,5 @@
 import { ContactList } from '@/components/landing/footer';
+import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
 import { ctaHref, ctaOf, flag, list, paragraphs, sectionLook, splitStations, text, type CtaContext, type PublicSection } from '@/lib/landing';
 import { type ContactData, type Json, type ThemeData } from '@/types/cms';
@@ -14,6 +15,8 @@ export interface SectionProps {
     preview: boolean;
     /** Corte diagonal sobre la seccion anterior cuando cambia el fondo. */
     cut: 'up' | 'down' | null;
+    /** Contenido que reemplaza la foto de la portada (p. ej. la calculadora). */
+    aside?: ReactNode;
 }
 
 const str = (v: Json | undefined): string => (typeof v === 'string' ? v : '');
@@ -94,7 +97,7 @@ function Head({ section }: { section: PublicSection }) {
 
 // ---- Portada ---------------------------------------------------------------
 
-export function Hero({ section, theme, ctx }: SectionProps) {
+export function Hero({ section, theme, ctx, aside }: SectionProps) {
     const c = section.content;
     const { style } = sectionLook(section.style, theme);
     const image = text(c, 'image');
@@ -106,7 +109,7 @@ export function Hero({ section, theme, ctx }: SectionProps) {
     return (
         <section
             id={section.anchor}
-            className={`lp-hero lp-hero--${position} ${image ? '' : 'lp-hero__nophoto'}`}
+            className={`lp-hero lp-hero--${position} ${aside ? 'lp-hero--aside' : ''} ${image || aside ? '' : 'lp-hero__nophoto'}`}
             style={style}
             aria-labelledby={`h-${section.id}`}
         >
@@ -130,7 +133,8 @@ export function Hero({ section, theme, ctx }: SectionProps) {
                         </div>
                     )}
                 </div>
-                {image && (
+                {aside && <div className="lp-hero__aside">{aside}</div>}
+                {!aside && image && (
                     <div className="lp-photo">
                         <div className="lp-photo__blue" aria-hidden />
                         <img className="lp-photo__img" src={image} alt={text(c, 'image_alt')} />
@@ -450,8 +454,71 @@ export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: 
     );
 }
 
+// ---- Calculadora como sección ------------------------------------------------------------------
+
+export function CalculatorSection({ section, theme, ctx, cut }: SectionProps) {
+    return (
+        <Frame section={section} theme={theme} cut={cut}>
+            <div className="lp-calc-wrap">
+                <Calculator section={section} ctx={ctx} />
+            </div>
+        </Frame>
+    );
+}
+
+// ---- Autodiagnóstico -------------------------------------------------------------------------------
+
+export function QuizSection({ section, theme, ctx, cut }: SectionProps) {
+    return (
+        <Frame section={section} theme={theme} cut={cut}>
+            <Head section={section} />
+            <Quiz section={section} ctx={ctx} />
+        </Frame>
+    );
+}
+
+// ---- Qué incluye --------------------------------------------------------------------------------------
+
+export function Included({ section, theme, cut }: SectionProps) {
+    const c = section.content;
+    const items = list(c, 'items');
+
+    return (
+        <Frame section={section} theme={theme} cut={cut}>
+            <Head section={section} />
+            <ul className="lp-included">
+                {items.map((it, i) => {
+                    const points = str(it.points).split('\n').map((l) => l.trim()).filter(Boolean);
+                    return (
+                        <li key={i} data-reveal="up" style={{ '--i': i } as CSSProperties}>
+                            <h3>{str(it.title)}</h3>
+                            <ul>
+                                {points.map((pt) => (
+                                    <li key={pt}>
+                                        <Check size={18} strokeWidth={3} aria-hidden />
+                                        <span>{pt}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
+                    );
+                })}
+            </ul>
+            {(text(c, 'footer_title') || text(c, 'footer_text')) && (
+                <div className="lp-included__foot" data-reveal="up" style={{ '--i': items.length } as CSSProperties}>
+                    {text(c, 'footer_title') && <h3>{text(c, 'footer_title')}</h3>}
+                    {text(c, 'footer_text') && <p>{text(c, 'footer_text')}</p>}
+                </div>
+            )}
+        </Frame>
+    );
+}
+
 export const RENDERERS: Record<string, (props: SectionProps) => ReactNode> = {
     hero: Hero,
+    calculator: CalculatorSection,
+    quiz: QuizSection,
+    included: Included,
     comparison: Comparison,
     features: Features,
     steps: Steps,

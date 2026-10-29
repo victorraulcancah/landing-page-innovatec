@@ -26,6 +26,8 @@ export function blankValue(field: FieldDef): Json {
     switch (field.type) {
         case 'toggle':
             return false;
+        case 'number':
+            return field.min ?? 0;
         case 'select':
             return Object.keys(field.options ?? {})[0] ?? '';
         case 'cta':
@@ -95,6 +97,21 @@ function FieldControl({ field, value, onChange, error }: FieldControlProps) {
                 <>
                     <Label htmlFor={id}>{field.label}</Label>
                     <Input id={id} value={String(value ?? '')} maxLength={field.max} onChange={(e) => onChange(e.target.value)} />
+                </>,
+            );
+        case 'number':
+            return wrap(
+                <>
+                    <Label htmlFor={id}>{field.label}</Label>
+                    <Input
+                        id={id}
+                        type="number"
+                        inputMode="decimal"
+                        min={field.min}
+                        max={field.max}
+                        value={typeof value === 'number' || typeof value === 'string' ? value : ''}
+                        onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+                    />
                 </>,
             );
         case 'textarea':

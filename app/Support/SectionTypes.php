@@ -177,6 +177,126 @@ class SectionTypes
                 'style' => [self::select('image_position', 'Posición de la imagen', SectionTypes::IMAGE_POSITION)],
                 'defaults' => ['title' => 'Título', 'body' => '', 'image' => null, 'image_alt' => ''],
             ],
+            'promo' => [
+                'label' => 'Barra de anuncio',
+                'description' => 'Franja superior para la oferta del mes. No ocupa lugar en el orden: siempre va arriba del menú.',
+                'content' => [
+                    self::text('text', 'Mensaje', 200),
+                    self::cta('link', 'Enlace'),
+                    self::toggle('dismissible', 'Permitir que el visitante la cierre'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'text' => 'Este mes: agenda tu diagnóstico de TI.',
+                    'link' => ['label' => 'Reservar', 'action' => 'lead_form', 'value' => ''],
+                    'dismissible' => true,
+                ],
+            ],
+            'calculator' => [
+                'label' => 'Calculadora de pérdida',
+                'description' => 'Sliders que calculan cuánto cuesta una caída, con simulación en vivo. Puede ir en la portada (reemplaza la foto) o como sección.',
+                'content' => [
+                    self::text('title', 'Título', 200),
+                    self::toggle('in_hero', 'Mostrar dentro de la portada (en lugar de la foto)'),
+                    self::text('people_label', 'Primer control: texto'),
+                    self::number('people_min', 'Mínimo', 1, 100000),
+                    self::number('people_max', 'Máximo', 1, 100000),
+                    self::number('people_default', 'Valor inicial', 1, 100000),
+                    self::text('people_unit', 'Unidad (ej. personas)', 30),
+                    self::text('hours_label', 'Segundo control: texto'),
+                    self::number('hours_min', 'Mínimo', 1, 1000),
+                    self::number('hours_max', 'Máximo', 1, 1000),
+                    self::number('hours_default', 'Valor inicial', 1, 1000),
+                    self::text('hours_unit', 'Unidad (ej. horas)', 30),
+                    self::text('cost_label', 'Tercer control: texto'),
+                    self::number('cost_min', 'Mínimo', 1, 100000),
+                    self::number('cost_max', 'Máximo', 1, 100000),
+                    self::number('cost_default', 'Valor inicial', 1, 100000),
+                    self::text('currency', 'Moneda (ej. S/)', 6),
+                    self::text('simulate_label', 'Texto del botón de simulación'),
+                    self::text('result_label', 'Texto sobre el resultado'),
+                    self::text('year_note', 'Texto bajo el resultado anual'),
+                    self::textarea('disclaimer', 'Aviso (qué es este cálculo)'),
+                    self::cta('cta', 'Botón final'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'title' => '¿Cuánto te cuesta una caída?', 'in_hero' => false,
+                    'people_label' => 'Personas que dejan de trabajar', 'people_min' => 1, 'people_max' => 100, 'people_default' => 20, 'people_unit' => 'personas',
+                    'hours_label' => 'Horas de caída al mes (sistema, internet, correo)', 'hours_min' => 1, 'hours_max' => 100, 'hours_default' => 6, 'hours_unit' => 'horas',
+                    'cost_label' => 'Costo por persona por hora', 'cost_min' => 5, 'cost_max' => 100, 'cost_default' => 15, 'currency' => 'S/',
+                    'simulate_label' => 'Simular caída', 'result_label' => 'Pagas sueldos sin producir:', 'year_note' => 'al año, sin contar ventas perdidas.',
+                    'disclaimer' => 'Estimación con los valores que tú ajustas; no es una promesa de ahorro.',
+                    'cta' => ['label' => 'Quiero evitar esa pérdida', 'action' => 'lead_form', 'value' => ''],
+                ],
+            ],
+            'quiz' => [
+                'label' => 'Autodiagnóstico',
+                'description' => 'Lista de situaciones que el visitante marca; muestra su nivel de exposición y lo lleva al formulario con sus respuestas.',
+                'content' => [
+                    self::text('title', 'Título', 200),
+                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::list('items', 'Situaciones (el visitante marca las que le pasan)', [
+                        self::text('text', 'Situación'),
+                    ], 'text'),
+                    self::textarea('msg_zero', 'Mensaje con 0 marcadas'),
+                    self::textarea('msg_low', 'Mensaje con 1 o 2 marcadas'),
+                    self::textarea('msg_high', 'Mensaje con 3 o 4 marcadas'),
+                    self::textarea('msg_critical', 'Mensaje con 5 o más marcadas'),
+                    self::text('cta_label', 'Botón con puntos marcados (usa {n} para la cantidad)'),
+                    self::text('cta_empty', 'Botón sin puntos marcados'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'title' => '¿Qué tan expuesta está tu empresa?', 'subtitle' => '',
+                    'items' => [['text' => 'Situación']],
+                    'msg_zero' => 'Marca lo que se parece a tu empresa y mira tu nivel de exposición.',
+                    'msg_low' => 'Exposición moderada: conviene ordenar estos puntos antes de que fallen.',
+                    'msg_high' => 'Exposición alta: una falla te tomaría por sorpresa.',
+                    'msg_critical' => 'Riesgo crítico: tu empresa depende de la suerte.',
+                    'cta_label' => 'Revisar mis {n} puntos con un experto', 'cta_empty' => 'Agenda tu diagnóstico',
+                ],
+            ],
+            'included' => [
+                'label' => 'Qué incluye',
+                'description' => 'Paneles con lo que recibe el cliente, en listas con marcas, y una franja final.',
+                'content' => [
+                    self::text('title', 'Título', 200),
+                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::list('items', 'Paneles', [
+                        self::text('title', 'Título del panel'),
+                        self::textarea('points', 'Puntos (una línea por punto)'),
+                    ], 'title'),
+                    self::text('footer_title', 'Franja final: título'),
+                    self::textarea('footer_text', 'Franja final: texto'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'title' => 'Todo lo que recibes', 'subtitle' => '',
+                    'items' => [['title' => 'Panel', 'points' => '']],
+                    'footer_title' => '', 'footer_text' => '',
+                ],
+            ],
+            'popup' => [
+                'label' => 'Pop-up',
+                'description' => 'Aviso emergente que aparece por tiempo, al bajar o al intentar salir. No ocupa lugar en el orden.',
+                'content' => [
+                    self::text('title', 'Título', 120),
+                    self::textarea('text', 'Texto'),
+                    self::cta('button', 'Botón'),
+                    self::select('trigger', 'Cuándo aparece', ['delay' => 'Después de unos segundos', 'scroll' => 'Al bajar cierto porcentaje', 'exit' => 'Al intentar salir (en celular, por tiempo)']),
+                    self::number('seconds', 'Segundos de espera', 3, 600),
+                    self::number('scroll_percent', 'Porcentaje de página', 10, 95),
+                    self::select('position', 'Ubicación', ['corner' => 'Esquina inferior', 'center' => 'Centro con fondo oscuro']),
+                    self::toggle('once', 'Mostrar una sola vez por visita'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'title' => '¿Hablamos?', 'text' => '',
+                    'button' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],
+                    'trigger' => 'delay', 'seconds' => 30, 'scroll_percent' => 50, 'position' => 'corner', 'once' => true,
+                ],
+            ],
             'cta' => [
                 'label' => 'Llamado final',
                 'description' => 'Cierre con botón y formulario de contacto.',
@@ -276,6 +396,7 @@ class SectionTypes
                 'text' => self::str($value, $f['max'] ?? 300),
                 'textarea' => self::str($value, 4000),
                 'toggle' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
+                'number' => self::num($value, (float) ($f['min'] ?? 0), (float) ($f['max'] ?? 1000000)),
                 'select' => array_key_exists((string) $value, $f['options']) ? (string) $value : (string) array_key_first($f['options']),
                 'color' => self::color_value($value, true),
                 'image' => self::imageUrl($value),
@@ -310,6 +431,14 @@ class SectionTypes
             'action' => array_key_exists($action, SiteDefaults::CTA_ACTIONS) ? $action : 'lead_form',
             'value' => self::str($value['value'] ?? '', 500),
         ];
+    }
+
+    public static function num(mixed $value, float $min, float $max): int|float
+    {
+        $n = is_numeric($value) ? (float) $value : $min;
+        $n = max($min, min($max, $n));
+
+        return floor($n) == $n ? (int) $n : round($n, 2);
     }
 
     public static function str(mixed $value, int $max = 300): string
@@ -351,6 +480,11 @@ class SectionTypes
     private static function textarea(string $key, string $label): array
     {
         return ['key' => $key, 'label' => $label, 'type' => 'textarea'];
+    }
+
+    private static function number(string $key, string $label, float $min, float $max): array
+    {
+        return ['key' => $key, 'label' => $label, 'type' => 'number', 'min' => $min, 'max' => $max];
     }
 
     private static function toggle(string $key, string $label): array

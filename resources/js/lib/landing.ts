@@ -63,7 +63,15 @@ export function sectionLook(style: SectionStyle, theme: ThemeData): SectionLook 
 
     return {
         dark,
-        style: { '--bg': bg, '--fg': fg, '--line': line, '--btn-bg': btnBg, '--btn-fg': btnFg } as CSSProperties,
+        style: {
+            '--bg': bg,
+            '--fg': fg,
+            '--line': line,
+            '--btn-bg': btnBg,
+            '--btn-fg': btnFg,
+            '--danger': dark ? '#ff8a7a' : '#b42318',
+            '--danger-ink': dark ? theme.dark : '#ffffff',
+        } as CSSProperties,
     };
 }
 

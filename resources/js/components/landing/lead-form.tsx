@@ -1,6 +1,7 @@
+import { clearPrefill, getPrefill } from '@/lib/prefill';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 interface LeadFormProps {
     campaignId: number | null;
@@ -27,12 +28,23 @@ export function LeadForm({ campaignId, buttonLabel, preview }: LeadFormProps) {
         campaign_id: campaignId,
     });
 
+    // Resultados de la calculadora o del autodiagnóstico llegan escritos en el mensaje.
+    useEffect(() => {
+        const initial = getPrefill();
+        if (initial) setData('message', initial);
+        const onPrefill = (e: Event) => setData('message', String((e as CustomEvent<string>).detail ?? ''));
+        window.addEventListener('lp:prefill', onPrefill);
+        return () => window.removeEventListener('lp:prefill', onPrefill);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         if (preview) return;
         post(route('leads.store'), {
             preserveScroll: true,
             onSuccess: () => {
+                clearPrefill();
                 setSent(true);
                 reset();
             },
