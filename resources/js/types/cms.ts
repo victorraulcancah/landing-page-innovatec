@@ -71,6 +71,7 @@ export type ThemeData = {
     heading_font: string;
     body_font: string;
     radius: 'none' | 'sm' | 'md' | 'lg' | 'full';
+    motion: 'full' | 'subtle' | 'none';
 };
 
 export type NavbarData = {

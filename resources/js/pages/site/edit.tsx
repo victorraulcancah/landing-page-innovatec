@@ -23,6 +23,7 @@ interface Props {
     colorTokens: Record<string, string>;
     fonts: Record<string, string>;
     radii: Record<string, string>;
+    motions: Record<string, string>;
     ctaActions: Record<string, string>;
     anchors: { anchor: string; label: string }[];
 }
@@ -71,7 +72,7 @@ export default function SiteEdit(props: Props) {
                     {tab === 'navbar' && <NavbarForm navbar={props.navbar} ctaActions={props.ctaActions} anchors={props.anchors} />}
                     {tab === 'footer' && <FooterForm footer={props.footer} />}
                 </ColorTokensProvider>
-                {tab === 'theme' && <ThemeForm theme={props.theme} themeColors={props.themeColors} fonts={props.fonts} radii={props.radii} />}
+                {tab === 'theme' && <ThemeForm theme={props.theme} themeColors={props.themeColors} fonts={props.fonts} radii={props.radii} motions={props.motions} />}
                 {tab === 'contact' && <ContactForm contact={props.contact} />}
             </div>
         </AppLayout>
@@ -222,7 +223,7 @@ function NavbarForm({ navbar, ctaActions, anchors }: { navbar: NavbarData; ctaAc
     );
 }
 
-function ThemeForm({ theme, themeColors, fonts, radii }: { theme: ThemeData; themeColors: Record<string, string>; fonts: Record<string, string>; radii: Record<string, string> }) {
+function ThemeForm({ theme, themeColors, fonts, radii, motions }: { theme: ThemeData; themeColors: Record<string, string>; fonts: Record<string, string>; radii: Record<string, string>; motions: Record<string, string> }) {
     const { data, setData, put, processing, errors, isDirty } = useForm<ThemeData>({ ...theme });
 
     return (
@@ -276,6 +277,17 @@ function ThemeForm({ theme, themeColors, fonts, radii }: { theme: ThemeData; the
                                 </option>
                             ))}
                         </NativeSelect>
+                    </div>
+                    <div className="grid gap-1.5 sm:col-span-3 sm:max-w-xs">
+                        <Label htmlFor="motion">Animaciones de la landing</Label>
+                        <NativeSelect id="motion" value={data.motion} onChange={(e) => setData('motion', e.target.value as ThemeData['motion'])}>
+                            {Object.entries(motions).map(([value, text]) => (
+                                <option key={value} value={value}>
+                                    {text}
+                                </option>
+                            ))}
+                        </NativeSelect>
+                        <p className="text-muted-foreground text-sm">Si el visitante pidió «reducir movimiento» en su equipo, se muestran solo aparecer, sin desplazamientos.</p>
                     </div>
                 </div>
             </fieldset>

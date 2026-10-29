@@ -1,6 +1,7 @@
 import { resolveColor, readableOn, sectionLook, whatsappHref } from '@/lib/landing';
 import { type ContactData, type FooterData, type ThemeData } from '@/types/cms';
 import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { type CSSProperties } from 'react';
 
 export function ContactList({ contact }: { contact: ContactData }) {
     const phoneDigits = contact.phone.replace(/[^\d+]/g, '');
@@ -15,8 +16,8 @@ export function ContactList({ contact }: { contact: ContactData }) {
 
     return (
         <ul className="lp-contact">
-            {items.map(({ icon: Icon, label, text, href }) => (
-                <li key={label}>
+            {items.map(({ icon: Icon, label, text, href }, index) => (
+                <li key={label} data-reveal="up" style={{ '--i': index + 2 } as CSSProperties}>
                     <Icon size={20} aria-hidden />
                     <span>
                         <span className="sr-only">{label}: </span>

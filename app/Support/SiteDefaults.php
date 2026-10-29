@@ -34,6 +34,8 @@ class SiteDefaults
         'Source Serif 4' => 'Source Serif 4',
     ];
 
+    public const MOTIONS = ['full' => 'Completas', 'subtle' => 'Suaves (solo aparecer)', 'none' => 'Ninguna'];
+
     public const RADII = ['none' => 'Rectos', 'sm' => 'Suaves', 'md' => 'Medios', 'lg' => 'Redondeados', 'full' => 'Píldora'];
 
     public const CTA_ACTIONS = [
@@ -78,6 +80,7 @@ class SiteDefaults
             'heading_font' => 'Sora',
             'body_font' => 'Public Sans',
             'radius' => 'md',
+            'motion' => 'full',
         ];
     }
 

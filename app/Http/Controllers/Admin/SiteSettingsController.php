@@ -27,6 +27,7 @@ class SiteSettingsController extends Controller
             'themeColors' => SiteDefaults::THEME_COLORS,
             'fonts' => SiteDefaults::FONTS,
             'radii' => SiteDefaults::RADII,
+            'motions' => SiteDefaults::MOTIONS,
             'ctaActions' => SiteDefaults::CTA_ACTIONS,
             'colorTokens' => SectionTypes::COLOR_TOKENS,
             'anchors' => $active
@@ -56,6 +57,7 @@ class SiteSettingsController extends Controller
         $rules['heading_font'] = ['required', Rule::in(array_keys(SiteDefaults::FONTS))];
         $rules['body_font'] = ['required', Rule::in(array_keys(SiteDefaults::FONTS))];
         $rules['radius'] = ['required', Rule::in(array_keys(SiteDefaults::RADII))];
+        $rules['motion'] = ['required', Rule::in(array_keys(SiteDefaults::MOTIONS))];
 
         $data = $request->validate($rules, ['*.regex' => 'Usa un color en formato #RRGGBB.']);
 

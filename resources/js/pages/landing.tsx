@@ -4,9 +4,10 @@ import { Footer } from '@/components/landing/footer';
 import { Navbar } from '@/components/landing/navbar';
 import { RENDERERS } from '@/components/landing/sections';
 import { fontHref, fontStack, radiusVars, sectionLook, type CtaContext, type PublicSection } from '@/lib/landing';
+import { useMotion } from '@/lib/use-motion';
 import { type ContactData, type FooterData, type NavbarData, type ThemeData } from '@/types/cms';
 import { Head, Link } from '@inertiajs/react';
-import { type CSSProperties } from 'react';
+import { type CSSProperties, useRef } from 'react';
 
 interface Props {
     campaign: { id: number; name: string; meta_title: string | null; meta_description: string | null } | null;
@@ -19,6 +20,9 @@ interface Props {
 }
 
 export default function Landing({ campaign, sections, theme, navbar, contact, footer, preview }: Props) {
+    const rootRef = useRef<HTMLDivElement>(null);
+    useMotion(rootRef, theme.motion ?? 'full', sections.map((s) => s.id).join(','));
+
     const formSection = sections.find((s) => s.type === 'cta' && s.content.show_form === true) ?? sections.find((s) => s.type === 'cta');
     const ctx: CtaContext = { contact, formAnchor: formSection?.anchor ?? 'contacto' };
 
@@ -41,7 +45,7 @@ export default function Landing({ campaign, sections, theme, navbar, contact, fo
     const title = campaign?.meta_title || campaign?.name || navbar.brand_text;
 
     return (
-        <div className="lp" id="top" style={rootStyle}>
+        <div className="lp" id="top" style={rootStyle} ref={rootRef} data-motion={theme.motion ?? 'full'}>
             <Head title={title}>
                 {campaign?.meta_description && <meta name="description" content={campaign.meta_description} />}
                 {fonts && <link rel="preconnect" href="https://fonts.bunny.net" crossOrigin="anonymous" />}
