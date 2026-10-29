@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+// La landing publica aun no se construye: por ahora la raiz lleva al panel.
+Route::redirect('/', '/login')->name('home');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
