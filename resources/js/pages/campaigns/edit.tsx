@@ -1,4 +1,4 @@
-import { ColorField } from '@/components/admin/color-field';
+import { ColorField, ColorTokensProvider } from '@/components/admin/color-field';
 import { SchemaForm } from '@/components/admin/schema-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ interface Props {
     sections: CampaignSectionData[];
     schema: SectionSchema;
     themeColors: Record<string, string>;
+    colorTokens: Record<string, string>;
     globalTheme: ThemeData;
     fonts: Record<string, string>;
     radii: Record<string, string>;
@@ -26,9 +27,14 @@ interface Props {
 
 type Tab = 'sections' | 'settings';
 
-export default function CampaignEdit({ campaign, sections, schema, themeColors, globalTheme, fonts, radii, statuses }: Props) {
+export default function CampaignEdit({ campaign, sections, schema, themeColors, colorTokens, globalTheme, fonts, radii, statuses }: Props) {
     const [tab, setTab] = useState<Tab>('sections');
     const [openId, setOpenId] = useState<number | null>(sections[0]?.id ?? null);
+
+    // Colores reales de la campaña (tema del sitio + sus cambios) para las muestras del selector.
+    const resolvedTheme = Object.fromEntries(
+        Object.keys(colorTokens).map((key) => [key, (campaign.theme?.[key as keyof ThemeData] as string | undefined) || (globalTheme[key as keyof ThemeData] as string)]),
+    );
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Campañas', href: '/campanas' },
@@ -90,7 +96,9 @@ export default function CampaignEdit({ campaign, sections, schema, themeColors, 
                 </div>
 
                 {tab === 'sections' ? (
-                    <SectionsTab campaignId={campaign.id} sections={sections} schema={schema} openId={openId} setOpenId={setOpenId} />
+                    <ColorTokensProvider value={{ labels: colorTokens, theme: resolvedTheme }}>
+                        <SectionsTab campaignId={campaign.id} sections={sections} schema={schema} openId={openId} setOpenId={setOpenId} />
+                    </ColorTokensProvider>
                 ) : (
                     <SettingsTab campaign={campaign} themeColors={themeColors} globalTheme={globalTheme} fonts={fonts} radii={radii} />
                 )}
@@ -403,6 +411,7 @@ function SettingsTab({
                             value={data.theme[key] ?? null}
                             inherited={globalTheme[key as keyof ThemeData] as string}
                             optional
+                            plain
                             onChange={(v) => setTheme(key, v)}
                         />
                     ))}

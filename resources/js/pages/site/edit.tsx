@@ -1,4 +1,4 @@
-import { ColorField } from '@/components/admin/color-field';
+import { ColorField, ColorTokensProvider } from '@/components/admin/color-field';
 import { ImageField } from '@/components/admin/image-field';
 import { CtaControl, SchemaForm } from '@/components/admin/schema-form';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ interface Props {
     contact: ContactData;
     footer: FooterData;
     themeColors: Record<string, string>;
+    colorTokens: Record<string, string>;
     fonts: Record<string, string>;
     radii: Record<string, string>;
     ctaActions: Record<string, string>;
@@ -66,10 +67,12 @@ export default function SiteEdit(props: Props) {
                     ))}
                 </div>
 
-                {tab === 'navbar' && <NavbarForm navbar={props.navbar} ctaActions={props.ctaActions} anchors={props.anchors} />}
+                <ColorTokensProvider value={{ labels: props.colorTokens, theme: props.theme as unknown as Record<string, string> }}>
+                    {tab === 'navbar' && <NavbarForm navbar={props.navbar} ctaActions={props.ctaActions} anchors={props.anchors} />}
+                    {tab === 'footer' && <FooterForm footer={props.footer} />}
+                </ColorTokensProvider>
                 {tab === 'theme' && <ThemeForm theme={props.theme} themeColors={props.themeColors} fonts={props.fonts} radii={props.radii} />}
                 {tab === 'contact' && <ContactForm contact={props.contact} />}
-                {tab === 'footer' && <FooterForm footer={props.footer} />}
             </div>
         </AppLayout>
     );
@@ -235,7 +238,7 @@ function ThemeForm({ theme, themeColors, fonts, radii }: { theme: ThemeData; the
                 <div className="grid gap-4 sm:grid-cols-2">
                     {Object.entries(themeColors).map(([key, label]) => (
                         <div key={key} className="grid gap-1.5">
-                            <ColorField label={label} value={data[key as keyof ThemeData] as string} onChange={(v) => v && setData(key as keyof ThemeData, v as never)} />
+                            <ColorField label={label} plain value={data[key as keyof ThemeData] as string} onChange={(v) => v && setData(key as keyof ThemeData, v as never)} />
                             <Err message={errors[key as keyof ThemeData]} />
                         </div>
                     ))}

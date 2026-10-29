@@ -144,6 +144,45 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('lg', $section->style['padding']);
     }
 
+    public function test_los_colores_de_una_seccion_admiten_nombres_del_tema_pero_no_cualquier_texto(): void
+    {
+        $this->login();
+        $section = $this->addSection($this->makeCampaign(), 'hero', 1);
+
+        $this->put(route('sections.update', $section), [
+            'is_visible' => true, 'anchor' => 'inicio', 'content' => ['title' => 'Hola'],
+            'style' => ['bg_color' => 'dark', 'text_color' => 'inventado', 'accent_color' => '#FF9C34'],
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $section->refresh();
+        $this->assertSame('dark', $section->style['bg_color']);
+        $this->assertNull($section->style['text_color']);
+        $this->assertSame('#ff9c34', $section->style['accent_color']);
+    }
+
+    public function test_el_tema_de_una_campana_no_acepta_nombres_de_color_solo_hexadecimales(): void
+    {
+        $this->login();
+        $campaign = $this->makeCampaign('Tema', 'active');
+
+        $this->put(route('campaigns.update', $campaign), [
+            'name' => 'Tema', 'slug' => $campaign->slug, 'theme' => ['primary' => 'dark', 'accent' => '#123456'],
+        ])->assertSessionHasNoErrors();
+
+        $theme = $campaign->fresh()->theme;
+        $this->assertNull($theme['primary']);
+        $this->assertSame('#123456', $theme['accent']);
+    }
+
+    public function test_solo_se_aceptan_imagenes_de_rutas_conocidas(): void
+    {
+        $this->assertSame('/brand/uco360-logo.png', SectionTypes::imageUrl('/brand/uco360-logo.png'));
+        $this->assertSame('/uploads/a1b2.jpg', SectionTypes::imageUrl('/uploads/a1b2.jpg'));
+        $this->assertNull(SectionTypes::imageUrl('/uploads/../../.env'));
+        $this->assertNull(SectionTypes::imageUrl('/etc/passwd'));
+        $this->assertNull(SectionTypes::imageUrl('http://inseguro.test/x.png'));
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();

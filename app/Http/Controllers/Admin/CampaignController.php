@@ -64,6 +64,7 @@ class CampaignController extends Controller
             ])->values(),
             'schema' => SectionTypes::schemaForClient(),
             'themeColors' => SiteDefaults::THEME_COLORS,
+            'colorTokens' => SectionTypes::COLOR_TOKENS,
             'globalTheme' => Setting::get('theme'),
             'fonts' => SiteDefaults::FONTS,
             'radii' => SiteDefaults::RADII,

@@ -41,8 +41,8 @@ class SectionController extends Controller
 
         $section->update([
             'is_visible' => $data['is_visible'],
-            'anchor' => $data['anchor'] ?: null,
-            'nav_label' => $data['nav_label'] ?: null,
+            'anchor' => ($data['anchor'] ?? null) ?: null,
+            'nav_label' => ($data['nav_label'] ?? null) ?: null,
             'content' => SectionTypes::sanitizeContent($section->type, $data['content']),
             'style' => SectionTypes::sanitizeStyle($section->type, $data['style']),
         ]);

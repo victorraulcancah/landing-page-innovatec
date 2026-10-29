@@ -28,6 +28,7 @@ class SiteSettingsController extends Controller
             'fonts' => SiteDefaults::FONTS,
             'radii' => SiteDefaults::RADII,
             'ctaActions' => SiteDefaults::CTA_ACTIONS,
+            'colorTokens' => SectionTypes::COLOR_TOKENS,
             'anchors' => $active
                 ? $active->sections()->get(['anchor', 'nav_label', 'type', 'id'])->map(fn ($s) => [
                     'anchor' => $s->anchor ?: 'seccion-'.$s->id,
@@ -75,8 +76,8 @@ class SiteSettingsController extends Controller
             'links.*.target' => ['required', 'string', 'max:300'],
             'show_cta' => ['required', 'boolean'],
             'cta' => ['required', 'array'],
-            'bg_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
-            'text_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'bg_color' => ['nullable', 'string', 'max:20'],
+            'text_color' => ['nullable', 'string', 'max:20'],
             'sticky' => ['required', 'boolean'],
             'border' => ['required', 'boolean'],
         ], [
@@ -95,8 +96,8 @@ class SiteSettingsController extends Controller
                 'target' => SectionTypes::str($l['target'], 300),
             ])->values()->all(),
             'cta' => SectionTypes::sanitizeCta($data['cta']),
-            'bg_color' => SectionTypes::color_value($data['bg_color'] ?? null),
-            'text_color' => SectionTypes::color_value($data['text_color'] ?? null),
+            'bg_color' => SectionTypes::color_value($data['bg_color'] ?? null, true),
+            'text_color' => SectionTypes::color_value($data['text_color'] ?? null, true),
         ];
     }
 
@@ -120,16 +121,16 @@ class SiteSettingsController extends Controller
             'text' => ['nullable', 'string', 'max:200'],
             'legal' => ['nullable', 'string', 'max:200'],
             'show_contact' => ['required', 'boolean'],
-            'bg_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
-            'text_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'bg_color' => ['nullable', 'string', 'max:20'],
+            'text_color' => ['nullable', 'string', 'max:20'],
         ], ['*.regex' => 'Usa un color en formato #RRGGBB.']);
 
         return [
             'text' => SectionTypes::str($data['text'] ?? '', 200),
             'legal' => SectionTypes::str($data['legal'] ?? '', 200),
             'show_contact' => $data['show_contact'],
-            'bg_color' => SectionTypes::color_value($data['bg_color'] ?? null),
-            'text_color' => SectionTypes::color_value($data['text_color'] ?? null),
+            'bg_color' => SectionTypes::color_value($data['bg_color'] ?? null, true),
+            'text_color' => SectionTypes::color_value($data['text_color'] ?? null, true),
         ];
     }
 }

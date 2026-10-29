@@ -66,6 +66,8 @@ export type ThemeData = {
     surface: string;
     text: string;
     muted: string;
+    dark: string;
+    on_dark: string;
     heading_font: string;
     body_font: string;
     radius: 'none' | 'sm' | 'md' | 'lg' | 'full';

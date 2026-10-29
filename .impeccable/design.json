@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-29T00:00:00Z",
+  "title": "Design System: UCO360 Landing",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Azul Línea", "canonical": "#1c53ee", "tonalRamp": ["#0a1f6b", "#0f2f9e", "#1440cc", "#1c53ee", "#4f78f2", "#829ff6", "#b5c6fa", "#e4eafd"] },
+      "accent": { "role": "secondary", "displayName": "Naranja Señal", "canonical": "#ff9c34", "tonalRamp": ["#5c2f00", "#8f4b05", "#c26d10", "#ff9c34", "#ffae59", "#ffc487", "#ffdbb4", "#fff1e2"] },
+      "dark": { "role": "neutral", "displayName": "Azul Noche", "canonical": "#161443", "tonalRamp": ["#0a092a", "#161443", "#2a2766", "#403d88", "#6764a8", "#9391c5", "#c2c1e0", "#e9e9f4"] },
+      "surface": { "role": "neutral", "displayName": "Celeste Andén", "canonical": "#e8f9ff", "tonalRamp": ["#4b8ca3", "#74b3c9", "#9bd0e3", "#bde4f1", "#d3effa", "#e8f9ff", "#f2fcff", "#fafeff"] },
+      "muted": { "role": "neutral", "displayName": "Pizarra", "canonical": "#334155", "tonalRamp": ["#0f1520", "#1b2432", "#263140", "#334155", "#566478", "#808c9d", "#b0b8c4", "#e0e4e9"] },
+      "background": { "role": "neutral", "displayName": "Blanco", "canonical": "#ffffff", "tonalRamp": ["#6b6b6b", "#8c8c8c", "#adadad", "#c9c9c9", "#e0e0e0", "#f0f0f0", "#f8f8f8", "#ffffff"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Titular de portada (h1), Sora 800." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de sección." },
+      "title": { "displayName": "Title", "purpose": "Estaciones, tickets, botones y panel del formulario." },
+      "body": { "displayName": "Body", "purpose": "Texto de apoyo y prosa en Public Sans." },
+      "label": { "displayName": "Label", "purpose": "Cartel de estación y rótulos pequeños." }
+    },
+    "shadows": [
+      { "name": "nav-panel", "value": "0 18px 30px -18px rgb(0 0 0 / 0.35)", "purpose": "Panel del menú móvil." },
+      { "name": "form-panel", "value": "0 30px 60px -30px rgb(0 0 0 / 0.55)", "purpose": "Panel del formulario sobre la sección final." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Botones, llegada de estaciones, dibujo de la línea (1s)." },
+      { "name": "arrive-stagger", "value": "0.7s, delay 0.35s + 0.25s por estación", "purpose": "Estaciones de la portada; solo sin reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "form-row", "value": "560px" },
+      { "name": "compare-stack", "value": "720px (max)" },
+      { "name": "route-horizontal", "value": "900px" },
+      { "name": "cta-form", "value": "960px" },
+      { "name": "hero-split", "value": "1024px" },
+      { "name": "nav-full", "value": "1100px" }
+    ],
+    "radiusScale": { "none": "0/0", "sm": "4/6", "md": "10/12 (default)", "lg": "18/22", "full": "24/999", "note": "card/button" },
+    "colorTokenNames": ["background", "surface", "primary", "accent", "dark", "text", "muted", "on_primary", "on_dark"]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Botón principal; azul sobre claro, naranja sobre oscuro.",
+      "html": "<a class=\"ds-btn\" href=\"#\">Agenda tu diagnóstico</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:.7rem 1.5rem;border:2px solid #1c53ee;border-radius:12px;background:#1c53ee;color:#fff;font-family:Sora,system-ui,sans-serif;font-weight:700;font-size:1rem;line-height:1.2;text-decoration:none;transition:transform .2s cubic-bezier(.16,1,.3,1),filter .2s}.ds-btn:hover{transform:translateY(-2px);filter:brightness(1.07)}.ds-btn:focus-visible{outline:3px solid #1c53ee;outline-offset:3px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Secundario sobre azul noche.",
+      "html": "<div class=\"ds-night\"><a class=\"ds-ghost\" href=\"#\">Ver el recorrido</a></div>",
+      "css": ".ds-night{background:#161443;padding:1.5rem}.ds-ghost{display:inline-flex;align-items:center;min-height:48px;padding:.7rem 1.5rem;border:2px solid rgb(255 255 255/.45);border-radius:12px;color:#fff;font-family:Sora,system-ui,sans-serif;font-weight:700;text-decoration:none}.ds-ghost:hover{background:rgb(255 255 255/.1)}.ds-ghost:focus-visible{outline:3px solid #ff9c34;outline-offset:3px}"
+    },
+    {
+      "name": "Cartel de estación",
+      "kind": "custom",
+      "refersTo": "station-sign",
+      "description": "Etiqueta invertida con el nombre de la estación.",
+      "html": "<span class=\"ds-sign\">Soporte</span>",
+      "css": ".ds-sign{display:inline-block;padding:.3rem .75rem;border-radius:6px;background:#161443;color:#fff;font-family:Sora,system-ui,sans-serif;font-weight:700;font-size:.8125rem;line-height:1.3}"
+    },
+    {
+      "name": "Línea con anillos",
+      "kind": "custom",
+      "refersTo": "ring",
+      "description": "Recorrido: anillos unidos por una barra de 8px con extremos redondos, con cartel.",
+      "html": "<div class=\"ds-line\"><span class=\"ds-ring\"></span><span class=\"ds-ring\"></span><span class=\"ds-term\"></span></div>",
+      "css": ".ds-line{position:relative;display:flex;justify-content:space-between;align-items:center;width:320px;padding:8px;background:#161443}.ds-line::before{content:'';position:absolute;left:20px;right:20px;top:50%;height:8px;margin-top:-4px;border-radius:8px;background:#ff9c34}.ds-ring{position:relative;z-index:2;width:30px;height:30px;box-sizing:border-box;border-radius:50%;border:7px solid #ff9c34;background:#161443}.ds-term{position:relative;z-index:2;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,#161443 0 8px,#ff9c34 9px)}"
+    },
+    {
+      "name": "Ticket de paquete",
+      "kind": "card",
+      "refersTo": "ticket",
+      "description": "Tarjeta de paquete; la variante destacada va en azul noche.",
+      "html": "<div class=\"ds-ticket\"><h3>Esencial</h3><p>Soporte mensual</p></div>",
+      "css": ".ds-ticket{display:flex;flex-direction:column;gap:1rem;padding:1.75rem;border-radius:10px;background:#f4f4f9;border:1px solid rgb(22 20 67/.14);color:#161443;font-family:'Public Sans',system-ui,sans-serif}.ds-ticket h3{margin:0;font-family:Sora,system-ui,sans-serif;font-size:1.5rem;font-weight:800}.ds-ticket p{margin:0}"
+    },
+    {
+      "name": "Campo de formulario",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de 48px con foco azul.",
+      "html": "<label class=\"ds-field\">Correo<input class=\"ds-input\" type=\"email\" placeholder=\"tu@empresa.com\"></label>",
+      "css": ".ds-field{display:grid;gap:.4rem;font-weight:600;font-size:.9375rem;color:#161443;font-family:'Public Sans',system-ui,sans-serif}.ds-input{min-height:48px;padding:.7rem .9rem;border:2px solid rgb(22 20 67/.3);border-radius:12px;background:#fff;color:#161443;font:inherit;font-weight:400}.ds-input:focus-visible{outline:3px solid #1c53ee;outline-offset:1px;border-color:#1c53ee}"
+    },
+    {
+      "name": "Navbar",
+      "kind": "nav",
+      "refersTo": "navbar",
+      "description": "Barra de 72px con marca, enlaces y CTA; subrayado de 3px en la sección activa.",
+      "html": "<nav class=\"ds-nav\"><b class=\"ds-brand\">UCO360</b><a class=\"ds-link\" aria-current=\"true\" href=\"#\">Servicios</a><a class=\"ds-link\" href=\"#\">Preguntas</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:1.25rem;min-height:72px;padding:0 1.25rem;background:#fff;color:#161443;font-family:'Public Sans',system-ui,sans-serif}.ds-brand{font-family:Sora,system-ui,sans-serif;font-weight:800;font-size:1.375rem;letter-spacing:-.02em}.ds-link{position:relative;padding:.5rem .85rem;border-radius:12px;color:inherit;font-weight:600;font-size:.95rem;text-decoration:none}.ds-link:hover{background:rgb(22 20 67/.09)}.ds-link[aria-current=true]::after{content:'';position:absolute;left:.85rem;right:.85rem;bottom:1px;height:3px;border-radius:3px;background:#1c53ee}"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Línea UCO360",
+    "overview": "El servicio es una línea de transporte: estaciones (soporte, infraestructura, seguridad, gestión), un recorrido continuo y una terminal que es el diagnóstico. La interfaz toma su material de la señalética de estación de Lima: azul noche como túnel, una línea gruesa de extremos redondos, anillos como estaciones, carteles de estación con esquinas suaves y hojas diagonales del brochure como cortes entre secciones.",
+    "keyCharacteristics": [
+      "Una línea (8px, extremos redondos) conecta anillos en portada, pasos y llamado final.",
+      "Cada sección declara --bg, --fg, --line y --btn-*; sobre oscuro la línea y el botón pasan a naranja.",
+      "Plana por defecto: profundidad por cambio de fondo y cortes diagonales.",
+      "Las diagonales son la única geometría no ortogonal."
+    ],
+    "rules": [
+      { "name": "The Color-By-Name Rule", "body": "Las secciones guardan un nombre de color (background, surface, primary, accent, dark, text, muted, on_primary, on_dark) o un hex; el nombre se resuelve contra el tema vigente.", "section": "colors" },
+      { "name": "The Readable-Ink Rule", "body": "El texto de cada sección se elige por contraste entre on_dark y text; el texto de botón es blanco o dark.", "section": "colors" },
+      { "name": "The Orange-On-Night Rule", "body": "Línea y botón son azul sobre claro y naranja sobre oscuro.", "section": "colors" },
+      { "name": "The Heavy-Head Rule", "body": "Titulares y números destacados son Sora 800 con tracking negativo.", "section": "typography" },
+      { "name": "The Flat-Tunnel Rule", "body": "Tarjetas y tickets se separan con tinte y borde de 1px, no con sombra.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do colorear secciones por nombre del tema.",
+      "Do usar la línea de 8px con anillos para toda secuencia.",
+      "Do mantener botones de 48px mínimo y foco visible de 3px.",
+      "Do respetar prefers-reduced-motion en la animación de la línea."
+    ],
+    "donts": [
+      "Don't repetir tres tarjetas de ícono iguales.",
+      "Don't usar azul sobre azul noche ni naranja sobre blanco como texto.",
+      "Don't introducir sombras de decoración.",
+      "Don't inventar clientes, cifras ni precios."
+    ]
+  }
+}

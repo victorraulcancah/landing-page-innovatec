@@ -16,6 +16,8 @@ class SiteDefaults
         'surface' => 'Fondo de tarjetas',
         'text' => 'Color del texto',
         'muted' => 'Texto secundario',
+        'dark' => 'Fondo oscuro (secciones destacadas)',
+        'on_dark' => 'Texto sobre fondo oscuro',
     ];
 
     public const FONTS = [
@@ -62,17 +64,19 @@ class SiteDefaults
 
     public static function theme(): array
     {
-        // Paleta provisional: se reemplaza por los colores de la marca desde el panel.
+        // Paleta del brochure de UCO360 (azul, naranja y azul noche); editable desde el panel.
         return [
-            'primary' => '#1f4fd8',
+            'primary' => '#1c53ee',
             'on_primary' => '#ffffff',
-            'accent' => '#0f9d8a',
+            'accent' => '#ff9c34',
             'background' => '#ffffff',
-            'surface' => '#f3f5f9',
-            'text' => '#111827',
-            'muted' => '#5b6475',
-            'heading_font' => 'system',
-            'body_font' => 'system',
+            'surface' => '#e8f9ff',
+            'text' => '#161443',
+            'muted' => '#334155',
+            'dark' => '#161443',
+            'on_dark' => '#ffffff',
+            'heading_font' => 'Sora',
+            'body_font' => 'Public Sans',
             'radius' => 'md',
         ];
     }
@@ -82,7 +86,7 @@ class SiteDefaults
         return [
             'brand_text' => 'UCO360',
             'brand_sub' => 'by PROINNOVATEC',
-            'logo' => null,
+            'logo' => '/brand/uco360-logo.png',
             'logo_position' => 'left',
             'links_mode' => 'auto',
             'links_align' => 'right',
@@ -113,7 +117,7 @@ class SiteDefaults
         return [
             'text' => 'UCO360 · Tu área de TI externa',
             'legal' => 'PROINNOVATEC by Grupo CAME',
-            'show_contact' => true,
+            'show_contact' => false,
             'bg_color' => null,
             'text_color' => null,
         ];

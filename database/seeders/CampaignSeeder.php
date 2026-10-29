@@ -32,7 +32,7 @@ class CampaignSeeder extends Seeder
                 'subtitle' => 'Deja atrás la incertidumbre de «apagar incendios» con soporte ocasional. Incorpora un equipo multidisciplinario de especialistas que previene fallas, protege tu información y acompaña la expansión de tu negocio.',
                 'primary_cta' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],
                 'secondary_cta' => ['label' => 'Escríbenos por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
-                'image' => null, 'image_alt' => '',
+                'image' => '/images/uco360-reunion.jpg', 'image_alt' => 'Reunión de trabajo en una oficina con vista a la ciudad',
                 'note' => 'Soporte · Infraestructura · Ciberseguridad · Gestión TI',
             ]],
             ['comparison', 'por-que-uco360', 'Por qué UCO360', true, [
@@ -53,20 +53,17 @@ class CampaignSeeder extends Seeder
                 'subtitle' => 'Transformando tu tecnología en continuidad, seguridad y crecimiento para tu empresa.',
                 'columns' => '2',
                 'items' => [
-                    ['badge' => 'Pilar 1', 'title' => 'Soporte y continuidad operativa', 'text' => 'Atención inmediata por WhatsApp, control por tickets y visita presencial todas las semanas.'],
-                    ['badge' => 'Pilar 2', 'title' => 'Administración de infraestructura', 'text' => 'Mantenimiento preventivo de servidores, redes Wi-Fi, firewalls y nube para evitar caídas.'],
-                    ['badge' => 'Pilar 3', 'title' => 'Seguridad y continuidad', 'text' => 'Backups monitoreados a diario, pruebas reales de restauración y bloqueo inmediato en bajas de personal.'],
-                    ['badge' => 'Pilar 4', 'title' => 'Gestión y evolución tecnológica', 'text' => 'Inventario vivo de equipos y licencias, alerta de vencimientos, mejoras y proyectos de expansión.'],
+                    ['badge' => 'Soporte', 'title' => 'Soporte y continuidad operativa', 'text' => 'Atención inmediata por WhatsApp, control por tickets y visita presencial todas las semanas.'],
+                    ['badge' => 'Infraestructura', 'title' => 'Administración de infraestructura', 'text' => 'Mantenimiento preventivo de servidores, redes Wi-Fi, firewalls y nube para evitar caídas.'],
+                    ['badge' => 'Ciberseguridad', 'title' => 'Seguridad y continuidad', 'text' => 'Backups monitoreados a diario, pruebas reales de restauración y bloqueo inmediato en bajas de personal.'],
+                    ['badge' => 'Gestión TI', 'title' => 'Gestión y evolución tecnológica', 'text' => 'Inventario vivo de equipos y licencias, alerta de vencimientos, mejoras y proyectos de expansión.'],
                 ],
             ]],
-            ['features', 'para-la-gerencia', null, true, [
+            ['text', 'para-la-gerencia', null, true, [
                 'title' => 'Pensado para la gerencia',
-                'subtitle' => '',
-                'columns' => '2',
-                'items' => [
-                    ['badge' => '', 'title' => 'Coordinación centralizada con tus proveedores', 'text' => 'Hablamos de tú a tú con tu proveedor de Internet, ERP o software hasta resolver el problema.'],
-                    ['badge' => '', 'title' => 'Visibilidad ejecutiva y costo mensual predecible', 'text' => 'Tarifa fija mensual, informes claros en lenguaje de negocio y acompañamiento para crecer.'],
-                ],
+                'body' => "Coordinación centralizada con tus proveedores: hablamos de tú a tú con tu proveedor de Internet, ERP o software hasta resolver el problema.\n\nVisibilidad ejecutiva y costo mensual predecible: tarifa fija mensual, informes claros en lenguaje de negocio y acompañamiento para crecer.",
+                'image' => '/images/uco360-equipo.jpg',
+                'image_alt' => 'Profesional de una empresa atendiendo una reunión de trabajo',
             ]],
             ['steps', 'como-funciona', 'Cómo funciona', true, [
                 'title' => 'Cómo implementamos UCO360 en tu empresa',
@@ -80,7 +77,7 @@ class CampaignSeeder extends Seeder
             ['features', 'que-recibes', 'Qué recibes', true, [
                 'title' => '¿Qué recibe tu gerencia mes a mes?',
                 'subtitle' => 'Tú conservas las decisiones de negocio, nosotros nos encargamos de la TI.',
-                'columns' => '2',
+                'columns' => '4',
                 'items' => [
                     ['badge' => '', 'title' => 'Inventario actualizado de TI', 'text' => 'Registro al día de todas tus computadoras, servidores, licencias, vencimientos y proveedores. Control de tus activos y cero compras a ciegas.'],
                     ['badge' => '', 'title' => 'Reporte de soporte y visitas', 'text' => 'Resumen de todas las atenciones resueltas a tu personal y de cada visita presencial semanal. Visibilidad del trabajo real entregado a tu empresa.'],
@@ -92,7 +89,7 @@ class CampaignSeeder extends Seeder
             ['packages', 'paquetes', 'Paquetes', false, [
                 'title' => 'Elige el alcance que tu empresa necesita',
                 'subtitle' => 'Todos incluyen tarifa fija mensual. El alcance exacto se define en el diagnóstico.',
-                'note' => 'Completa nombres, contenido y precios antes de mostrar esta sección.',
+                'note' => '',
                 'items' => [
                     ['name' => 'Soporte', 'tagline' => 'Atención diaria a tus usuarios', 'price_label' => 'Cotiza con un diagnóstico', 'features' => "Atención por WhatsApp y control por tickets\nVisita presencial semanal\nEquipo de TI especializado", 'cta_label' => 'Solicitar propuesta', 'highlighted' => false],
                     ['name' => 'Protegido', 'tagline' => 'Soporte más infraestructura y seguridad', 'price_label' => 'Cotiza con un diagnóstico', 'features' => "Todo lo del paquete Soporte\nMantenimiento preventivo y gestión de proveedores\nBackups monitoreados y pruebas de restauración", 'cta_label' => 'Solicitar propuesta', 'highlighted' => true],
@@ -119,6 +116,15 @@ class CampaignSeeder extends Seeder
             ]],
         ];
 
+        // Fondos y colores por nombre de color del tema: si el tema cambia, estas secciones lo siguen.
+        $styles = [
+            'inicio' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
+            'por-que-uco360' => ['bg_color' => 'surface'],
+            'para-la-gerencia' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent', 'image_position' => 'left', 'padding' => 'lg'],
+            'que-recibes' => ['bg_color' => 'surface'],
+            'contacto' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
+        ];
+
         foreach ($sections as $i => [$type, $anchor, $navLabel, $visible, $content]) {
             $campaign->sections()->create([
                 'type' => $type,
@@ -127,7 +133,7 @@ class CampaignSeeder extends Seeder
                 'anchor' => $anchor,
                 'nav_label' => $navLabel,
                 'content' => SectionTypes::sanitizeContent($type, $content),
-                'style' => SectionTypes::defaultStyle(),
+                'style' => SectionTypes::sanitizeStyle($type, $styles[$anchor] ?? []),
             ]);
         }
 

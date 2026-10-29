@@ -14,6 +14,19 @@ class SectionTypes
 
     public const WIDTH = ['narrow' => 'Angosto', 'normal' => 'Normal', 'wide' => 'Ancho'];
 
+    /** Colores del tema que una seccion, el navbar o el pie pueden usar por nombre (siguen al tema si este cambia). */
+    public const COLOR_TOKENS = [
+        'background' => 'Fondo de la página',
+        'surface' => 'Fondo de tarjetas',
+        'primary' => 'Color principal',
+        'accent' => 'Color de apoyo',
+        'dark' => 'Fondo oscuro',
+        'text' => 'Texto',
+        'muted' => 'Texto secundario',
+        'on_primary' => 'Texto sobre el principal',
+        'on_dark' => 'Texto sobre fondo oscuro',
+    ];
+
     public const IMAGE_POSITION = ['right' => 'A la derecha', 'left' => 'A la izquierda', 'top' => 'Arriba'];
 
     /** @return array<string, array{label: string, description: string, content: array, style: array, defaults: array}> */
@@ -30,7 +43,7 @@ class SectionTypes
                     self::cta('secondary_cta', 'Botón secundario'),
                     self::image('image', 'Imagen'),
                     self::text('image_alt', 'Descripción de la imagen'),
-                    self::text('note', 'Nota bajo los botones'),
+                    self::text('note', 'Estaciones de la línea (sepáralas con ·)'),
                 ],
                 'style' => [self::select('image_position', 'Posición de la imagen', SectionTypes::IMAGE_POSITION)],
                 'defaults' => [
@@ -264,7 +277,7 @@ class SectionTypes
                 'textarea' => self::str($value, 4000),
                 'toggle' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
                 'select' => array_key_exists((string) $value, $f['options']) ? (string) $value : (string) array_key_first($f['options']),
-                'color' => self::color_value($value),
+                'color' => self::color_value($value, true),
                 'image' => self::imageUrl($value),
                 'cta' => self::sanitizeCta($value),
                 'list' => self::sanitizeList($f, $value),
@@ -304,9 +317,17 @@ class SectionTypes
         return is_scalar($value) ? mb_substr(trim((string) $value), 0, $max) : '';
     }
 
-    public static function color_value(mixed $value): ?string
+    /** Color en #RRGGBB o, si se permite, el nombre de un color del tema. */
+    public static function color_value(mixed $value, bool $tokens = false): ?string
     {
-        return is_string($value) && preg_match('/^#[0-9a-fA-F]{6}$/', $value) ? strtolower($value) : null;
+        if (! is_string($value)) {
+            return null;
+        }
+        if (preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
+            return strtolower($value);
+        }
+
+        return $tokens && array_key_exists($value, self::COLOR_TOKENS) ? $value : null;
     }
 
     public static function imageUrl(mixed $value): ?string
@@ -315,7 +336,9 @@ class SectionTypes
             return null;
         }
 
-        return (str_starts_with($value, '/uploads/') || preg_match('#^https://#i', $value)) ? mb_substr($value, 0, 500) : null;
+        return (preg_match('#^/(uploads|brand|images)/[A-Za-z0-9._/-]+$#', $value) && ! str_contains($value, '..')) || preg_match('#^https://#i', $value)
+            ? mb_substr($value, 0, 500)
+            : null;
     }
 
     // ---- Constructores de campos -------------------------------------------
