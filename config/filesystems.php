@@ -30,6 +30,15 @@ return [
 
     'disks' => [
 
+        // Imagenes subidas desde el panel; viven dentro de public/ y no necesitan enlace simbolico.
+        'uploads' => [
+            'driver' => 'local',
+            'root' => public_path('uploads'),
+            'url' => '/uploads',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),

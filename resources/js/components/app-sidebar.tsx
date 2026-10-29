@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, Megaphone, Palette, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -11,6 +11,21 @@ const mainNavItems: NavItem[] = [
         title: 'Inicio',
         url: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Campañas',
+        url: '/campanas',
+        icon: Megaphone,
+    },
+    {
+        title: 'Ajustes del sitio',
+        url: '/sitio',
+        icon: Palette,
+    },
+    {
+        title: 'Contactos',
+        url: '/contactos',
+        icon: Users,
     },
 ];
 
