@@ -161,7 +161,7 @@ class CampaignSeeder extends Seeder
                 'title' => '¿Hablamos de tu TI?',
                 'text' => 'Agenda tu diagnóstico y revisa con nosotros cómo está tu empresa.',
                 'button' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],
-                'trigger' => 'delay', 'seconds' => 35, 'scroll_percent' => 50, 'position' => 'corner', 'once' => true,
+                'trigger' => 'delay', 'seconds' => 35, 'scroll_percent' => 50, 'position' => 'corner', 'once' => false,
             ]],
         ];
 
