@@ -266,6 +266,44 @@ class CampaignAdminTest extends TestCase
         $this->assertStringContainsString('Segundo.', $clean['body']);
     }
 
+    public function test_los_montos_de_ejemplo_muestran_los_paquetes_y_adelantan_el_popup(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $this->seed(\Database\Seeders\PreciosEjemploSeeder::class);
+
+        $campaign = Campaign::where('status', 'active')->first();
+        $packages = $campaign->sections()->where('type', 'packages')->first();
+        $popup = $campaign->sections()->where('type', 'popup')->first();
+
+        $this->assertTrue($packages->is_visible);
+        $this->assertSame('Desde S/ 000 al mes', $packages->content['items'][0]['price_label']);
+        $this->assertStringContainsString('Montos de ejemplo', $packages->content['note']);
+        $this->assertSame(12, $popup->content['seconds']);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 13));
+    }
+
+    public function test_los_montos_de_ejemplo_no_pisan_lo_editado_en_el_panel(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+
+        $campaign = Campaign::where('status', 'active')->first();
+        $packages = $campaign->sections()->where('type', 'packages')->first();
+        $content = $packages->content;
+        $content['items'][0]['price_label'] = 'S/ 1,500 al mes';
+        $packages->update(['content' => $content, 'is_visible' => false]);
+        $campaign->sections()->where('type', 'popup')->first()->update([
+            'content' => [...$campaign->sections()->where('type', 'popup')->first()->content, 'seconds' => 20],
+        ]);
+
+        $this->seed(\Database\Seeders\PreciosEjemploSeeder::class);
+
+        $packages->refresh();
+        $this->assertFalse($packages->is_visible);
+        $this->assertSame('S/ 1,500 al mes', $packages->content['items'][0]['price_label']);
+        $this->assertSame(20, $campaign->sections()->where('type', 'popup')->first()->content['seconds']);
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();
