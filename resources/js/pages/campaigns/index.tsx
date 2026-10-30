@@ -1,3 +1,4 @@
+import { type ConfirmOptions, useConfirm } from '@/components/confirm-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -31,14 +32,21 @@ export default function CampaignsIndex({ campaigns, statuses }: { campaigns: Cam
         post(route('campaigns.store'), { onSuccess: () => reset() });
     };
 
-    const act = (name: string, campaign: CampaignRow, confirmText?: string) => {
-        if (confirmText && !window.confirm(confirmText)) return;
+    const { confirm, dialog } = useConfirm();
+
+    const act = async (name: string, campaign: CampaignRow, ask?: ConfirmOptions) => {
+        if (ask && !(await confirm(ask))) return;
         router.post(route(name, campaign.id), {}, { preserveScroll: true });
     };
 
-    const remove = (campaign: CampaignRow) => {
-        if (!window.confirm(`¿Eliminar «${campaign.name}» y todas sus secciones? Esta acción no se puede deshacer.`)) return;
-        router.delete(route('campaigns.destroy', campaign.id), { preserveScroll: true });
+    const remove = async (campaign: CampaignRow) => {
+        const ok = await confirm({
+            title: `¿Eliminar «${campaign.name}»?`,
+            description: 'Se borrarán también todas sus secciones. Esta acción no se puede deshacer.',
+            confirmLabel: 'Eliminar',
+            destructive: true,
+        });
+        if (ok) router.delete(route('campaigns.destroy', campaign.id), { preserveScroll: true });
     };
 
     return (
@@ -92,7 +100,13 @@ export default function CampaignsIndex({ campaigns, statuses }: { campaigns: Cam
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            onClick={() => act('campaigns.activate', c, `¿Poner «${c.name}» en línea? La campaña actual quedará archivada.`)}
+                                            onClick={() =>
+                                                act('campaigns.activate', c, {
+                                                    title: `¿Poner «${c.name}» en línea?`,
+                                                    description: 'La campaña que está en línea ahora quedará archivada; podrás reactivarla cuando quieras.',
+                                                    confirmLabel: 'Poner en línea',
+                                                })
+                                            }
                                         >
                                             <Radio />
                                             Poner en línea
@@ -122,7 +136,15 @@ export default function CampaignsIndex({ campaigns, statuses }: { campaigns: Cam
                                                 Duplicar
                                             </DropdownMenuItem>
                                             {c.status !== 'archived' && (
-                                                <DropdownMenuItem onSelect={() => act('campaigns.archive', c, `¿Archivar «${c.name}»?${c.status === 'active' ? ' La landing quedará sin campaña en línea.' : ''}`)}>
+                                                <DropdownMenuItem
+                                                    onSelect={() =>
+                                                        act('campaigns.archive', c, {
+                                                            title: `¿Archivar «${c.name}»?`,
+                                                            description: c.status === 'active' ? 'La landing quedará sin campaña en línea hasta que pongas otra.' : 'Podrás reactivarla cuando quieras.',
+                                                            confirmLabel: 'Archivar',
+                                                        })
+                                                    }
+                                                >
                                                     <Archive />
                                                     Archivar
                                                 </DropdownMenuItem>
@@ -140,6 +162,7 @@ export default function CampaignsIndex({ campaigns, statuses }: { campaigns: Cam
                     </ul>
                 )}
             </div>
+            {dialog}
         </AppLayout>
     );
 }

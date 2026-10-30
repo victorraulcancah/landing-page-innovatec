@@ -29,6 +29,23 @@ class SectionTypes
 
     public const IMAGE_POSITION = ['right' => 'A la derecha', 'left' => 'A la izquierda', 'top' => 'Arriba'];
 
+    /** Capa del color de la sección sobre una imagen de fondo, para que el texto siempre se lea. */
+    public const BG_OVERLAY = ['soft' => 'Suave', 'strong' => 'Fuerte', 'solid' => 'Casi opaca'];
+
+    public const IMAGE_TONE = ['natural' => 'Natural', 'brand' => 'Con tinte de la marca'];
+
+    /** Ilustraciones del servicio que acompañan a un panel de «Qué incluye». */
+    public const VISUALS = [
+        'auto' => 'Automática (según el orden)',
+        'chat' => 'Chat de soporte con ticket',
+        'network' => 'Red de sedes',
+        'backup' => 'Backups y restauración',
+        'inventory' => 'Inventario y licencias',
+        'report' => 'Informe mensual',
+        'image' => 'Mi propia imagen',
+        'none' => 'Ninguna',
+    ];
+
     /** @return array<string, array{label: string, description: string, content: array, style: array, defaults: array}> */
     public static function all(): array
     {
@@ -80,6 +97,8 @@ class SectionTypes
                     self::richline('title', 'Título', 200),
                     self::richtext('subtitle', 'Texto de apoyo'),
                     self::select('columns', 'Columnas', ['2' => '2', '3' => '3', '4' => '4']),
+                    self::image('image', 'Imagen ancha sobre las estaciones (opcional)'),
+                    self::text('image_alt', 'Descripción de la imagen'),
                     self::list('items', 'Tarjetas', [
                         self::text('badge', 'Etiqueta (opcional)'),
                         self::text('title', 'Título'),
@@ -88,7 +107,7 @@ class SectionTypes
                 ],
                 'style' => [],
                 'defaults' => [
-                    'title' => 'Beneficios', 'subtitle' => '', 'columns' => '3',
+                    'title' => 'Beneficios', 'subtitle' => '', 'columns' => '3', 'image' => null, 'image_alt' => '',
                     'items' => [['badge' => '', 'title' => 'Beneficio', 'text' => '']],
                 ],
             ],
@@ -161,9 +180,18 @@ class SectionTypes
                         self::text('q', 'Pregunta'),
                         self::richtext('a', 'Respuesta'),
                     ], 'q'),
+                    self::image('image', 'Imagen lateral (si la dejas vacía se muestra una ilustración del chat de soporte)'),
+                    self::text('image_alt', 'Descripción de la imagen'),
+                    self::text('help_title', 'Aviso junto a las preguntas (vacío = no se muestra)'),
+                    self::cta('help_cta', 'Botón del aviso'),
                 ],
                 'style' => [],
-                'defaults' => ['title' => 'Preguntas frecuentes', 'items' => [['q' => 'Pregunta', 'a' => '']]],
+                'defaults' => [
+                    'title' => 'Preguntas frecuentes', 'items' => [['q' => 'Pregunta', 'a' => '']],
+                    'image' => null, 'image_alt' => '',
+                    'help_title' => '¿Tienes otra pregunta?',
+                    'help_cta' => ['label' => 'Escríbenos por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
+                ],
             ],
             'text' => [
                 'label' => 'Texto libre',
@@ -173,9 +201,20 @@ class SectionTypes
                     self::richtext('body', 'Texto'),
                     self::image('image', 'Imagen'),
                     self::text('image_alt', 'Descripción de la imagen'),
+                    self::select('overlay', 'Tarjeta flotante sobre la imagen', ['none' => 'Ninguna', 'report' => 'Informe mensual', 'chat' => 'Chat de soporte']),
                 ],
                 'style' => [self::select('image_position', 'Posición de la imagen', SectionTypes::IMAGE_POSITION)],
-                'defaults' => ['title' => 'Título', 'body' => '', 'image' => null, 'image_alt' => ''],
+                'defaults' => ['title' => 'Título', 'body' => '', 'image' => null, 'image_alt' => '', 'overlay' => 'none'],
+            ],
+            'marquee' => [
+                'label' => 'Franja de servicios',
+                'description' => 'Banda que desliza lentamente los servicios o beneficios, separados por estaciones. Se detiene al pasar el cursor y con «reducir movimiento».',
+                'content' => [
+                    self::textarea('items', 'Servicios (uno por línea)'),
+                    self::select('speed', 'Velocidad', ['slow' => 'Lenta', 'normal' => 'Normal', 'fast' => 'Rápida']),
+                ],
+                'style' => [],
+                'defaults' => ['items' => "Soporte\nInfraestructura\nCiberseguridad\nGestión TI", 'speed' => 'normal'],
             ],
             'promo' => [
                 'label' => 'Barra de anuncio',
@@ -266,15 +305,19 @@ class SectionTypes
                     self::list('items', 'Paneles', [
                         self::text('title', 'Título del panel'),
                         self::textarea('points', 'Puntos (una línea por punto)'),
+                        self::select('visual', 'Ilustración', self::VISUALS),
+                        self::image('image', 'Mi propia imagen (si eliges «Mi propia imagen»)'),
+                        self::text('image_alt', 'Descripción de la imagen'),
                     ], 'title'),
                     self::text('footer_title', 'Franja final: título'),
                     self::richtext('footer_text', 'Franja final: texto'),
+                    self::select('footer_visual', 'Franja final: ilustración', ['report' => 'Informe mensual', 'none' => 'Ninguna']),
                 ],
                 'style' => [],
                 'defaults' => [
                     'title' => 'Todo lo que recibes', 'subtitle' => '',
-                    'items' => [['title' => 'Panel', 'points' => '']],
-                    'footer_title' => '', 'footer_text' => '',
+                    'items' => [['title' => 'Panel', 'points' => '', 'visual' => 'auto', 'image' => null, 'image_alt' => '']],
+                    'footer_title' => '', 'footer_text' => '', 'footer_visual' => 'report',
                 ],
             ],
             'popup' => [
@@ -328,6 +371,9 @@ class SectionTypes
             self::select('align', 'Alineación', self::ALIGN),
             self::select('padding', 'Espacio vertical', self::PADDING),
             self::select('width', 'Ancho del contenido', self::WIDTH),
+            self::image('bg_image', 'Imagen de fondo'),
+            self::select('bg_overlay', 'Capa sobre la imagen de fondo', self::BG_OVERLAY),
+            self::select('image_tone', 'Tratamiento de las fotos de la sección', self::IMAGE_TONE),
         ];
     }
 
@@ -336,6 +382,7 @@ class SectionTypes
         return [
             'bg_color' => null, 'text_color' => null, 'accent_color' => null,
             'align' => 'left', 'padding' => 'md', 'width' => 'normal', 'image_position' => 'right',
+            'bg_image' => null, 'bg_overlay' => 'strong', 'image_tone' => 'natural',
         ];
     }
 

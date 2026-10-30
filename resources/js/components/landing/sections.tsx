@@ -2,8 +2,9 @@ import { ContactList } from '@/components/landing/footer';
 import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
 import { Rich } from '@/components/landing/rich';
+import { AUTO_VISUALS, Ticker, Visual, type VisualKind } from '@/components/landing/visuals';
 import { ctaHref, ctaOf, flag, list, sectionLook, splitStations, text, type CtaContext, type PublicSection } from '@/lib/landing';
-import { type ContactData, type Json, type ThemeData } from '@/types/cms';
+import { type ContactData, type Json, type SectionStyle, type ThemeData } from '@/types/cms';
 import { ArrowRight, Check, X } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 
@@ -62,7 +63,18 @@ function CountUp({ value }: { value: string }) {
     );
 }
 
-function Frame({ section, theme, cut, children }: { section: PublicSection; theme: ThemeData; cut: SectionProps['cut']; children: ReactNode }) {
+/** Imagen de fondo de una sección: lleva una capa del color de la sección para que el texto siempre se lea. */
+function SectionBg({ style }: { style: SectionStyle }) {
+    if (!style.bg_image) return null;
+
+    return (
+        <div className={`lp-bg lp-bg--${style.bg_overlay || 'strong'}`} aria-hidden>
+            <div className="lp-bg__img" data-scrub style={{ backgroundImage: `url("${style.bg_image}")` }} />
+        </div>
+    );
+}
+
+function Frame({ section, theme, cut, children, decor }: { section: PublicSection; theme: ThemeData; cut: SectionProps['cut']; children: ReactNode; decor?: ReactNode }) {
     const { style } = sectionLook(section.style, theme);
     const { align, padding, width } = section.style;
     const title = text(section.content, 'title');
@@ -71,10 +83,13 @@ function Frame({ section, theme, cut, children }: { section: PublicSection; them
         <section
             id={section.anchor}
             data-reveal="section"
-            className={`lp-section lp-pad-${padding} lp-align-${align} ${cut ? `lp-section--cut lp-section--cut-${cut}` : ''}`}
+            data-tone={section.style.image_tone || 'natural'}
+            className={`lp-section lp-pad-${padding} lp-align-${align} ${section.style.bg_image ? 'lp-section--bgimg' : ''} ${cut ? `lp-section--cut lp-section--cut-${cut}` : ''}`}
             style={style}
             aria-labelledby={title ? `h-${section.id}` : undefined}
         >
+            <SectionBg style={section.style} />
+            {decor}
             <div className={`lp-inner ${width === 'narrow' ? 'lp-inner--narrow' : width === 'wide' ? 'lp-inner--wide' : ''}`}>{children}</div>
         </section>
     );
@@ -106,10 +121,12 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
     return (
         <section
             id={section.anchor}
-            className={`lp-hero lp-hero--${position} ${aside ? 'lp-hero--aside' : ''} ${image || aside ? '' : 'lp-hero__nophoto'}`}
+            data-tone={section.style.image_tone || 'natural'}
+            className={`lp-hero lp-hero--${position} ${aside ? 'lp-hero--aside' : ''} ${image || aside ? '' : 'lp-hero__nophoto'} ${section.style.bg_image ? 'lp-section--bgimg' : ''}`}
             style={style}
             aria-labelledby={`h-${section.id}`}
         >
+            <SectionBg style={section.style} />
             <div className="lp-hero__grid">
                 <div>
                     <Rich as="h1" inline id={`h-${section.id}`} html={text(c, 'title')} />
@@ -233,6 +250,11 @@ export function Features({ section, theme, cut }: SectionProps) {
     return (
         <Frame section={section} theme={theme} cut={cut}>
             <Head section={section} />
+            {text(section.content, 'image') && (
+                <figure className="lp-banner" data-reveal="photo">
+                    <img src={text(section.content, 'image')} alt={text(section.content, 'image_alt')} data-scrub />
+                </figure>
+            )}
             <ol className="lp-stations" data-reveal="route" style={{ '--cols': cols } as CSSProperties}>
                 {items.map((it, i) => (
                     <li key={i} style={{ '--i': i } as CSSProperties} className={`lp-station ${i % cols === cols - 1 || i === items.length - 1 ? 'lp-station--end' : ''} ${str(it.badge) ? 'lp-station--signed' : ''}`}>
@@ -359,19 +381,46 @@ export function Proof({ section, theme, cut }: SectionProps) {
 
 // ---- Preguntas frecuentes ----------------------------------------------------
 
-export function Faq({ section, theme, cut }: SectionProps) {
-    const items = list(section.content, 'items');
+export function Faq({ section, theme, ctx, cut }: SectionProps) {
+    const c = section.content;
+    const items = list(c, 'items');
+    const image = text(c, 'image');
+    // Los textos del aviso son nuevos: si la campaña es anterior y no los trae, se usan los de fábrica.
+    const helpTitle = 'help_title' in c ? text(c, 'help_title') : '¿Tienes otra pregunta?';
+    const helpCta = 'help_cta' in c ? ctaOf(c, 'help_cta') : { label: 'Escríbenos por WhatsApp', action: 'whatsapp', value: '' };
 
     return (
         <Frame section={section} theme={theme} cut={cut}>
             <Head section={section} />
-            <div className="lp-faq">
-                {items.map((it, i) => (
-                    <details key={i} data-reveal="up" style={{ '--i': i } as CSSProperties}>
-                        <summary>{str(it.q)}</summary>
-                        <Rich className="lp-faq__a" html={str(it.a)} />
-                    </details>
-                ))}
+            <div className="lp-faqwrap">
+                <div className="lp-faq">
+                    {items.map((it, i) => (
+                        <details key={i} data-reveal="up" style={{ '--i': i } as CSSProperties}>
+                            <summary>{str(it.q)}</summary>
+                            <Rich className="lp-faq__a" html={str(it.a)} />
+                        </details>
+                    ))}
+                </div>
+                <aside className="lp-faq__side">
+                    {image ? (
+                        <figure className="lp-faq__photo" data-reveal="photo">
+                            <img src={image} alt={text(c, 'image_alt')} />
+                        </figure>
+                    ) : (
+                        <Visual kind="chat" />
+                    )}
+                    {(helpTitle || helpCta) && (
+                        <div className="lp-faq__help" data-reveal="up" style={{ '--i': 2 } as CSSProperties}>
+                            {helpTitle && <p>{helpTitle}</p>}
+                            {helpCta && (
+                                <a className="lp-btn" href={ctaHref(helpCta, ctx)}>
+                                    {helpCta.label}
+                                    <ArrowRight size={18} aria-hidden />
+                                </a>
+                            )}
+                        </div>
+                    )}
+                </aside>
             </div>
         </Frame>
     );
@@ -383,24 +432,24 @@ export function TextBlock({ section, theme, cut }: SectionProps) {
     const c = section.content;
     const image = text(c, 'image');
     const pos = section.style.image_position;
+    const overlay = text(c, 'overlay');
+
+    const media = image ? (
+        <div className="lp-split__media" data-reveal="wipe">
+            <img src={image} alt={text(c, 'image_alt')} />
+            {(overlay === 'report' || overlay === 'chat') && <Visual kind={overlay} className="lp-float" scrub />}
+        </div>
+    ) : null;
 
     return (
         <Frame section={section} theme={theme} cut={cut}>
             <div className={`lp-split ${image && pos !== 'top' ? 'lp-split--img' : ''} ${pos === 'left' ? 'lp-split--left' : ''}`}>
-                {image && pos === 'top' && (
-                    <div className="lp-split__media" data-reveal="wipe">
-                        <img src={image} alt={text(c, 'image_alt')} />
-                    </div>
-                )}
+                {pos === 'top' && media}
                 <div className="lp-prose">
                     <Head section={section} />
                     <Rich html={text(c, 'body')} reveal="up" style={{ '--i': 1 } as CSSProperties} />
                 </div>
-                {image && pos !== 'top' && (
-                    <div className="lp-split__media" data-reveal="wipe">
-                        <img src={image} alt={text(c, 'image_alt')} />
-                    </div>
-                )}
+                {pos !== 'top' && media}
             </div>
         </Frame>
     );
@@ -412,9 +461,16 @@ export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: 
     const c = section.content;
     const showForm = flag(c, 'show_form');
     const button = ctaOf(c, 'button');
+    const blades = (
+        <div className="lp-blades" aria-hidden data-reveal="blades">
+            <i />
+            <i />
+            <i />
+        </div>
+    );
 
     return (
-        <Frame section={section} theme={theme} cut={cut}>
+        <Frame section={section} theme={theme} cut={cut} decor={blades}>
             <div className={`lp-cta__grid ${showForm ? 'lp-cta__grid--form' : ''}`}>
                 <div>
                     <div className="lp-terminal" aria-hidden data-reveal="cta" />
@@ -466,38 +522,86 @@ export function QuizSection({ section, theme, ctx, cut }: SectionProps) {
 
 // ---- Qué incluye --------------------------------------------------------------------------------------
 
+const VISUAL_KEYS: VisualKind[] = ['chat', 'network', 'backup', 'inventory', 'report'];
+
+/** Qué mostrar junto a un panel: una ilustración, la imagen propia o nada. */
+function mediaFor(item: Record<string, Json>, index: number): VisualKind | 'image' | null {
+    const choice = str(item.visual) || 'auto';
+    if (choice === 'none') return null;
+    if (choice === 'image') return str(item.image) ? 'image' : null;
+    if ((VISUAL_KEYS as string[]).includes(choice)) return choice as VisualKind;
+    return AUTO_VISUALS[index % AUTO_VISUALS.length];
+}
+
 export function Included({ section, theme, cut }: SectionProps) {
     const c = section.content;
     const items = list(c, 'items');
+    const footerVisual = (str(c.footer_visual) || 'report') === 'report';
 
     return (
         <Frame section={section} theme={theme} cut={cut}>
             <Head section={section} />
-            <ul className="lp-included">
+            <ol className="lp-rows" data-progress>
                 {items.map((it, i) => {
                     const points = str(it.points).split('\n').map((l) => l.trim()).filter(Boolean);
+                    const media = mediaFor(it, i);
                     return (
-                        <li key={i} data-reveal="up" style={{ '--i': i } as CSSProperties}>
-                            <h3>{str(it.title)}</h3>
-                            <ul>
-                                {points.map((pt) => (
-                                    <li key={pt}>
-                                        <Check size={18} strokeWidth={3} aria-hidden />
-                                        <span>{pt}</span>
-                                    </li>
-                                ))}
-                            </ul>
+                        <li key={i} className={`lp-row ${i % 2 === 1 ? 'lp-row--flip' : ''} ${media ? '' : 'lp-row--plain'}`}>
+                            <span className="lp-row__ring lp-ring" aria-hidden />
+                            <div className="lp-row__copy" data-reveal="up" style={{ '--i': 0 } as CSSProperties}>
+                                <h3>{str(it.title)}</h3>
+                                <ul>
+                                    {points.map((pt) => (
+                                        <li key={pt}>
+                                            <Check size={18} strokeWidth={3} aria-hidden />
+                                            <span>{pt}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            {media && (
+                                <div className="lp-row__media">
+                                    {media === 'image' ? (
+                                        <figure className="lp-row__photo" data-reveal="photo">
+                                            <img src={str(it.image)} alt={str(it.image_alt)} data-scrub />
+                                        </figure>
+                                    ) : (
+                                        <Visual kind={media} scrub />
+                                    )}
+                                </div>
+                            )}
                         </li>
                     );
                 })}
-            </ul>
+            </ol>
             {(text(c, 'footer_title') || text(c, 'footer_text')) && (
-                <div className="lp-included__foot" data-reveal="up" style={{ '--i': items.length } as CSSProperties}>
-                    {text(c, 'footer_title') && <h3>{text(c, 'footer_title')}</h3>}
-                    {text(c, 'footer_text') && <Rich html={text(c, 'footer_text')} />}
+                <div className={`lp-included__foot ${footerVisual ? 'lp-included__foot--visual' : ''}`} data-reveal="up" style={{ '--i': 1 } as CSSProperties}>
+                    <div>
+                        {text(c, 'footer_title') && <h3>{text(c, 'footer_title')}</h3>}
+                        {text(c, 'footer_text') && <Rich html={text(c, 'footer_text')} />}
+                    </div>
+                    {footerVisual && <Visual kind="report" />}
                 </div>
             )}
         </Frame>
+    );
+}
+
+// ---- Franja de servicios -------------------------------------------------------------------------------------
+
+export function Marquee({ section, theme }: SectionProps) {
+    const { style } = sectionLook(section.style, theme);
+    const items = text(section.content, 'items')
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .slice(0, 14);
+    if (items.length === 0) return null;
+
+    return (
+        <section id={section.anchor} className="lp-marquee" style={style} aria-label="Servicios incluidos">
+            <Ticker items={items} speed={text(section.content, 'speed')} />
+        </section>
     );
 }
 
@@ -506,6 +610,7 @@ export const RENDERERS: Record<string, (props: SectionProps) => ReactNode> = {
     calculator: CalculatorSection,
     quiz: QuizSection,
     included: Included,
+    marquee: Marquee,
     comparison: Comparison,
     features: Features,
     steps: Steps,

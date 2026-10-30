@@ -44,6 +44,11 @@ export function useMotion(ref: RefObject<HTMLElement | null>, level: MotionLevel
             targets.forEach((el) => observer?.observe(el));
         }
 
+        // Elementos ligados al scroll: [data-scrub] se desplaza según su paso por la pantalla (--p, 0 a 1);
+        // [data-progress] se va llenando mientras se lee (la línea de «Qué incluye»). Solo en «Completas».
+        const scrubbed = level === 'full' && !reduce ? Array.from(root.querySelectorAll<HTMLElement>('[data-scrub], [data-progress]')) : [];
+        const clamp = (n: number) => Math.min(1, Math.max(0, n));
+
         let frame = 0;
         const onScroll = () => {
             if (frame) return;
@@ -52,6 +57,14 @@ export function useMotion(ref: RefObject<HTMLElement | null>, level: MotionLevel
                 const max = document.documentElement.scrollHeight - window.innerHeight;
                 root.style.setProperty('--progress', String(max > 0 ? Math.min(1, window.scrollY / max) : 0));
                 root.toggleAttribute('data-scrolled', window.scrollY > 8);
+
+                const vh = window.innerHeight;
+                for (const el of scrubbed) {
+                    const r = el.getBoundingClientRect();
+                    if (r.bottom < -240 || r.top > vh + 240) continue;
+                    const p = el.hasAttribute('data-progress') ? clamp((vh * 0.65 - r.top) / r.height) : clamp((vh - r.top) / (vh + r.height));
+                    el.style.setProperty('--p', p.toFixed(3));
+                }
             });
         };
         onScroll();

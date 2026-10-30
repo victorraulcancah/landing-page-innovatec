@@ -240,7 +240,8 @@ Tesis: **la señal recorre la línea**. Todo el movimiento sale de esa idea; nad
 - **Respuesta a la interacción:** flecha de los botones que avanza, subrayado del menú que se dibuja, anillos que crecen al pasar el cursor, paquetes que se elevan, preguntas que se despliegan con suavidad.
 - **Continuidad:** una barra naranja bajo el menú avanza con la lectura y el menú se compacta al bajar.
 - **Control:** Ajustes del sitio → Colores y tipografía → «Animaciones» (Completas, Suaves, Ninguna). «Suaves» solo hace aparecer. Si el visitante pidió «reducir movimiento» se usa «Suaves» sin desplazamientos. Sin JavaScript todo queda visible.
-- **Material:** solo `transform`, `opacity` y `clip-path`; curva `cubic-bezier(0.16, 1, 0.3, 1)`; duraciones de 0,35 s (respuesta) a 1,2 s (portada); sin rebotes ni bucles infinitos.
+- **Material:** solo `transform`, `opacity` y `clip-path`; curva `cubic-bezier(0.16, 1, 0.3, 1)`; duraciones de 0,35 s (respuesta) a 1,2 s (portada); sin rebotes. El único bucle continuo es la franja de servicios (se detiene al pasar el cursor y con «reducir movimiento» o «Suaves»).
+- **Ligado al scroll (solo «Completas»):** `useMotion` publica `--p` (0 a 1) en los elementos `[data-scrub]` (fotos, ilustraciones y fondos se desplazan a distinta velocidad: la tarjeta flotante más rápido que su foto) y en `[data-progress]` (la línea de «Qué incluye» se llena mientras se lee).
 
 ## Piezas de marketing interactivas
 
@@ -256,3 +257,14 @@ Parte del mismo mundo (línea, anillos, azul noche, naranja); todas se administr
 ## Texto con formato
 
 Los titulares y los textos largos se editan con un editor tipo Word (negrita, cursiva, subrayado, tachado, listas, alineación, enlaces, color y resaltado). Los colores no se guardan como valor sino como clase del tema (`t-accent`, `m-primary`…), así que siguen a la paleta si se cambia. Los titulares admiten solo formato en línea; los campos «una línea por punto» (incluye, columnas de la comparativa) quedan como texto plano a propósito. Todo se limpia con lista blanca al guardar (HTMLPurifier) y otra vez al pintar (DOMPurify).
+
+## Imágenes e ilustraciones
+
+El brochure solo trae una foto (la reunión) y los logos, así que las imágenes salen de dos fuentes: **ilustraciones del servicio** dibujadas con la paleta del tema y **espacios para fotos reales** que se suben desde el panel.
+
+- **Ilustraciones (`visuals.tsx`):** ventanas de interfaz con el contenido real del servicio: chat de soporte con ticket, red de sedes sobre la línea (la señal recorre cada enlace una vez), semana de backups con prueba de restauración, inventario con alerta de vencimiento e informe mensual. Fondo blanco, borde al 14% y una sombra de contexto (`0 28px 44px -30px`) porque flotan sobre la sección. Siguen el tema por variables (`--c-*`) y son decorativas (`aria-hidden`); no afirman cifras.
+- **Qué incluye:** filas alternadas sobre una línea vertical de 8px con un anillo por fila; la línea se llena con el scroll. Cada panel elige su ilustración (o su propia imagen).
+- **Franja de servicios:** banda del color de acento con los servicios separados por estaciones; lleva un margen inferior igual al corte diagonal de la sección siguiente.
+- **Fotos:** `image_tone` «Con tinte de la marca» las vuelve azul noche; `bg_image` con capa suave, fuerte o casi opaca (del color de la sección, así el texto siempre se lee); la tarjeta flotante sobre la foto (informe o chat) sube sobre ella en móvil y flota en la esquina desde 900px.
+- **Preguntas:** panel lateral fijo con la ilustración del chat (o una foto) y un aviso con botón.
+- **Cierre:** hojas del brochure (azul y naranja) detrás del formulario; en móvil se reducen a una esquina.

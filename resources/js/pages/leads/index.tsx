@@ -1,3 +1,4 @@
+import { useConfirm } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { NativeSelect } from '@/components/ui/native-select';
 import AppLayout from '@/layouts/app-layout';
@@ -37,8 +38,16 @@ const dateFormat = new Intl.DateTimeFormat('es-PE', { day: 'numeric', month: 'sh
 export default function LeadsIndex({ leads, statuses, filter, counts }: Props) {
     const total = Object.values(counts).reduce((a, b) => a + Number(b), 0);
 
-    const remove = (lead: LeadRow) => {
-        if (window.confirm(`¿Eliminar el contacto de ${lead.name}?`)) router.delete(route('leads.destroy', lead.id), { preserveScroll: true });
+    const { confirm, dialog } = useConfirm();
+
+    const remove = async (lead: LeadRow) => {
+        const ok = await confirm({
+            title: `¿Eliminar el contacto de ${lead.name}?`,
+            description: 'Se borran sus datos y su mensaje. Esta acción no se puede deshacer.',
+            confirmLabel: 'Eliminar',
+            destructive: true,
+        });
+        if (ok) router.delete(route('leads.destroy', lead.id), { preserveScroll: true });
     };
 
     return (
@@ -126,6 +135,7 @@ export default function LeadsIndex({ leads, statuses, filter, counts }: Props) {
                     </nav>
                 )}
             </div>
+            {dialog}
         </AppLayout>
     );
 }

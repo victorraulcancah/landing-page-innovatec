@@ -1,4 +1,5 @@
 import { ColorField, ColorTokensProvider } from '@/components/admin/color-field';
+import { useConfirm } from '@/components/confirm-dialog';
 import { SchemaForm } from '@/components/admin/schema-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,16 @@ type Tab = 'sections' | 'settings';
 export default function CampaignEdit({ campaign, sections, schema, themeColors, colorTokens, globalTheme, fonts, radii, statuses }: Props) {
     const [tab, setTab] = useState<Tab>('sections');
     const [openId, setOpenId] = useState<number | null>(sections[0]?.id ?? null);
+    const { confirm, dialog } = useConfirm();
+
+    const activate = async () => {
+        const ok = await confirm({
+            title: `¿Poner «${campaign.name}» en línea?`,
+            description: 'La campaña que está en línea ahora quedará archivada; podrás reactivarla cuando quieras.',
+            confirmLabel: 'Poner en línea',
+        });
+        if (ok) router.post(route('campaigns.activate', campaign.id), {}, { preserveScroll: true });
+    };
 
     // Colores reales de la campaña (tema del sitio + sus cambios) para las muestras del selector.
     const resolvedTheme = Object.fromEntries(
@@ -61,13 +72,7 @@ export default function CampaignEdit({ campaign, sections, schema, themeColors, 
                             </a>
                         </Button>
                         {campaign.status !== 'active' && (
-                            <Button
-                                size="sm"
-                                onClick={() =>
-                                    window.confirm(`¿Poner «${campaign.name}» en línea? La campaña actual quedará archivada.`) &&
-                                    router.post(route('campaigns.activate', campaign.id), {}, { preserveScroll: true })
-                                }
-                            >
+                            <Button size="sm" onClick={activate}>
                                 <Radio />
                                 Poner en línea
                             </Button>
@@ -103,6 +108,7 @@ export default function CampaignEdit({ campaign, sections, schema, themeColors, 
                     <SettingsTab campaign={campaign} themeColors={themeColors} globalTheme={globalTheme} fonts={fonts} radii={radii} />
                 )}
             </div>
+            {dialog}
         </AppLayout>
     );
 }
@@ -198,6 +204,7 @@ function SectionEditor({
     const [state, setState] = useState<SectionState>(() => toState(section));
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
+    const { confirm, dialog } = useConfirm();
 
     // Cuando el servidor devuelve la seccion guardada, el formulario toma esos valores.
     useEffect(() => {
@@ -222,16 +229,21 @@ function SectionEditor({
     };
 
     const move = (direction: 'up' | 'down') => router.post(route('sections.move', section.id), { direction }, { preserveScroll: true });
-    const remove = () => {
-        if (window.confirm(`¿Eliminar la sección «${def.label}»? Esta acción no se puede deshacer.`)) {
-            router.delete(route('sections.destroy', section.id), { preserveScroll: true });
-        }
+    const remove = async () => {
+        const ok = await confirm({
+            title: `¿Eliminar la sección «${def.label}»?`,
+            description: 'Se pierde su contenido. Si solo quieres quitarla de la landing sin borrarla, ocúltala con el ojo. Esta acción no se puede deshacer.',
+            confirmLabel: 'Eliminar sección',
+            destructive: true,
+        });
+        if (ok) router.delete(route('sections.destroy', section.id), { preserveScroll: true });
     };
 
     const title = String(section.content.title ?? '').trim();
 
     return (
         <li className={`rounded-lg border ${section.is_visible ? '' : 'bg-muted/40'}`}>
+            {dialog}
             <div className="flex items-center gap-1 p-2">
                 <button
                     type="button"

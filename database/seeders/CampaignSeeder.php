@@ -54,6 +54,10 @@ class CampaignSeeder extends Seeder
                 'disclaimer' => 'Estimación con los valores que tú ajustas; no es una promesa de ahorro.',
                 'cta' => ['label' => 'Quiero evitar esa pérdida', 'action' => 'lead_form', 'value' => ''],
             ]],
+            ['marquee', 'franja', null, true, [
+                'items' => VisualesSeeder::SERVICES,
+                'speed' => 'normal',
+            ]],
             ['comparison', 'por-que-uco360', 'Por qué UCO360', true, [
                 'title' => '¿Por qué elegir UCO360?',
                 'subtitle' => 'A medida que tu empresa crece, necesita una gestión tecnológica que acompañe sus nuevos desafíos. UCO360 es tu área de TI externa: un equipo de especialistas que atiende a tus usuarios, previene fallas, administra tu infraestructura, protege tu información y coordina con tus proveedores, por una tarifa fija mensual.',
@@ -101,6 +105,7 @@ class CampaignSeeder extends Seeder
                 'body' => "Coordinación centralizada con tus proveedores: hablamos de tú a tú con tu proveedor de Internet, ERP o software hasta resolver el problema.\n\nVisibilidad ejecutiva y costo mensual predecible: tarifa fija mensual, informes claros en lenguaje de negocio y acompañamiento para crecer.",
                 'image' => '/images/uco360-equipo.jpg',
                 'image_alt' => 'Profesional de una empresa atendiendo una reunión de trabajo',
+                'overlay' => 'report',
             ]],
             ['steps', 'como-funciona', null, true, [
                 'title' => 'Cómo implementamos UCO360 en tu empresa',
@@ -163,6 +168,7 @@ class CampaignSeeder extends Seeder
         // Fondos y colores por nombre de color del tema: si el tema cambia, estas secciones lo siguen.
         $styles = [
             'anuncio' => ['bg_color' => 'accent'],
+            'franja' => ['bg_color' => 'accent'],
             'inicio' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
             'por-que-uco360' => ['bg_color' => 'surface'],
             'autodiagnostico' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],

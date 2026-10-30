@@ -36,6 +36,9 @@ export interface SectionStyle {
     padding: 'sm' | 'md' | 'lg';
     width: 'narrow' | 'normal' | 'wide';
     image_position: 'right' | 'left' | 'top';
+    bg_image?: string | null;
+    bg_overlay?: 'soft' | 'strong' | 'solid';
+    image_tone?: 'natural' | 'brand';
 }
 
 export interface CampaignSectionData {

@@ -280,7 +280,7 @@ class CampaignAdminTest extends TestCase
         $this->assertStringContainsString('Montos de ejemplo', $packages->content['note']);
         $this->assertSame(12, $popup->content['seconds']);
 
-        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 13));
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 14));
     }
 
     public function test_los_montos_de_ejemplo_no_pisan_lo_editado_en_el_panel(): void
@@ -302,6 +302,29 @@ class CampaignAdminTest extends TestCase
         $this->assertFalse($packages->is_visible);
         $this->assertSame('S/ 1,500 al mes', $packages->content['items'][0]['price_label']);
         $this->assertSame(20, $campaign->sections()->where('type', 'popup')->first()->content['seconds']);
+    }
+
+    public function test_el_seeder_de_visuales_agrega_la_franja_sin_duplicar_ni_pisar(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+
+        // Una campaña creada antes del diseño con imágenes: sin franja y sin tarjeta flotante.
+        $campaign->sections()->where('type', 'marquee')->delete();
+        $text = $campaign->sections()->where('type', 'text')->first();
+        $content = $text->content;
+        unset($content['overlay']);
+        $text->update(['content' => $content]);
+
+        $this->seed(\Database\Seeders\VisualesSeeder::class);
+        $this->seed(\Database\Seeders\VisualesSeeder::class);
+
+        $types = $campaign->sections()->orderBy('position')->pluck('type')->all();
+        $this->assertSame(1, count(array_keys($types, 'marquee')));
+        $this->assertSame('marquee', $types[array_search('calculator', $types, true) + 1]);
+        $this->assertSame('report', $text->fresh()->content['overlay']);
+        $positions = $campaign->sections()->pluck('position')->all();
+        $this->assertCount(count($positions), array_unique($positions));
     }
 
     public function test_las_secciones_se_pueden_reordenar(): void
@@ -429,7 +452,7 @@ class CampaignAdminTest extends TestCase
         $this->seed(CampaignSeeder::class);
 
         $campaign = Campaign::query()->active()->firstOrFail();
-        $this->assertSame(13, $campaign->sections()->count());
+        $this->assertSame(14, $campaign->sections()->count());
         $this->assertFalse((bool) $campaign->sections()->where('type', 'packages')->value('is_visible'));
     }
 }
