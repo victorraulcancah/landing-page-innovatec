@@ -1,3 +1,4 @@
+import CreditoMagus from '@/components/credito-magus';
 import { mapLinks, resolveColor, readableOn, sectionLook, whatsappHref } from '@/lib/landing';
 import { type ContactData, type FooterData, type ThemeData } from '@/types/cms';
 import { ExternalLink, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
@@ -75,6 +76,10 @@ export function Footer({ footer, contact, theme }: { footer: FooterData; contact
                     {contact.website && <p className="lp-footer__legal">{contact.website}</p>}
                 </div>
                 {footer.show_contact && <ContactList contact={contact} />}
+                {/* La firma de quien desarrolló el sistema va siempre, no se edita desde el panel. */}
+                <div className="lp-footer__credit">
+                    <CreditoMagus variante="chip" />
+                </div>
             </div>
         </footer>
     );

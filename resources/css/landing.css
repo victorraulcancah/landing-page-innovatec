@@ -1454,6 +1454,21 @@ textarea.lp-input {
     font-size: 0.9375rem;
 }
 
+/* Firma del desarrollador: franja propia al final, separada por un filete. */
+.lp-footer__credit {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+}
+
+@media (min-width: 800px) {
+    .lp-footer__credit {
+        justify-content: flex-end;
+    }
+}
+
 /* ---- Estados vacíos -------------------------------------------------------- */
 
 .lp-empty {
