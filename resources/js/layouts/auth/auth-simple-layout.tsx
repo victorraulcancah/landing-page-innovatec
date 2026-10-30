@@ -1,3 +1,4 @@
+import CreditoMagus from '@/components/credito-magus';
 import { Link } from '@inertiajs/react';
 
 interface AuthLayoutProps {
@@ -25,6 +26,7 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                     </div>
                     {children}
                 </div>
+                <CreditoMagus className="mt-10" />
             </div>
         </div>
     );
