@@ -252,3 +252,7 @@ Parte del mismo mundo (línea, anillos, azul noche, naranja); todas se administr
 - **Barra de anuncio:** franja superior con la oferta del mes; se puede cerrar y recuerda el cierre durante la visita.
 - **Pop-up:** tarjeta en la esquina o centrada con fondo; se activa por tiempo, al bajar un porcentaje o al intentar salir (en celular, por tiempo); una vez por visita; se cierra con Esc o con su botón.
 - **Colores de peligro:** rojo suave sobre fondo oscuro y rojo profundo sobre fondo claro, para que siempre se lea.
+
+## Texto con formato
+
+Los titulares y los textos largos se editan con un editor tipo Word (negrita, cursiva, subrayado, tachado, listas, alineación, enlaces, color y resaltado). Los colores no se guardan como valor sino como clase del tema (`t-accent`, `m-primary`…), así que siguen a la paleta si se cambia. Los titulares admiten solo formato en línea; los campos «una línea por punto» (incluye, columnas de la comparativa) quedan como texto plano a propósito. Todo se limpia con lista blanca al guardar (HTMLPurifier) y otra vez al pintar (DOMPurify).

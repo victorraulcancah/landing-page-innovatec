@@ -1,7 +1,8 @@
 import { ContactList } from '@/components/landing/footer';
 import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
-import { ctaHref, ctaOf, flag, list, paragraphs, sectionLook, splitStations, text, type CtaContext, type PublicSection } from '@/lib/landing';
+import { Rich } from '@/components/landing/rich';
+import { ctaHref, ctaOf, flag, list, sectionLook, splitStations, text, type CtaContext, type PublicSection } from '@/lib/landing';
 import { type ContactData, type Json, type ThemeData } from '@/types/cms';
 import { ArrowRight, Check, X } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
@@ -85,12 +86,8 @@ function Head({ section }: { section: PublicSection }) {
     if (!title && !subtitle) return null;
     return (
         <div className="lp-head" data-reveal="head">
-            {title && (
-                <h2 id={`h-${section.id}`} className="lp-h2">
-                    {title}
-                </h2>
-            )}
-            {subtitle && <p className="lp-lead">{subtitle}</p>}
+            {title && <Rich as="h2" inline id={`h-${section.id}`} className="lp-h2" html={title} />}
+            {subtitle && <Rich className="lp-lead" html={subtitle} />}
         </div>
     );
 }
@@ -115,8 +112,8 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
         >
             <div className="lp-hero__grid">
                 <div>
-                    <h1 id={`h-${section.id}`}>{text(c, 'title')}</h1>
-                    {text(c, 'subtitle') && <p className="lp-hero__lead">{text(c, 'subtitle')}</p>}
+                    <Rich as="h1" inline id={`h-${section.id}`} html={text(c, 'title')} />
+                    {text(c, 'subtitle') && <Rich className="lp-hero__lead" html={text(c, 'subtitle')} />}
                     {(primary || secondary) && (
                         <div className="lp-hero__actions">
                             {primary && (
@@ -242,7 +239,7 @@ export function Features({ section, theme, cut }: SectionProps) {
                         <span className="lp-ring" aria-hidden />
                         {str(it.badge) && <span className="lp-sign lp-sign--on-line">{str(it.badge)}</span>}
                         <h3>{str(it.title)}</h3>
-                        {str(it.text) && <p>{str(it.text)}</p>}
+                        {str(it.text) && <Rich html={str(it.text)} />}
                     </li>
                 ))}
             </ol>
@@ -269,7 +266,7 @@ export function Steps({ section, theme, cut }: SectionProps) {
                                 <span className="sr-only">Paso {i + 1}: </span>
                                 {str(it.title)}
                             </h3>
-                            {str(it.text) && <p>{str(it.text)}</p>}
+                            {str(it.text) && <Rich html={str(it.text)} />}
                         </li>
                     );
                 })}
@@ -347,7 +344,7 @@ export function Proof({ section, theme, cut }: SectionProps) {
                 <div className="lp-quotes">
                     {quotes.map((q, i) => (
                         <blockquote key={i} className="lp-quote" data-reveal="up" style={{ '--i': i } as CSSProperties}>
-                            <p>{str(q.text)}</p>
+                            <Rich html={str(q.text)} />
                             <footer>
                                 <cite>{str(q.author)}</cite>
                                 {str(q.role) && <span> · {str(q.role)}</span>}
@@ -372,11 +369,7 @@ export function Faq({ section, theme, cut }: SectionProps) {
                 {items.map((it, i) => (
                     <details key={i} data-reveal="up" style={{ '--i': i } as CSSProperties}>
                         <summary>{str(it.q)}</summary>
-                        <div className="lp-faq__a">
-                            {paragraphs(str(it.a)).map((p, j) => (
-                                <p key={j}>{p}</p>
-                            ))}
-                        </div>
+                        <Rich className="lp-faq__a" html={str(it.a)} />
                     </details>
                 ))}
             </div>
@@ -401,11 +394,7 @@ export function TextBlock({ section, theme, cut }: SectionProps) {
                 )}
                 <div className="lp-prose">
                     <Head section={section} />
-                    {paragraphs(text(c, 'body')).map((p, i) => (
-                        <p key={i} data-reveal="up" style={{ '--i': i + 1 } as CSSProperties}>
-                            {p}
-                        </p>
-                    ))}
+                    <Rich html={text(c, 'body')} reveal="up" style={{ '--i': 1 } as CSSProperties} />
                 </div>
                 {image && pos !== 'top' && (
                     <div className="lp-split__media" data-reveal="wipe">
@@ -430,10 +419,8 @@ export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: 
                 <div>
                     <div className="lp-terminal" aria-hidden data-reveal="cta" />
                     <div className="lp-head" style={{ marginBottom: 0 }}>
-                        <h2 id={`h-${section.id}`} className="lp-h2">
-                            {text(c, 'title')}
-                        </h2>
-                        {text(c, 'text') && <p className="lp-lead">{text(c, 'text')}</p>}
+                        <Rich as="h2" inline id={`h-${section.id}`} className="lp-h2" html={text(c, 'title')} />
+                        {text(c, 'text') && <Rich className="lp-lead" html={text(c, 'text')} />}
                     </div>
                     {button && (
                         <p style={{ marginTop: '1.5rem' }}>
@@ -507,7 +494,7 @@ export function Included({ section, theme, cut }: SectionProps) {
             {(text(c, 'footer_title') || text(c, 'footer_text')) && (
                 <div className="lp-included__foot" data-reveal="up" style={{ '--i': items.length } as CSSProperties}>
                     {text(c, 'footer_title') && <h3>{text(c, 'footer_title')}</h3>}
-                    {text(c, 'footer_text') && <p>{text(c, 'footer_text')}</p>}
+                    {text(c, 'footer_text') && <Rich html={text(c, 'footer_text')} />}
                 </div>
             )}
         </Frame>

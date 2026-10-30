@@ -37,8 +37,8 @@ class SectionTypes
                 'label' => 'Portada',
                 'description' => 'Titular principal, texto de apoyo, botones e imagen.',
                 'content' => [
-                    self::text('title', 'Titular', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Titular', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::cta('primary_cta', 'Botón principal'),
                     self::cta('secondary_cta', 'Botón secundario'),
                     self::image('image', 'Imagen'),
@@ -57,8 +57,8 @@ class SectionTypes
                 'label' => 'Comparativa',
                 'description' => 'Tabla de dos columnas: antes y después, o competencia contra tu servicio.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::text('left_label', 'Encabezado columna izquierda'),
                     self::text('right_label', 'Encabezado columna derecha'),
                     self::list('rows', 'Filas', [
@@ -77,13 +77,13 @@ class SectionTypes
                 'label' => 'Tarjetas',
                 'description' => 'Beneficios, pilares o entregables en tarjetas.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::select('columns', 'Columnas', ['2' => '2', '3' => '3', '4' => '4']),
                     self::list('items', 'Tarjetas', [
                         self::text('badge', 'Etiqueta (opcional)'),
                         self::text('title', 'Título'),
-                        self::textarea('text', 'Texto'),
+                        self::richtext('text', 'Texto'),
                     ], 'title'),
                 ],
                 'style' => [],
@@ -96,11 +96,11 @@ class SectionTypes
                 'label' => 'Pasos',
                 'description' => 'Cómo funciona, en pasos numerados.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::list('items', 'Pasos', [
                         self::text('title', 'Título'),
-                        self::textarea('text', 'Texto'),
+                        self::richtext('text', 'Texto'),
                     ], 'title'),
                 ],
                 'style' => [],
@@ -113,8 +113,8 @@ class SectionTypes
                 'label' => 'Paquetes',
                 'description' => 'Planes o paquetes con lo que incluye cada uno.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::list('items', 'Paquetes', [
                         self::text('name', 'Nombre'),
                         self::text('tagline', 'Frase corta'),
@@ -138,13 +138,13 @@ class SectionTypes
                 'label' => 'Prueba social',
                 'description' => 'Cifras reales y testimonios. Úsala solo con datos verificables.',
                 'content' => [
-                    self::text('title', 'Título', 200),
+                    self::richline('title', 'Título', 200),
                     self::list('stats', 'Cifras', [
                         self::text('value', 'Valor (ej. 120+)'),
                         self::text('label', 'Descripción'),
                     ], 'value'),
                     self::list('quotes', 'Testimonios', [
-                        self::textarea('text', 'Testimonio'),
+                        self::richtext('text', 'Testimonio'),
                         self::text('author', 'Nombre'),
                         self::text('role', 'Cargo y empresa'),
                     ], 'author'),
@@ -156,10 +156,10 @@ class SectionTypes
                 'label' => 'Preguntas frecuentes',
                 'description' => 'Preguntas y respuestas desplegables.',
                 'content' => [
-                    self::text('title', 'Título', 200),
+                    self::richline('title', 'Título', 200),
                     self::list('items', 'Preguntas', [
                         self::text('q', 'Pregunta'),
-                        self::textarea('a', 'Respuesta'),
+                        self::richtext('a', 'Respuesta'),
                     ], 'q'),
                 ],
                 'style' => [],
@@ -169,8 +169,8 @@ class SectionTypes
                 'label' => 'Texto libre',
                 'description' => 'Un título y un bloque de texto, con imagen opcional.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('body', 'Texto'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('body', 'Texto'),
                     self::image('image', 'Imagen'),
                     self::text('image_alt', 'Descripción de la imagen'),
                 ],
@@ -234,8 +234,8 @@ class SectionTypes
                 'label' => 'Autodiagnóstico',
                 'description' => 'Lista de situaciones que el visitante marca; muestra su nivel de exposición y lo lleva al formulario con sus respuestas.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::list('items', 'Situaciones (el visitante marca las que le pasan)', [
                         self::text('text', 'Situación'),
                     ], 'text'),
@@ -261,14 +261,14 @@ class SectionTypes
                 'label' => 'Qué incluye',
                 'description' => 'Paneles con lo que recibe el cliente, en listas con marcas, y una franja final.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('subtitle', 'Texto de apoyo'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
                     self::list('items', 'Paneles', [
                         self::text('title', 'Título del panel'),
                         self::textarea('points', 'Puntos (una línea por punto)'),
                     ], 'title'),
                     self::text('footer_title', 'Franja final: título'),
-                    self::textarea('footer_text', 'Franja final: texto'),
+                    self::richtext('footer_text', 'Franja final: texto'),
                 ],
                 'style' => [],
                 'defaults' => [
@@ -301,8 +301,8 @@ class SectionTypes
                 'label' => 'Llamado final',
                 'description' => 'Cierre con botón y formulario de contacto.',
                 'content' => [
-                    self::text('title', 'Título', 200),
-                    self::textarea('text', 'Texto'),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('text', 'Texto'),
                     self::toggle('show_form', 'Mostrar formulario de contacto'),
                     self::toggle('show_contact', 'Mostrar datos de contacto'),
                     self::text('form_button', 'Texto del botón del formulario'),
@@ -395,6 +395,8 @@ class SectionTypes
             $out[$key] = match ($f['type']) {
                 'text' => self::str($value, $f['max'] ?? 300),
                 'textarea' => self::str($value, 4000),
+                'richtext' => RichText::clean($value),
+                'richline' => RichText::clean($value, true),
                 'toggle' => filter_var($value, FILTER_VALIDATE_BOOLEAN),
                 'number' => self::num($value, (float) ($f['min'] ?? 0), (float) ($f['max'] ?? 1000000)),
                 'select' => array_key_exists((string) $value, $f['options']) ? (string) $value : (string) array_key_first($f['options']),
@@ -480,6 +482,18 @@ class SectionTypes
     private static function textarea(string $key, string $label): array
     {
         return ['key' => $key, 'label' => $label, 'type' => 'textarea'];
+    }
+
+    /** Texto con formato (negrita, listas, enlaces, colores, alineación); se limpia al guardar. */
+    private static function richtext(string $key, string $label): array
+    {
+        return ['key' => $key, 'label' => $label, 'type' => 'richtext'];
+    }
+
+    /** Una sola línea con formato en línea (negrita, color, resaltado); para titulares. */
+    private static function richline(string $key, string $label): array
+    {
+        return ['key' => $key, 'label' => $label, 'type' => 'richline'];
     }
 
     private static function number(string $key, string $label, float $min, float $max): array

@@ -156,3 +156,59 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* ---- Editor de texto con formato del panel -------------------------------------------- */
+
+.rich-editor .ProseMirror {
+    min-height: 6rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    outline: none;
+}
+
+.rich-editor__area--inline .ProseMirror {
+    min-height: 2.5rem;
+}
+
+.rich-editor .ProseMirror > * + * {
+    margin-top: 0.6em;
+}
+
+.rich-editor .ProseMirror ul {
+    list-style: disc;
+    padding-left: 1.4em;
+}
+
+.rich-editor .ProseMirror ol {
+    list-style: decimal;
+    padding-left: 1.4em;
+}
+
+.rich-editor .ProseMirror a {
+    color: var(--c-primary, #1c53ee);
+    text-decoration: underline;
+}
+
+.rich-editor .t-primary { color: var(--c-primary); }
+.rich-editor .t-accent { color: var(--c-accent); }
+.rich-editor .t-dark { color: var(--c-dark); }
+.rich-editor .t-muted { color: var(--c-muted); }
+.rich-editor .t-light {
+    color: var(--c-on-dark);
+    background: var(--c-dark);
+    border-radius: 0.2em;
+    padding: 0 0.2em;
+}
+
+.rich-editor .m-primary,
+.rich-editor .m-accent,
+.rich-editor .m-surface,
+.rich-editor .m-dark {
+    padding: 0 0.25em;
+    border-radius: 0.2em;
+}
+.rich-editor .m-primary { background: var(--c-primary); color: var(--c-on-primary, #fff); }
+.rich-editor .m-accent { background: var(--c-accent); color: var(--c-dark); }
+.rich-editor .m-surface { background: var(--c-surface); color: var(--c-dark); }
+.rich-editor .m-dark { background: var(--c-dark); color: var(--c-on-dark); }

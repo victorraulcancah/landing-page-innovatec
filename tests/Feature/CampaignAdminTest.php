@@ -221,6 +221,51 @@ class CampaignAdminTest extends TestCase
             ->where('sections.3.type', 'popup'));
     }
 
+    public function test_el_texto_con_formato_conserva_lo_permitido_y_quita_lo_peligroso(): void
+    {
+        $clean = SectionTypes::sanitizeContent('text', [
+            'title' => 'Cada hora <span class="m-accent">cuesta</span><script>alert(1)</script>',
+            'body' => '<p style="text-align:center;position:fixed" onclick="x()">Hola <strong>mundo</strong> <span class="t-accent">naranja</span> <span class="inventada">x</span></p>'
+                .'<p><a href="javascript:alert(1)">mal</a> <a href="https://uco360.pe" target="_blank">bien</a></p>'
+                .'<ul><li>uno</li></ul><img src="x" onerror="alert(1)"><iframe src="https://evil.test"></iframe>',
+        ]);
+
+        $this->assertStringContainsString('<span class="m-accent">cuesta</span>', $clean['title']);
+        $this->assertStringNotContainsString('script', $clean['title']);
+        $this->assertStringNotContainsString('<p', $clean['title']);
+
+        $body = $clean['body'];
+        $this->assertStringContainsString('<strong>mundo</strong>', $body);
+        $this->assertStringContainsString('class="t-accent"', $body);
+        $this->assertStringContainsString('text-align:center', $body);
+        $this->assertStringContainsString('<li>uno</li>', $body);
+        $this->assertStringContainsString('href="https://uco360.pe"', $body);
+        foreach (['onclick', 'position', 'inventada', 'javascript:', '<img', 'onerror', 'iframe'] as $bad) {
+            $this->assertStringNotContainsString($bad, $body);
+        }
+    }
+
+    public function test_los_titulares_y_textos_largos_usan_el_editor_y_las_listas_siguen_en_texto_plano(): void
+    {
+        $text = collect(SectionTypes::schemaForClient()['text']['content'])->keyBy('key');
+        $this->assertSame('richline', $text['title']['type']);
+        $this->assertSame('richtext', $text['body']['type']);
+
+        // «Una línea por punto» no admite formato: lo rompería.
+        $included = collect(SectionTypes::schemaForClient()['included']['content'])->keyBy('key');
+        $points = collect($included['items']['fields'])->keyBy('key');
+        $this->assertSame('textarea', $points['points']['type']);
+    }
+
+    public function test_el_texto_plano_guardado_antes_del_editor_sigue_siendo_valido(): void
+    {
+        $clean = SectionTypes::sanitizeContent('text', ['title' => 'Precio < 5 & más', 'body' => "Primero.\n\nSegundo."]);
+
+        $this->assertSame('Precio &lt; 5 &amp; más', $clean['title']);
+        $this->assertStringContainsString('Primero.', $clean['body']);
+        $this->assertStringContainsString('Segundo.', $clean['body']);
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();

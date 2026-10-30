@@ -2516,3 +2516,84 @@ textarea.lp-input {
         transform: translateY(-100%);
     }
 }
+
+/* ---- Texto con formato (editor del panel) ------------------------------------------------ */
+
+.lp-rich > * + * {
+    margin-top: 0.75em;
+}
+
+.lp-rich ul,
+.lp-rich ol {
+    padding-left: 1.3em;
+}
+
+.lp-rich ul {
+    list-style: disc;
+}
+
+.lp-rich ol {
+    list-style: decimal;
+}
+
+.lp-rich li + li {
+    margin-top: 0.3em;
+}
+
+.lp-rich li::marker {
+    color: var(--line);
+}
+
+.lp-rich a {
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
+}
+
+.lp-rich a:hover {
+    text-decoration-thickness: 0.14em;
+}
+
+/* Los colores se guardan por nombre y siguen la paleta del tema. */
+.lp-rich .t-primary {
+    color: var(--c-primary);
+}
+.lp-rich .t-accent {
+    color: var(--c-accent);
+}
+.lp-rich .t-dark {
+    color: var(--c-dark);
+}
+.lp-rich .t-muted {
+    color: var(--c-muted);
+}
+.lp-rich .t-light {
+    color: var(--c-on-dark);
+}
+
+.lp-rich .m-primary,
+.lp-rich .m-accent,
+.lp-rich .m-surface,
+.lp-rich .m-dark {
+    padding: 0 0.28em;
+    border-radius: 0.22em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+.lp-rich .m-primary {
+    background: var(--c-primary);
+    color: var(--c-on-primary);
+}
+.lp-rich .m-accent {
+    background: var(--c-accent);
+    color: var(--c-dark);
+}
+.lp-rich .m-surface {
+    background: var(--c-surface);
+    color: var(--c-dark);
+}
+.lp-rich .m-dark {
+    background: var(--c-dark);
+    color: var(--c-on-dark);
+}

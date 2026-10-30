@@ -1,5 +1,6 @@
 import { ColorField } from '@/components/admin/color-field';
 import { ImageField } from '@/components/admin/image-field';
+import { RichTextField } from '@/components/admin/rich-text-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -121,6 +122,9 @@ function FieldControl({ field, value, onChange, error }: FieldControlProps) {
                     <Textarea id={id} rows={4} value={String(value ?? '')} onChange={(e) => onChange(e.target.value)} />
                 </>,
             );
+        case 'richtext':
+        case 'richline':
+            return wrap(<RichTextField label={field.label} value={String(value ?? '')} onChange={onChange} inline={field.type === 'richline'} />);
         case 'toggle':
             return wrap(
                 <div className="flex items-center gap-2">

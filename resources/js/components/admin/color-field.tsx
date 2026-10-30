@@ -18,6 +18,8 @@ const ColorTokensContext = createContext<ColorTokens | null>(null);
 /** Habilita en los campos de color la lista de colores del tema. */
 export const ColorTokensProvider = ColorTokensContext.Provider;
 
+export const useColorTokens = () => useContext(ColorTokensContext);
+
 interface ColorFieldProps {
     label: string;
     value: string | null;
