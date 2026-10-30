@@ -101,6 +101,8 @@ export type ContactData = {
     email: string;
     address: string;
     website: string;
+    map_url?: string;
+    map_embed?: string;
 };
 
 export type FooterData = {

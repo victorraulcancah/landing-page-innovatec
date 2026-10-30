@@ -193,12 +193,12 @@ const KINDS: Record<VisualKind, () => ReactNode> = {
 };
 
 /** Una ilustración lista para insertar; entra en pantalla con la animación de su tipo. */
-export function Visual({ kind, className = '', style, scrub }: { kind: VisualKind; className?: string; style?: CSSProperties; scrub?: boolean }) {
+export function Visual({ kind, className = '', style, scrub, shown }: { kind: VisualKind; className?: string; style?: CSSProperties; scrub?: boolean; shown?: boolean }) {
     const Piece = KINDS[kind];
     if (!Piece) return null;
 
     return (
-        <div className={`lp-vis lp-vis--${kind} ${className}`.trim()} style={style} data-reveal="vis" data-scrub={scrub ? '' : undefined} aria-hidden>
+        <div className={`lp-vis lp-vis--${kind} ${shown ? 'is-in' : ''} ${className}`.trim()} style={style} data-reveal="vis" data-scrub={scrub ? '' : undefined} aria-hidden>
             <Piece />
         </div>
     );

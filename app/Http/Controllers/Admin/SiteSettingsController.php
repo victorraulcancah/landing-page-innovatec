@@ -10,6 +10,7 @@ use App\Support\SiteDefaults;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -112,9 +113,32 @@ class SiteSettingsController extends Controller
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string', 'max:250'],
             'website' => ['nullable', 'string', 'max:150'],
-        ]) + array_fill_keys(['whatsapp', 'whatsapp_message', 'phone', 'email', 'address', 'website'], '');
+            'map_url' => ['nullable', 'string', 'max:500', 'regex:#^https://\S+$#i'],
+            'map_embed' => ['nullable', 'string', 'max:1500'],
+        ], [
+            'map_url.regex' => 'Pega el enlace completo de Google Maps (empieza con https://).',
+        ]) + array_fill_keys(['whatsapp', 'whatsapp_message', 'phone', 'email', 'address', 'website', 'map_url', 'map_embed'], '');
+
+        $data['map_embed'] = $this->embedUrl((string) ($data['map_embed'] ?? ''));
 
         return array_map(fn ($v) => $v ?? '', $data);
+    }
+
+    /** Acepta el código «Incorporar un mapa» de Google o solo su enlace; guarda únicamente la dirección del mapa. */
+    private function embedUrl(string $input): string
+    {
+        $input = trim($input);
+        if (preg_match('/src\s*=\s*["\']([^"\']+)["\']/i', $input, $found)) {
+            $input = html_entity_decode($found[1], ENT_QUOTES);
+        }
+
+        if ($input !== '' && ! preg_match('#^https://www\.google\.com/maps/embed[/?]#', $input)) {
+            throw ValidationException::withMessages([
+                'map_embed' => 'Pega el código de «Incorporar un mapa» de Google Maps (o su enlace).',
+            ]);
+        }
+
+        return $input;
     }
 
     private function cleanFooter(Request $request): array

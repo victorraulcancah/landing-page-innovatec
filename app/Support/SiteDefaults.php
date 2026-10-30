@@ -112,6 +112,9 @@ class SiteDefaults
             'email' => 'ventas@proinnovatec.com',
             'address' => 'Av. Javier Prado Este Nro. 1166 Of 801 - San Isidro, Lima',
             'website' => 'www.proinnovatec.com',
+            // Vacíos = el mapa y el enlace se arman con la dirección. Se llenan para una ubicación exacta.
+            'map_url' => '',
+            'map_embed' => '',
         ];
     }
 

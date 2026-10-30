@@ -2430,55 +2430,238 @@ textarea.lp-input {
     background: rgb(10 9 40 / 0.62);
 }
 
+/* Tarjeta: panel de imagen o ilustración (azul noche) + panel de texto. El texto sigue el estilo de la sección. */
 .lp-popup__card {
-    --bg: var(--c-background);
-    --fg: var(--c-text);
-    --line: var(--c-primary);
-    --btn-bg: var(--c-primary);
-    --btn-fg: var(--c-on-primary);
     position: relative;
+    display: grid;
     width: 100%;
     max-width: 25rem;
-    padding: 1.5rem 1.5rem 1.6rem;
-    border-radius: calc(var(--r) * 1.4);
-    background: var(--c-background);
-    color: var(--c-text);
-    border: 1px solid color-mix(in srgb, var(--c-text) 14%, transparent);
-    box-shadow: 0 30px 60px -28px rgb(10 9 40 / 0.65);
+    overflow: hidden;
+    border-radius: calc(var(--r) * 1.6);
+    background: var(--bg);
+    color: var(--fg);
+    box-shadow: 0 36px 70px -30px rgb(10 9 40 / 0.7);
+}
+
+.lp-popup__body {
     display: grid;
-    gap: 0.75rem;
+    gap: 0.8rem;
+    align-content: center;
     justify-items: start;
+    padding: 1.4rem 1.6rem 1.6rem;
 }
 
 .lp-popup__card h2 {
-    font-size: 1.3rem;
+    max-width: 16ch;
+    font-family: var(--font-head);
+    font-size: 1.5rem;
     font-weight: 800;
-    letter-spacing: -0.01em;
-    padding-right: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
 }
 
 .lp-popup__card p {
-    color: color-mix(in srgb, var(--c-text) 80%, transparent);
+    max-width: 38ch;
+    color: color-mix(in srgb, var(--fg) 82%, transparent);
 }
 
+.lp-popup__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    margin-top: 0.4rem;
+}
+
+.lp-popup__skip {
+    min-height: 44px;
+    padding: 0 0.25rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--fg) 40%, transparent);
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+}
+.lp-popup__skip:hover {
+    text-decoration-color: currentColor;
+}
+
+/* Panel de imagen: azul noche con las hojas del brochure; la ilustración asoma por debajo. */
+.lp-popup__media {
+    position: relative;
+    display: grid;
+    align-items: end;
+    justify-items: center;
+    height: 11.5rem;
+    overflow: hidden;
+    padding: 1.25rem 1.25rem 0;
+    background: var(--c-dark);
+}
+
+.lp-popup__blade {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 36%;
+    height: 78%;
+    background: var(--c-primary);
+    clip-path: polygon(40% 0, 100% 0, 100% 100%, 0 100%);
+}
+.lp-popup__blade--o {
+    right: 31%;
+    width: 9%;
+    height: 38%;
+    background: var(--c-accent);
+    clip-path: polygon(50% 0, 100% 0, 50% 100%, 0 100%);
+}
+
+.lp-popup__vis {
+    position: relative;
+    z-index: 1;
+    max-width: 19rem;
+    margin: 0 0 -2.6rem;
+}
+
+/* Foto propia: ocupa el panel y su borde se corta en diagonal con un filo naranja. */
+.lp-popup__media--photo {
+    padding: 0;
+    background: transparent;
+}
+.lp-popup__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    clip-path: polygon(0 0, 100% 0, 100% 84%, 0 94%);
+}
+.lp-popup__media--photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: var(--c-accent);
+    clip-path: polygon(0 94%, 100% 84%, 100% 90%, 0 100%);
+}
+
+/* La X siempre se ve, sobre la foto, el azul noche o el texto. */
 .lp-popup__close {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
-    border: 0;
+    border: 1px solid color-mix(in srgb, var(--c-text) 14%, transparent);
     border-radius: 50%;
-    background: transparent;
-    color: inherit;
+    background: var(--c-background);
+    color: var(--c-text);
+    box-shadow: 0 6px 14px -8px rgb(10 9 40 / 0.5);
     cursor: pointer;
+    transition:
+        transform 0.3s var(--ease-out),
+        background-color 0.2s ease;
+}
+.lp-popup__close:hover {
+    transform: rotate(90deg);
+    background: var(--c-surface);
 }
 
-.lp-popup__close:hover {
-    background: color-mix(in srgb, var(--c-text) 10%, transparent);
+/* Centrado con fondo oscuro: imagen a un lado y texto al otro. */
+@media (min-width: 720px) {
+    .lp-popup--center .lp-popup__card {
+        max-width: 54rem;
+    }
+    .lp-popup--center .lp-popup__card--media {
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    }
+    .lp-popup--center .lp-popup__media {
+        height: auto;
+        min-height: 25rem;
+        align-items: center;
+        padding: 2rem 2rem 2rem 1.5rem;
+    }
+    .lp-popup--center .lp-popup__vis {
+        margin: 0;
+        max-width: 22rem;
+    }
+    .lp-popup--center .lp-popup__media--photo {
+        padding: 0;
+    }
+    .lp-popup--center .lp-popup__media img {
+        clip-path: polygon(0 0, 93% 0, 83% 100%, 0 100%);
+    }
+    .lp-popup--center .lp-popup__media--photo::after {
+        clip-path: polygon(93% 0, 98% 0, 88% 100%, 83% 100%);
+    }
+    .lp-popup--center .lp-popup__body {
+        padding: clamp(2rem, 4vw, 3rem) clamp(1.75rem, 4vw, 3rem);
+        gap: 1rem;
+    }
+    .lp-popup--center .lp-popup__card h2 {
+        font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.25rem);
+    }
+    .lp-popup--center .lp-popup__blade {
+        height: 62%;
+    }
+}
+
+@media (max-width: 719px) {
+    .lp-popup--center .lp-popup__card {
+        max-height: calc(100dvh - 2rem);
+        overflow-y: auto;
+    }
+}
+
+/* Entrada: la tarjeta sube, el panel de imagen se abre y el texto llega en escalera. */
+@media (prefers-reduced-motion: no-preference) {
+    .lp-popup__blade {
+        animation: lp-blade-in 0.9s var(--ease-out) 0.15s backwards;
+    }
+    .lp-popup__blade--o {
+        animation-delay: 0.3s;
+    }
+    .lp-popup__vis {
+        animation: lp-up 0.9s var(--ease-out) 0.25s backwards;
+    }
+    .lp-popup__media--photo img {
+        animation: lp-photo-open 1s var(--ease-out) 0.1s backwards;
+    }
+    .lp-popup__body > *,
+    .lp-popup__actions > * {
+        animation: lp-up 0.7s var(--ease-out) backwards;
+    }
+    .lp-popup__body > :nth-child(1) {
+        animation-delay: 0.22s;
+    }
+    .lp-popup__body > :nth-child(2) {
+        animation-delay: 0.3s;
+    }
+    .lp-popup__body > :nth-child(3) {
+        animation-delay: 0.38s;
+    }
+}
+
+@keyframes lp-blade-in {
+    from {
+        opacity: 0;
+        transform: translate(40%, -12%);
+    }
+}
+
+@keyframes lp-photo-open {
+    from {
+        transform: scale(1.12);
+        opacity: 0;
+    }
 }
 
 /* ---- Movimiento de las piezas nuevas ---------------------------------------------------------------- */
@@ -3464,4 +3647,58 @@ textarea.lp-input {
 }
 .lp[data-motion='full'].lp--js [data-reveal='blades'].is-in i:nth-child(1) {
     opacity: 0.9;
+}
+
+/* ---- Mapa de la ubicación ------------------------------------------------------------------------------ */
+
+.lp-map {
+    position: relative;
+    margin-top: 1.75rem;
+    max-width: 34rem;
+    aspect-ratio: 16 / 10;
+    min-height: 14rem;
+    overflow: hidden;
+    border-radius: calc(var(--r) * 1.4);
+    border: 1px solid color-mix(in srgb, var(--fg) 22%, transparent);
+    background: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+.lp-map iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.lp-map__open {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    background: var(--c-background);
+    color: var(--c-text);
+    font-family: var(--font-head);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 12px 22px -12px rgb(10 9 40 / 0.65);
+    transition: transform 0.3s var(--ease-out);
+}
+.lp-map__open:hover {
+    transform: translateY(-2px);
+}
+
+/* Sin mapa incrustado queda solo el botón. */
+.lp-map--link {
+    aspect-ratio: auto;
+    min-height: 0;
+    border: 0;
+    background: none;
+    overflow: visible;
 }

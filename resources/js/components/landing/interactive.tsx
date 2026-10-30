@@ -1,3 +1,4 @@
+import { Visual, type VisualKind } from '@/components/landing/visuals';
 import { ctaHref, ctaOf, flag, sectionLook, text, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json, type ThemeData } from '@/types/cms';
@@ -267,6 +268,11 @@ export function Popup({ section, theme, ctx }: { section: PublicSection; theme: 
     const once = flag(c, 'once');
     const look = sectionLook(section.style, theme);
     const button = ctaOf(c, 'button');
+    const image = text(c, 'image');
+    const visual = (text(c, 'visual') || 'report') as VisualKind | 'none';
+    const hasMedia = Boolean(image) || visual !== 'none';
+    // Los campos nuevos no existen en campañas anteriores: ahí se usan los de fábrica.
+    const dismiss = 'dismiss_label' in c ? text(c, 'dismiss_label') : 'Ahora no';
 
     useEffect(() => {
         try {
@@ -320,18 +326,42 @@ export function Popup({ section, theme, ctx }: { section: PublicSection; theme: 
     return (
         <div className={`lp-popup ${center ? 'lp-popup--center' : 'lp-popup--corner'}`} style={look.style}>
             {center && <div className="lp-popup__backdrop" onClick={() => setOpen(false)} aria-hidden />}
-            <div className="lp-popup__card" role="dialog" aria-modal={center} aria-labelledby={`pp-${section.id}`}>
+            <div className={`lp-popup__card ${hasMedia ? 'lp-popup__card--media' : ''}`} role="dialog" aria-modal={center} aria-labelledby={`pp-${section.id}`}>
                 <button ref={closeRef} type="button" className="lp-popup__close" aria-label="Cerrar" onClick={() => setOpen(false)}>
                     <X size={18} aria-hidden />
                 </button>
-                <h2 id={`pp-${section.id}`}>{text(c, 'title')}</h2>
-                {text(c, 'text') && <p>{text(c, 'text')}</p>}
-                {button && (
-                    <a className="lp-btn" href={ctaHref(button, ctx)} onClick={() => setOpen(false)}>
-                        {button.label}
-                        <ArrowRight size={18} aria-hidden />
-                    </a>
+                {hasMedia && (
+                    <div className={`lp-popup__media ${image ? 'lp-popup__media--photo' : ''}`}>
+                        {image ? (
+                            <img src={image} alt={text(c, 'image_alt')} />
+                        ) : (
+                            <>
+                                <span className="lp-popup__blade" aria-hidden />
+                                <span className="lp-popup__blade lp-popup__blade--o" aria-hidden />
+                                <Visual kind={visual as VisualKind} shown className="lp-popup__vis" />
+                            </>
+                        )}
+                    </div>
                 )}
+                <div className="lp-popup__body">
+                    <h2 id={`pp-${section.id}`}>{text(c, 'title')}</h2>
+                    {text(c, 'text') && <p>{text(c, 'text')}</p>}
+                    {(button || dismiss) && (
+                        <div className="lp-popup__actions">
+                            {button && (
+                                <a className="lp-btn" href={ctaHref(button, ctx)} onClick={() => setOpen(false)}>
+                                    {button.label}
+                                    <ArrowRight size={18} aria-hidden />
+                                </a>
+                            )}
+                            {dismiss && (
+                                <button type="button" className="lp-popup__skip" onClick={() => setOpen(false)}>
+                                    {dismiss}
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-import { ContactList } from '@/components/landing/footer';
+import { ContactList, LocationMap } from '@/components/landing/footer';
 import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
 import { Rich } from '@/components/landing/rich';
@@ -486,6 +486,7 @@ export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: 
                         </p>
                     )}
                     {flag(c, 'show_contact') && <ContactList contact={contact} />}
+                    {flag(c, 'show_map') && <LocationMap contact={contact} />}
                 </div>
                 {showForm && (
                     <div className="lp-panel" data-reveal="up" style={{ '--i': 2 } as CSSProperties}>

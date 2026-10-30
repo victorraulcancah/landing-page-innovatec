@@ -316,8 +316,16 @@ class CampaignAdminTest extends TestCase
         unset($content['overlay']);
         $text->update(['content' => $content]);
 
+        $popup = $campaign->sections()->where('type', 'popup')->first();
+        $old = $popup->content;
+        unset($old['visual'], $old['dismiss_label']);
+        $popup->update(['content' => $old]);
+
         $this->seed(\Database\Seeders\VisualesSeeder::class);
         $this->seed(\Database\Seeders\VisualesSeeder::class);
+
+        $this->assertSame('Ahora no', $popup->fresh()->content['dismiss_label']);
+        $this->assertSame('report', $popup->fresh()->content['visual']);
 
         $types = $campaign->sections()->orderBy('position')->pluck('type')->all();
         $this->assertSame(1, count(array_keys($types, 'marquee')));
@@ -325,6 +333,64 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('report', $text->fresh()->content['overlay']);
         $positions = $campaign->sections()->pluck('position')->all();
         $this->assertCount(count($positions), array_unique($positions));
+    }
+
+    public function test_el_mapa_acepta_el_codigo_de_google_y_guarda_solo_su_direccion(): void
+    {
+        $this->login();
+        $contact = Setting::get('contact');
+        $src = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1d3901.5!2d-77.0!3d-12.09';
+
+        $this->put(route('site.update', 'contact'), [
+            ...$contact,
+            'map_url' => 'https://maps.app.goo.gl/abc123',
+            'map_embed' => '<iframe src="'.$src.'" width="600" onload="x()" loading="lazy"></iframe>',
+        ])->assertSessionHasNoErrors();
+
+        $saved = Setting::get('contact');
+        $this->assertSame($src, $saved['map_embed']);
+        $this->assertSame('https://maps.app.goo.gl/abc123', $saved['map_url']);
+    }
+
+    public function test_el_mapa_rechaza_enlaces_que_no_son_de_google_ni_https(): void
+    {
+        $this->login();
+        $contact = Setting::get('contact');
+
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_embed' => '<iframe src="https://evil.test/x"></iframe>'])
+            ->assertSessionHasErrors('map_embed');
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_embed' => 'javascript:alert(1)'])
+            ->assertSessionHasErrors('map_embed');
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_url' => 'http://maps.example.test'])
+            ->assertSessionHasErrors('map_url');
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_url' => 'javascript:alert(1)'])
+            ->assertSessionHasErrors('map_url');
+    }
+
+    public function test_sin_datos_de_mapa_la_landing_usa_la_direccion_y_el_cierre_trae_el_ajuste(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('contact.map_url', '')
+            ->where('contact.map_embed', '')
+            ->where('contact.address', fn ($v) => str_contains($v, 'San Isidro')));
+
+        $cta = Campaign::where('status', 'active')->first()->sections()->where('type', 'cta')->first();
+        $this->assertTrue($cta->content['show_map']);
+    }
+
+    public function test_el_seeder_de_visuales_enciende_el_mapa_en_campanas_anteriores(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $cta = Campaign::where('status', 'active')->first()->sections()->where('type', 'cta')->first();
+        $old = $cta->content;
+        unset($old['show_map']);
+        $cta->update(['content' => $old]);
+
+        $this->seed(\Database\Seeders\VisualesSeeder::class);
+
+        $this->assertTrue($cta->fresh()->content['show_map']);
     }
 
     public function test_las_secciones_se_pueden_reordenar(): void

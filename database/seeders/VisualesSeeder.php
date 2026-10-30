@@ -26,6 +26,37 @@ class VisualesSeeder extends Seeder
 
         $this->franja($campaign);
         $this->tarjetaSobreLaFoto($campaign);
+        $this->popup($campaign);
+        $this->mapa($campaign);
+    }
+
+    /** El cierre ahora puede mostrar el mapa: se enciende solo en campañas que no tenían ese ajuste. */
+    private function mapa(Campaign $campaign): void
+    {
+        $section = $campaign->sections()->where('type', 'cta')->first();
+        if (! $section || array_key_exists('show_map', $section->content)) {
+            return;
+        }
+
+        $section->update(['content' => SectionTypes::sanitizeContent('cta', [...$section->content, 'show_map' => true])]);
+    }
+
+    /** El pop-up ahora lleva imagen o ilustración y un «Ahora no»: se completan solo si faltan. */
+    private function popup(Campaign $campaign): void
+    {
+        $section = $campaign->sections()->where('type', 'popup')->first();
+        if (! $section) {
+            return;
+        }
+
+        $content = $section->content;
+        $defaults = ['visual' => 'report', 'dismiss_label' => 'Ahora no'];
+        $missing = array_diff_key($defaults, $content);
+        if ($missing === []) {
+            return;
+        }
+
+        $section->update(['content' => SectionTypes::sanitizeContent('popup', [...$content, ...$missing])]);
     }
 
     private function franja(Campaign $campaign): void

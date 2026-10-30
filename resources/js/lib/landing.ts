@@ -110,6 +110,27 @@ export function whatsappHref(contact: ContactData, message?: string): string {
     return `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
 }
 
+export interface MapLinks {
+    /** A dónde lleva «Cómo llegar». */
+    open: string;
+    /** Mapa incrustado; nulo si no hay dirección ni código de mapa. */
+    embed: string | null;
+}
+
+/** Enlaces del mapa: los que escribió el administrador o, si faltan, los armados con la dirección. */
+export function mapLinks(contact: ContactData): MapLinks | null {
+    const address = (contact.address || '').trim();
+    const open = (contact.map_url || '').trim();
+    const embed = (contact.map_embed || '').trim();
+    if (!address && !open && !embed) return null;
+
+    const query = encodeURIComponent(/per[uú]/i.test(address) ? address : `${address}, Perú`);
+    return {
+        open: open || `https://www.google.com/maps/search/?api=1&query=${query}`,
+        embed: embed || (address ? `https://maps.google.com/maps?q=${query}&z=16&output=embed` : null),
+    };
+}
+
 export interface CtaContext {
     contact: ContactData;
     /** Ancla de la seccion con formulario; a donde lleva «Ir al formulario». */

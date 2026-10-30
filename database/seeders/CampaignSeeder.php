@@ -154,6 +154,7 @@ class CampaignSeeder extends Seeder
                 'text' => 'Agenda hoy una reunión de diagnóstico inicial y descubre cómo contar con tu propia Área de TI Externa.',
                 'show_form' => true,
                 'show_contact' => true,
+                'show_map' => true,
                 'form_button' => 'Solicitar diagnóstico',
                 'button' => ['label' => 'Escríbenos por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
             ]],
@@ -162,6 +163,7 @@ class CampaignSeeder extends Seeder
                 'text' => 'Agenda tu diagnóstico y revisa con nosotros cómo está tu empresa.',
                 'button' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],
                 'trigger' => 'delay', 'seconds' => 35, 'scroll_percent' => 50, 'position' => 'corner', 'once' => false,
+                'visual' => 'report', 'dismiss_label' => 'Ahora no',
             ]],
         ];
 

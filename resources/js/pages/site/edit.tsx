@@ -323,6 +323,24 @@ function ContactForm({ contact }: { contact: ContactData }) {
                     </div>
                 ))}
             </div>
+            <fieldset className="grid gap-4 rounded-lg border p-4">
+                <legend className="px-1 text-sm font-medium">Mapa de la ubicación</legend>
+                <p className="text-muted-foreground text-sm">
+                    Sin llenar nada, el mapa y el botón «Cómo llegar» se arman con la Dirección. Para una ubicación exacta, abre tu local en Google Maps y pega aquí los datos.
+                </p>
+                <div className="grid gap-1.5">
+                    <Label htmlFor="map_url">Enlace de Google Maps (botón «Cómo llegar»)</Label>
+                    <Input id="map_url" value={data.map_url ?? ''} placeholder="https://maps.app.goo.gl/…" onChange={(e) => setData('map_url', e.target.value)} />
+                    <p className="text-muted-foreground text-sm">En Google Maps: Compartir → Copiar enlace.</p>
+                    <Err message={errors.map_url} />
+                </div>
+                <div className="grid gap-1.5">
+                    <Label htmlFor="map_embed">Mapa incrustado exacto (opcional)</Label>
+                    <Textarea id="map_embed" rows={3} value={data.map_embed ?? ''} placeholder='<iframe src="https://www.google.com/maps/embed?…"></iframe>' onChange={(e) => setData('map_embed', e.target.value)} />
+                    <p className="text-muted-foreground text-sm">En Google Maps: Compartir → Incorporar un mapa → Copiar HTML. Pega el código completo o solo el enlace.</p>
+                    <Err message={errors.map_embed} />
+                </div>
+            </fieldset>
             <div className="grid gap-1.5">
                 <Label htmlFor="whatsapp_message">Mensaje inicial de WhatsApp</Label>
                 <Textarea id="whatsapp_message" rows={3} value={data.whatsapp_message} onChange={(e) => setData('whatsapp_message', e.target.value)} />
