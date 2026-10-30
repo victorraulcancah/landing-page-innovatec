@@ -122,12 +122,14 @@ export function mapLinks(contact: ContactData): MapLinks | null {
     const address = (contact.address || '').trim();
     const open = (contact.map_url || '').trim();
     const embed = (contact.map_embed || '').trim();
+    const coords = (contact.map_coords || '').trim();
     if (!address && !open && !embed) return null;
 
     const query = encodeURIComponent(/per[uú]/i.test(address) ? address : `${address}, Perú`);
     return {
         open: open || `https://www.google.com/maps/search/?api=1&query=${query}`,
-        embed: embed || (address ? `https://maps.google.com/maps?q=${query}&z=16&output=embed` : null),
+        // Prioridad: el código exacto de Google, luego el punto sacado del enlace y, al final, la dirección escrita.
+        embed: embed || (coords ? `https://maps.google.com/maps?q=${encodeURIComponent(coords)}&z=17&output=embed` : address ? `https://maps.google.com/maps?q=${query}&z=16&output=embed` : null),
     };
 }
 

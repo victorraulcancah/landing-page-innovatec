@@ -331,7 +331,9 @@ function ContactForm({ contact }: { contact: ContactData }) {
                 <div className="grid gap-1.5">
                     <Label htmlFor="map_url">Enlace de Google Maps (botón «Cómo llegar»)</Label>
                     <Input id="map_url" value={data.map_url ?? ''} placeholder="https://maps.app.goo.gl/…" onChange={(e) => setData('map_url', e.target.value)} />
-                    <p className="text-muted-foreground text-sm">En Google Maps: Compartir → Copiar enlace.</p>
+                    <p className="text-muted-foreground text-sm">
+                        En Google Maps: Compartir → Copiar enlace. Con este enlace el mapa de la página también se centra en ese punto exacto.
+                    </p>
                     <Err message={errors.map_url} />
                 </div>
                 <div className="grid gap-1.5">

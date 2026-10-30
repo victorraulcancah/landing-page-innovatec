@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Campaign;
+use App\Models\Setting;
+use App\Support\MapLocator;
 use App\Support\SectionTypes;
 use Illuminate\Database\Seeder;
 
@@ -28,6 +30,21 @@ class VisualesSeeder extends Seeder
         $this->tarjetaSobreLaFoto($campaign);
         $this->popup($campaign);
         $this->mapa($campaign);
+        $this->mapaExacto();
+    }
+
+    /** Si ya hay un enlace de Google Maps guardado, saca de él el punto exacto para centrar el mapa. */
+    private function mapaExacto(): void
+    {
+        $contact = Setting::get('contact');
+        if (($contact['map_url'] ?? '') === '' || ($contact['map_coords'] ?? '') !== '') {
+            return;
+        }
+
+        $coords = MapLocator::coordinates($contact['map_url']);
+        if ($coords) {
+            Setting::put('contact', [...$contact, 'map_coords' => $coords]);
+        }
     }
 
     /** El cierre ahora puede mostrar el mapa: se enciende solo en campañas que no tenían ese ajuste. */

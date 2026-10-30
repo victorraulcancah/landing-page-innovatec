@@ -393,6 +393,53 @@ class CampaignAdminTest extends TestCase
         $this->assertTrue($cta->fresh()->content['show_map']);
     }
 
+    public function test_el_enlace_corto_de_google_se_convierte_en_el_punto_exacto_del_mapa(): void
+    {
+        \Illuminate\Support\Facades\Http::fake([
+            'maps.app.goo.gl/*' => \Illuminate\Support\Facades\Http::response('', 302, [
+                'Location' => 'https://www.google.com/maps/place/Foo/@-12.0901,-77.0166,17z/data=!4m6!8m2!3d-12.0902756!4d-77.0165959?entry=tts',
+            ]),
+        ]);
+        $this->login();
+        $contact = Setting::get('contact');
+
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_url' => 'https://maps.app.goo.gl/abc'])
+            ->assertSessionHas('success');
+        $this->assertSame('-12.090276,-77.016596', Setting::get('contact')['map_coords']);
+
+        // Al quitar el enlace, el punto se borra.
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_url' => '']);
+        $this->assertSame('', Setting::get('contact')['map_coords']);
+    }
+
+    public function test_un_enlace_largo_no_necesita_conexion_y_uno_ajeno_nunca_se_visita(): void
+    {
+        \Illuminate\Support\Facades\Http::fake();
+        $this->login();
+        $contact = Setting::get('contact');
+
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_url' => 'https://www.google.com/maps/place/X/@-12.09,-77.01,17z/data=!3d-12.0905!4d-77.0165']);
+        $this->assertSame('-12.090500,-77.016500', Setting::get('contact')['map_coords']);
+
+        $this->put(route('site.update', 'contact'), [...$contact, 'map_url' => 'https://evil.test/@-12.0,-77.0'])
+            ->assertSessionHas('error');
+        $this->assertSame('', Setting::get('contact')['map_coords']);
+
+        \Illuminate\Support\Facades\Http::assertNothingSent();
+    }
+
+    public function test_si_google_no_responde_se_avisa_y_se_guarda_igual(): void
+    {
+        \Illuminate\Support\Facades\Http::fake(['*' => \Illuminate\Support\Facades\Http::response('', 500)]);
+        $this->login();
+
+        $this->put(route('site.update', 'contact'), [...Setting::get('contact'), 'map_url' => 'https://maps.app.goo.gl/abc'])
+            ->assertSessionHas('error');
+
+        $this->assertSame('https://maps.app.goo.gl/abc', Setting::get('contact')['map_url']);
+        $this->assertSame('', Setting::get('contact')['map_coords']);
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();

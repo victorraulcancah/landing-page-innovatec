@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\Setting;
+use App\Support\MapLocator;
 use App\Support\SectionTypes;
 use App\Support\SiteDefaults;
 use Illuminate\Http\RedirectResponse;
@@ -44,7 +45,13 @@ class SiteSettingsController extends Controller
     {
         abort_unless(in_array($group, SiteDefaults::keys(), true), 404);
 
-        Setting::put($group, $this->{'clean'.ucfirst($group)}($request));
+        $clean = $this->{'clean'.ucfirst($group)}($request);
+        Setting::put($group, $clean);
+
+        // Con un enlace de mapa pero sin punto exacto, se avisa para que no parezca que quedó bien.
+        if ($group === 'contact' && ($clean['map_url'] ?? '') !== '' && ($clean['map_embed'] ?? '') === '' && ($clean['map_coords'] ?? '') === '') {
+            return back()->with('error', 'Guardado, pero con ese enlace no pude ubicar el punto exacto. Pega el código de «Incorporar un mapa» de Google Maps.');
+        }
 
         return back()->with('success', 'Cambios guardados. Ya se ven en la landing.');
     }
@@ -117,9 +124,11 @@ class SiteSettingsController extends Controller
             'map_embed' => ['nullable', 'string', 'max:1500'],
         ], [
             'map_url.regex' => 'Pega el enlace completo de Google Maps (empieza con https://).',
-        ]) + array_fill_keys(['whatsapp', 'whatsapp_message', 'phone', 'email', 'address', 'website', 'map_url', 'map_embed'], '');
+        ]) + array_fill_keys(['whatsapp', 'whatsapp_message', 'phone', 'email', 'address', 'website', 'map_url', 'map_embed', 'map_coords'], '');
 
         $data['map_embed'] = $this->embedUrl((string) ($data['map_embed'] ?? ''));
+        // El punto exacto sale del enlace; si se cambia o se borra, se recalcula.
+        $data['map_coords'] = ($data['map_url'] ?? '') !== '' ? (MapLocator::coordinates($data['map_url']) ?? '') : '';
 
         return array_map(fn ($v) => $v ?? '', $data);
     }

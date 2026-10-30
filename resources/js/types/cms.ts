@@ -103,6 +103,7 @@ export type ContactData = {
     website: string;
     map_url?: string;
     map_embed?: string;
+    map_coords?: string;
 };
 
 export type FooterData = {

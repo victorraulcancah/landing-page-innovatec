@@ -115,6 +115,8 @@ class SiteDefaults
             // Vacíos = el mapa y el enlace se arman con la dirección. Se llenan para una ubicación exacta.
             'map_url' => '',
             'map_embed' => '',
+            // Se calcula sola al guardar el enlace de Google Maps («lat,lng»): centra el mapa en el punto exacto.
+            'map_coords' => '',
         ];
     }
 

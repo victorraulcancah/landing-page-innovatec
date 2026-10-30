@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // Ruta del archivo de certificados para las conexiones salientes. Vacío = el del sistema (lo normal en Linux).
+    // En Laragon/Windows, PHP no trae uno: apunta a C:/laragon/etc/ssl/cacert.pem.
+    'http' => [
+        'ca_bundle' => env('HTTP_CA_BUNDLE'),
+    ],
+
 ];
