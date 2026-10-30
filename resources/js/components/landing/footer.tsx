@@ -41,18 +41,21 @@ export function LocationMap({ contact }: { contact: ContactData }) {
     const maps = mapLinks(contact);
     if (!maps) return null;
 
+    // El botón va fuera del mapa: así no tapa el logo ni la atribución de Google.
     const open = (
-        <a className={maps.embed ? 'lp-map__open' : 'lp-btn lp-btn--ghost'} href={maps.open} target="_blank" rel="noopener noreferrer">
+        <a className="lp-btn lp-btn--ghost lp-btn--sm lp-map__open" href={maps.open} target="_blank" rel="noopener noreferrer">
             <ExternalLink size={16} aria-hidden />
             Cómo llegar en Google Maps
         </a>
     );
 
-    if (!maps.embed) return <div className="lp-map lp-map--link">{open}</div>;
-
     return (
         <div className="lp-map" data-reveal="up" style={{ '--i': 5 } as CSSProperties}>
-            <iframe title="Mapa de nuestra ubicación" src={maps.embed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+            {maps.embed && (
+                <div className="lp-map__frame">
+                    <iframe title="Mapa de nuestra ubicación" src={maps.embed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+                </div>
+            )}
             {open}
         </div>
     );
