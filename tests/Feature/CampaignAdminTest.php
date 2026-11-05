@@ -440,6 +440,30 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('', Setting::get('contact')['map_coords']);
     }
 
+    public function test_el_id_de_analytics_se_guarda_limpio_y_llega_a_la_landing(): void
+    {
+        $this->login();
+
+        // Pegado dentro del código que entrega Google: se queda solo con el ID, en mayúsculas.
+        $this->put(route('site.update', 'analytics'), ['ga_id' => '<script async src="https://www.googletagmanager.com/gtag/js?id=g-ab12cd34ef"></script>'])
+            ->assertSessionHasNoErrors();
+        $this->assertSame('G-AB12CD34EF', Setting::get('analytics')['ga_id']);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->where('analytics.ga_id', 'G-AB12CD34EF'));
+
+        $this->put(route('site.update', 'analytics'), ['ga_id' => ''])->assertSessionHasNoErrors();
+        $this->assertSame('', Setting::get('analytics')['ga_id']);
+    }
+
+    public function test_el_id_de_analytics_rechaza_lo_que_no_es_un_id_de_medicion(): void
+    {
+        $this->login();
+
+        $this->put(route('site.update', 'analytics'), ['ga_id' => 'UA-12345-1'])->assertSessionHasErrors('ga_id');
+        $this->put(route('site.update', 'analytics'), ['ga_id' => 'hola mundo'])->assertSessionHasErrors('ga_id');
+        $this->assertSame('', Setting::get('analytics')['ga_id']);
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();

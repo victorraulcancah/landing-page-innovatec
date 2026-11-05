@@ -106,6 +106,10 @@ export type ContactData = {
     map_coords?: string;
 };
 
+export type AnalyticsData = {
+    ga_id: string;
+};
+
 export type FooterData = {
     text: string;
     legal: string;

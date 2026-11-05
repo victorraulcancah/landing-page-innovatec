@@ -1,4 +1,5 @@
 import { Visual, type VisualKind } from '@/components/landing/visuals';
+import { track } from '@/lib/analytics';
 import { ctaHref, ctaOf, flag, sectionLook, text, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json, type ThemeData } from '@/types/cms';
@@ -98,6 +99,7 @@ export function Calculator({ section, ctx }: { section: PublicSection; ctx: CtaC
         } else {
             setMinutes(0);
             setRunning(true);
+            track('simulate_downtime', { personas: people, horas: hours });
         }
     };
 
@@ -310,6 +312,7 @@ export function Popup({ section, theme, ctx }: { section: PublicSection; theme: 
 
     useEffect(() => {
         if (!open) return;
+        track('popup_view', { popup: text(c, 'title').slice(0, 60) });
         try {
             sessionStorage.setItem(key, '1');
         } catch {

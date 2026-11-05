@@ -28,6 +28,7 @@ class LandingPayload
             'navbar' => Setting::get('navbar'),
             'contact' => Setting::get('contact'),
             'footer' => Setting::get('footer'),
+            'analytics' => Setting::get('analytics'),
             'preview' => $preview,
         ];
     }

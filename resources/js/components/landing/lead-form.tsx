@@ -1,3 +1,4 @@
+import { track } from '@/lib/analytics';
 import { clearPrefill, getPrefill } from '@/lib/prefill';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
@@ -44,6 +45,7 @@ export function LeadForm({ campaignId, buttonLabel, preview }: LeadFormProps) {
         post(route('leads.store'), {
             preserveScroll: true,
             onSuccess: () => {
+                track('generate_lead', { form: 'diagnostico' });
                 clearPrefill();
                 setSent(true);
                 reset();

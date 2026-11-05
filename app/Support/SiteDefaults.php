@@ -55,13 +55,14 @@ class SiteDefaults
             'navbar' => self::navbar(),
             'contact' => self::contact(),
             'footer' => self::footer(),
+            'analytics' => self::analytics(),
             default => [],
         };
     }
 
     public static function keys(): array
     {
-        return ['theme', 'navbar', 'contact', 'footer'];
+        return ['theme', 'navbar', 'contact', 'footer', 'analytics'];
     }
 
     public static function theme(): array
@@ -118,6 +119,12 @@ class SiteDefaults
             // Se calcula sola al guardar el enlace de Google Maps («lat,lng»): centra el mapa en el punto exacto.
             'map_coords' => '',
         ];
+    }
+
+    public static function analytics(): array
+    {
+        // ID de medición de Google Analytics 4 (G-XXXXXXXXXX). Vacío = no se mide nada.
+        return ['ga_id' => ''];
     }
 
     public static function footer(): array

@@ -4,11 +4,12 @@ import { Footer } from '@/components/landing/footer';
 import { Calculator, Popup, PromoBar } from '@/components/landing/interactive';
 import { Navbar } from '@/components/landing/navbar';
 import { RENDERERS } from '@/components/landing/sections';
+import { eventForLink, startAnalytics, track } from '@/lib/analytics';
 import { fontHref, fontStack, radiusVars, sectionLook, type CtaContext, type PublicSection } from '@/lib/landing';
 import { useMotion } from '@/lib/use-motion';
-import { type ContactData, type FooterData, type NavbarData, type ThemeData } from '@/types/cms';
-import { Head, Link } from '@inertiajs/react';
-import { type CSSProperties, useRef } from 'react';
+import { type AnalyticsData, type ContactData, type FooterData, type NavbarData, type ThemeData } from '@/types/cms';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { type CSSProperties, useEffect, useRef } from 'react';
 
 interface Props {
     campaign: { id: number; name: string; meta_title: string | null; meta_description: string | null } | null;
@@ -17,10 +18,11 @@ interface Props {
     navbar: NavbarData;
     contact: ContactData;
     footer: FooterData;
+    analytics?: AnalyticsData;
     preview: boolean;
 }
 
-export default function Landing({ campaign, sections: allSections, theme, navbar, contact, footer, preview }: Props) {
+export default function Landing({ campaign, sections: allSections, theme, navbar, contact, footer, analytics, preview }: Props) {
     // La barra de anuncio y los pop-ups no forman parte del orden de la página; la calculadora «en portada» va dentro de la portada.
     const promo = allSections.find((s) => s.type === 'promo');
     const popups = allSections.filter((s) => s.type === 'popup');
@@ -29,6 +31,27 @@ export default function Landing({ campaign, sections: allSections, theme, navbar
 
     const rootRef = useRef<HTMLDivElement>(null);
     useMotion(rootRef, theme.motion ?? 'full', sections.map((s) => s.id).join(','));
+
+    // Analytics: solo con ID en el panel, y no cuenta las visitas de quien administra (sesión iniciada) ni la vista previa.
+    const admin = Boolean(usePage<{ auth?: { user?: unknown } }>().props.auth?.user);
+    const gaId = analytics?.ga_id ?? '';
+    useEffect(() => {
+        if (!gaId || preview || admin) return;
+        if (!startAnalytics(gaId)) return;
+
+        // Los clics que son un contacto (WhatsApp, teléfono, correo, mapa) y los botones que llevan al formulario.
+        const onClick = (e: MouseEvent) => {
+            const link = (e.target as Element | null)?.closest?.('a[href]');
+            if (!link) return;
+            const href = link.getAttribute('href') ?? '';
+            const label = (link.textContent ?? '').trim().slice(0, 60);
+            const contactEvent = eventForLink(href);
+            if (contactEvent) track(contactEvent, { link_text: label });
+            else if (href.startsWith('#') && href.length > 1 && link.closest('.lp-btn, .lp-nav__cta, .lp-calc__cta, .lp-stop__go')) track('click_cta', { link_text: label, destino: href });
+        };
+        document.addEventListener('click', onClick);
+        return () => document.removeEventListener('click', onClick);
+    }, [gaId, preview, admin]);
 
     const formSection = sections.find((s) => s.type === 'cta' && s.content.show_form === true) ?? sections.find((s) => s.type === 'cta');
     const ctx: CtaContext = { contact, formAnchor: formSection?.anchor ?? 'contacto' };

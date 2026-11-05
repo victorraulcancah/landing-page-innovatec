@@ -9,7 +9,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { type ContactData, type FieldDef, type FooterData, type Json, type NavbarData, type ThemeData } from '@/types/cms';
+import { type ContactData, type FieldDef, type FooterData, type Json, type NavbarData, type ThemeData, type AnalyticsData } from '@/types/cms';
 import { Head, useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
@@ -19,6 +19,7 @@ interface Props {
     navbar: NavbarData;
     contact: ContactData;
     footer: FooterData;
+    analytics: AnalyticsData;
     themeColors: Record<string, string>;
     colorTokens: Record<string, string>;
     fonts: Record<string, string>;
@@ -30,13 +31,14 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Ajustes del sitio', href: '/sitio' }];
 
-type Tab = 'navbar' | 'theme' | 'contact' | 'footer';
+type Tab = 'navbar' | 'theme' | 'contact' | 'footer' | 'analytics';
 
 const TABS: [Tab, string][] = [
     ['navbar', 'Barra de navegación'],
     ['theme', 'Colores y tipografía'],
     ['contact', 'Contacto'],
     ['footer', 'Pie de página'],
+    ['analytics', 'Analítica'],
 ];
 
 export default function SiteEdit(props: Props) {
@@ -74,6 +76,7 @@ export default function SiteEdit(props: Props) {
                 </ColorTokensProvider>
                 {tab === 'theme' && <ThemeForm theme={props.theme} themeColors={props.themeColors} fonts={props.fonts} radii={props.radii} motions={props.motions} />}
                 {tab === 'contact' && <ContactForm contact={props.contact} />}
+                {tab === 'analytics' && <AnalyticsForm analytics={props.analytics} />}
             </div>
         </AppLayout>
     );
@@ -348,6 +351,43 @@ function ContactForm({ contact }: { contact: ContactData }) {
                 <Textarea id="whatsapp_message" rows={3} value={data.whatsapp_message} onChange={(e) => setData('whatsapp_message', e.target.value)} />
                 <p className="text-muted-foreground text-sm">Aparece escrito cuando el visitante abre el chat desde un botón.</p>
             </div>
+            <SaveButton processing={processing} isDirty={isDirty} />
+        </form>
+    );
+}
+
+function AnalyticsForm({ analytics }: { analytics: AnalyticsData }) {
+    const { data, setData, put, processing, errors, isDirty } = useForm<AnalyticsData>({ ...analytics });
+
+    return (
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                put(route('site.update', 'analytics'), { preserveScroll: true });
+            }}
+            className="grid gap-6"
+        >
+            <div className="grid gap-1.5">
+                <Label htmlFor="ga_id">ID de medición de Google Analytics 4</Label>
+                <Input id="ga_id" value={data.ga_id} placeholder="G-XXXXXXXXXX" spellCheck={false} className="max-w-sm font-mono" onChange={(e) => setData('ga_id', e.target.value)} />
+                <p className="text-muted-foreground text-sm">
+                    Lo encuentras en Google Analytics: Administrar → Flujos de datos → tu sitio web → «ID de medición». Si pegas el código completo que te da Google, se queda solo con el ID. Vacío = no se mide nada.
+                </p>
+                <Err message={errors.ga_id} />
+            </div>
+
+            <div className="text-muted-foreground grid max-w-prose gap-2 rounded-lg border p-4 text-sm">
+                <p className="text-foreground font-medium">Qué se mide</p>
+                <ul className="list-disc space-y-1 pl-5">
+                    <li>Visitas, origen del tráfico, dispositivos y qué tanto baja la gente por la página (Google lo mide solo).</li>
+                    <li>Contactos que llegan por el formulario (evento «generate_lead»).</li>
+                    <li>Clics en WhatsApp, teléfono, correo y mapa, y en los botones que llevan al formulario.</li>
+                    <li>Cuando alguien usa «Simular caída» o ve el pop-up.</li>
+                </ul>
+                <p>No cuenta tus visitas cuando tienes la sesión iniciada ni la vista previa, y respeta a quien activa «no me sigas» en su navegador.</p>
+                <p>Google Analytics usa cookies: conviene mencionarlo en tu política de privacidad.</p>
+            </div>
+
             <SaveButton processing={processing} isDirty={isDirty} />
         </form>
     );

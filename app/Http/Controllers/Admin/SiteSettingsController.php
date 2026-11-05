@@ -26,6 +26,7 @@ class SiteSettingsController extends Controller
             'navbar' => Setting::get('navbar'),
             'contact' => Setting::get('contact'),
             'footer' => Setting::get('footer'),
+            'analytics' => Setting::get('analytics'),
             'themeColors' => SiteDefaults::THEME_COLORS,
             'fonts' => SiteDefaults::FONTS,
             'radii' => SiteDefaults::RADII,
@@ -148,6 +149,24 @@ class SiteSettingsController extends Controller
         }
 
         return $input;
+    }
+
+    /** Acepta el ID solo o pegado dentro del código que da Google: se queda con «G-XXXXXXXXXX». */
+    private function cleanAnalytics(Request $request): array
+    {
+        $input = trim((string) $request->input('ga_id', ''));
+
+        if ($input === '') {
+            return ['ga_id' => ''];
+        }
+
+        if (! preg_match('/\bG-[A-Z0-9]{4,14}\b/i', $input, $found)) {
+            throw ValidationException::withMessages([
+                'ga_id' => 'No encuentro un ID de medición. Debe verse como G-XXXXXXXXXX (lo ves en Administrar → Flujos de datos).',
+            ]);
+        }
+
+        return ['ga_id' => strtoupper($found[0])];
     }
 
     private function cleanFooter(Request $request): array
