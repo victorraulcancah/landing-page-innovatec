@@ -4167,12 +4167,26 @@ textarea.lp-input {
     }
     .lp-quote__base {
         display: grid;
-        gap: 0;
-        padding: 0.4rem 0.9rem;
-        text-align: right;
+        grid-template-columns: auto auto;
+        justify-content: start;
+        align-items: baseline;
+        gap: 0.15rem 0.5rem;
+        padding: 0.7rem 1.3rem;
+        text-align: left;
+        white-space: nowrap;
+    }
+    .lp-quote__base span {
+        grid-column: 1 / -1;
+        font-size: 0.8125rem;
     }
     .lp-quote__base strong {
         margin-left: 0;
+        font-size: 1.7rem;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+    .lp-quote__base small {
+        font-size: 0.9rem;
     }
 }
 
