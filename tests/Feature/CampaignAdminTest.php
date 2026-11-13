@@ -545,6 +545,45 @@ class CampaignAdminTest extends TestCase
         $this->assertSame($title, $hero->fresh()->content['title']);
     }
 
+    public function test_lo_que_se_guarda_en_el_panel_llega_a_la_base_y_a_la_landing(): void
+    {
+        $this->login();
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $hero = $campaign->sections()->where('type', 'hero')->first();
+        $quote = $campaign->sections()->where('type', 'quote')->first();
+
+        $devices = $quote->content['devices'];
+        $devices[0]['weight'] = 1.5;
+        $devices[] = ['name' => 'Tablet', 'hint' => 'Tablets de la empresa', 'group' => 'Principales', 'weight' => 0.3, 'qty' => 2, 'preset_qty' => '2, 4, 6'];
+
+        $this->put(route('sections.update', $quote), [
+            'is_visible' => true, 'anchor' => 'cotizador', 'nav_label' => 'Cotizador',
+            'content' => [...$quote->content, 'uco_price' => 60, 'min_price' => 2000, 'title' => 'Tu tarifa', 'devices' => $devices],
+            'style' => $quote->style,
+        ])->assertSessionHasNoErrors();
+
+        $this->put(route('sections.update', $hero), [
+            'is_visible' => true, 'anchor' => 'inicio', 'nav_label' => 'Inicio',
+            'content' => [...$hero->content, 'audience' => [['icon' => '⛏️', 'label' => 'Minería'], ['icon' => '', 'label' => 'Colegios']]],
+            'style' => $hero->style,
+        ])->assertSessionHasNoErrors();
+
+        // En la base de datos
+        $quote->refresh();
+        $this->assertSame(60, $quote->content['uco_price']);
+        $this->assertSame(2000, $quote->content['min_price']);
+        $this->assertCount(15, $quote->content['devices']);
+        $this->assertSame(1.5, $quote->content['devices'][0]['weight']);
+        $this->assertSame('Colegios', $hero->fresh()->content['audience'][1]['label']);
+
+        // Y lo que ve el visitante
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('sections.1.content.audience.0.label', 'Minería')
+            ->where('sections.2.content.uco_price', 60)
+            ->where('sections.2.content.devices.14.name', 'Tablet'));
+    }
+
     public function test_los_rubros_de_la_portada_se_editan_y_el_seeder_no_pisa_lo_editado(): void
     {
         $fields = collect(SectionTypes::schemaForClient()['hero']['content'])->pluck('key');
