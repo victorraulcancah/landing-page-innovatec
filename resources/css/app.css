@@ -14,19 +14,19 @@
     @keyframes pain-float {
         0%,
         100% {
-            transform: translateY(-50%) rotate(-6deg);
+            transform: rotate(-6deg);
         }
         50% {
-            transform: translateY(calc(-50% - 10px)) rotate(-1deg);
+            transform: translateY(-10px) rotate(-1deg);
         }
     }
     @keyframes pain-ring {
         0% {
-            transform: translateY(-50%) scale(0.55);
+            transform: scale(0.55);
             opacity: 0.6;
         }
         100% {
-            transform: translateY(-50%) scale(1.6);
+            transform: scale(1.6);
             opacity: 0;
         }
     }

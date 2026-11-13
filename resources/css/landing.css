@@ -22,19 +22,23 @@
     box-sizing: border-box;
 }
 
-:where(.lp) h1,
-:where(.lp) h2,
-:where(.lp) h3 {
-    font-family: var(--font-head);
-    margin: 0;
-    text-wrap: balance;
-}
+/* Reinicios generales dentro de la capa «base»: así las utilidades de Tailwind (que van en una capa posterior)
+   pueden cambiar márgenes y tipografía de estos elementos. */
+@layer base {
+    :where(.lp) h1,
+    :where(.lp) h2,
+    :where(.lp) h3 {
+        font-family: var(--font-head);
+        margin: 0;
+        text-wrap: balance;
+    }
 
-:where(.lp) p,
-:where(.lp) ul,
-:where(.lp) ol,
-:where(.lp) blockquote {
-    margin: 0;
+    :where(.lp) p,
+    :where(.lp) ul,
+    :where(.lp) ol,
+    :where(.lp) blockquote {
+        margin: 0;
+    }
 }
 
 :where(.lp) a {
