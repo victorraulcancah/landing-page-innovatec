@@ -9,8 +9,8 @@ use Illuminate\Database\Seeder;
 
 /**
  * Lleva a una campaña ya creada el cotizador de tarifa en el panel de la portada, en lugar de la calculadora de
- * caídas. No toca los textos de la portada. Se puede repetir: no duplica el cotizador. La calculadora no se borra:
- * queda oculta para poder volver a mostrarla.
+ * caídas, y agrega a la portada los rubros (sin cambiar sus textos). Se puede repetir: no duplica nada ni pisa lo ya
+ * editado. La calculadora no se borra: queda oculta para poder volver a mostrarla.
  */
 class CotizadorSeeder extends Seeder
 {
@@ -25,6 +25,18 @@ class CotizadorSeeder extends Seeder
 
         $this->cotizador($campaign);
         $this->calculadora($campaign);
+        $this->rubros($campaign);
+    }
+
+    /** Agrega los rubros bajo los botones de la portada solo si todavía no los tiene (no pisa lo que se editó). */
+    private function rubros(Campaign $campaign): void
+    {
+        $hero = $campaign->sections()->where('type', 'hero')->orderBy('position')->first();
+        if (! $hero || array_key_exists('audience', $hero->content ?? [])) {
+            return;
+        }
+
+        $hero->update(['content' => SectionTypes::sanitizeContent('hero', [...$hero->content, ...QuoteDefaults::audience()])]);
     }
 
     private function cotizador(Campaign $campaign): void

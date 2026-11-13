@@ -55,6 +55,20 @@ class QuoteDefaults
         ];
     }
 
+    /** @return array{audience_label: string, audience: list<array<string, string>>} Rubros que se muestran bajo los botones de la portada. */
+    public static function audience(): array
+    {
+        return [
+            'audience_label' => 'Para empresas de cualquier rubro que no pueden detenerse',
+            'audience' => [
+                ['icon' => '🏨', 'label' => 'Hoteles'],
+                ['icon' => '📦', 'label' => 'Comercios y distribuidoras'],
+                ['icon' => '🏭', 'label' => 'Industrias y almacenes'],
+                ['icon' => '🏥', 'label' => 'Clínicas y servicios'],
+            ],
+        ];
+    }
+
     /** @return list<array<string, mixed>> Peso UCO según la tabla oficial del PDF. */
     public static function devices(): array
     {

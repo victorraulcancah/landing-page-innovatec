@@ -61,6 +61,11 @@ class SectionTypes
                     self::image('image', 'Imagen'),
                     self::text('image_alt', 'Descripción de la imagen'),
                     self::text('note', 'Estaciones de la línea (sepáralas con ·)'),
+                    self::text('audience_label', 'Rubros: texto de encabezado (vacío = no se muestra)'),
+                    self::list('audience', 'Rubros: lista', [
+                        self::text('icon', 'Ícono (un emoji, opcional)', 8),
+                        self::text('label', 'Rubro', 60),
+                    ], 'label'),
                 ],
                 'style' => [self::select('image_position', 'Posición de la imagen', SectionTypes::IMAGE_POSITION)],
                 'defaults' => [
@@ -68,6 +73,7 @@ class SectionTypes
                     'primary_cta' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],
                     'secondary_cta' => ['label' => '', 'action' => 'whatsapp', 'value' => ''],
                     'image' => null, 'image_alt' => '', 'note' => '',
+                    'audience_label' => '', 'audience' => [],
                 ],
             ],
             'comparison' => [

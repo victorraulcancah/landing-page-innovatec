@@ -545,6 +545,36 @@ class CampaignAdminTest extends TestCase
         $this->assertSame($title, $hero->fresh()->content['title']);
     }
 
+    public function test_los_rubros_de_la_portada_se_editan_y_el_seeder_no_pisa_lo_editado(): void
+    {
+        $fields = collect(SectionTypes::schemaForClient()['hero']['content'])->pluck('key');
+        $this->assertTrue($fields->contains('audience_label'));
+        $this->assertTrue($fields->contains('audience'));
+
+        $clean = SectionTypes::sanitizeContent('hero', ['audience_label' => 'Nuestros rubros', 'audience' => [
+            ['icon' => '🏨', 'label' => 'Hoteles'], ['icon' => '', 'label' => 'Minería'],
+        ]]);
+        $this->assertSame('Nuestros rubros', $clean['audience_label']);
+        $this->assertCount(2, $clean['audience']);
+        $this->assertSame('Minería', $clean['audience'][1]['label']);
+
+        // Campaña anterior: la portada no tiene rubros y el seeder se los agrega una sola vez.
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $hero = $campaign->sections()->where('type', 'hero')->first();
+        $this->assertCount(4, $hero->content['audience']);
+
+        $hero->update(['content' => [...$hero->content, 'audience' => [['icon' => '', 'label' => 'Solo uno']]]]);
+        $this->seed(\Database\Seeders\CotizadorSeeder::class);
+        $this->assertSame('Solo uno', $hero->fresh()->content['audience'][0]['label']);
+
+        $content = $hero->content;
+        unset($content['audience'], $content['audience_label']);
+        $hero->update(['content' => $content]);
+        $this->seed(\Database\Seeders\CotizadorSeeder::class);
+        $this->assertCount(4, $hero->fresh()->content['audience']);
+    }
+
     public function test_todos_los_textos_del_cotizador_se_editan_en_el_panel(): void
     {
         $fields = collect(SectionTypes::schemaForClient()['quote']['content'])->pluck('key');

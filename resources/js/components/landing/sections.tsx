@@ -117,6 +117,7 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
     const primary = ctaOf(c, 'primary_cta');
     const secondary = ctaOf(c, 'secondary_cta');
     const stations = splitStations(text(c, 'note'));
+    const audience = list(c, 'audience').filter((a) => text(a, 'label'));
     const position = section.style.image_position;
 
     return (
@@ -145,6 +146,19 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
                                     {secondary.label}
                                 </a>
                             )}
+                        </div>
+                    )}
+                    {audience.length > 0 && (
+                        <div className="lp-hero__audience">
+                            {text(c, 'audience_label') && <p className="lp-hero__audience-label">{text(c, 'audience_label')}</p>}
+                            <ul>
+                                {audience.map((a, k) => (
+                                    <li key={k}>
+                                        {text(a, 'icon') && <span aria-hidden>{text(a, 'icon')}</span>}
+                                        {text(a, 'label')}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
                 </div>
