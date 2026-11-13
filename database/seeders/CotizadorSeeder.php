@@ -27,6 +27,7 @@ class CotizadorSeeder extends Seeder
         $this->calculadora($campaign);
         $this->rubros($campaign);
         $this->call(PainsSeeder::class);
+        $this->call(PillarsSeeder::class);
     }
 
     /** Agrega los rubros bajo los botones de la portada solo si todavía no los tiene (no pisa lo que se editó). */

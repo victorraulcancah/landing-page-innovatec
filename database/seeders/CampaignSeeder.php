@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Campaign;
 use App\Support\PainsDefaults;
+use App\Support\PillarsDefaults;
 use App\Support\QuoteDefaults;
 use App\Support\SectionTypes;
 use Illuminate\Database\Seeder;
@@ -95,7 +96,8 @@ class CampaignSeeder extends Seeder
                 'cta_label' => 'Revisar mis {n} puntos con un experto',
                 'cta_empty' => 'Agenda tu diagnóstico',
             ]],
-            ['features', 'servicios', 'Servicios', true, [
+            // Los 4 pilares en versión corta: quedan ocultos porque «Qué incluye cada mes» los explica con detalle.
+            ['features', 'servicios', 'Servicios', false, [
                 'title' => 'Los 4 pilares de UCO360',
                 'subtitle' => 'Transformando tu tecnología en continuidad, seguridad y crecimiento para tu empresa.',
                 'columns' => '2',
@@ -106,6 +108,7 @@ class CampaignSeeder extends Seeder
                     ['badge' => 'Gestión TI', 'title' => 'Gestión y evolución tecnológica', 'text' => 'Inventario vivo de equipos y licencias, alerta de vencimientos, mejoras y proyectos de expansión.'],
                 ],
             ]],
+            ['pillars', 'pilares', 'Servicios', true, PillarsDefaults::pillars()],
             ['text', 'para-la-gerencia', null, true, [
                 'title' => 'Pensado para la gerencia',
                 'body' => "Coordinación centralizada con tus proveedores: hablamos de tú a tú con tu proveedor de Internet, ERP o software hasta resolver el problema.\n\nVisibilidad ejecutiva y costo mensual predecible: tarifa fija mensual, informes claros en lenguaje de negocio y acompañamiento para crecer.",
@@ -179,6 +182,7 @@ class CampaignSeeder extends Seeder
             'franja' => ['bg_color' => 'accent'],
             'inicio' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
             'situaciones' => ['align' => 'center'],
+            'pilares' => ['bg_color' => 'surface', 'align' => 'center'],
             'por-que-uco360' => ['bg_color' => 'surface'],
             'autodiagnostico' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
             'para-la-gerencia' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent', 'image_position' => 'left', 'padding' => 'lg'],

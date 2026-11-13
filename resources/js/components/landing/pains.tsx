@@ -1,46 +1,8 @@
 import { list, text } from '@/lib/landing';
 import { type Json } from '@/types/cms';
-import {
-    AlertTriangle,
-    ArrowRight,
-    Camera,
-    Clock,
-    Cloud,
-    DatabaseZap,
-    Hourglass,
-    Laptop,
-    LockOpen,
-    type LucideIcon,
-    Mail,
-    PhoneCall,
-    Printer,
-    Receipt,
-    Server,
-    ShieldAlert,
-    Users,
-    Wifi,
-} from 'lucide-react';
+import { ICONS } from '@/components/landing/icons';
+import { ArrowRight } from 'lucide-react';
 import { type CSSProperties } from 'react';
-
-/** Íconos que se pueden elegir en el panel (las llaves son las de SectionTypes::PAIN_ICONS). */
-const ICONS: Record<string, LucideIcon> = {
-    hourglass: Hourglass,
-    clock: Clock,
-    wifi: Wifi,
-    phone: PhoneCall,
-    data: DatabaseZap,
-    lock: LockOpen,
-    receipt: Receipt,
-    server: Server,
-    laptop: Laptop,
-    printer: Printer,
-    shield: ShieldAlert,
-    mail: Mail,
-    users: Users,
-    cloud: Cloud,
-    camera: Camera,
-    alert: AlertTriangle,
-};
 
 /** Cada color define --tone; el resto de la tarjeta se tiñe con ese valor. */
 const TONES: Record<string, string> = {
@@ -128,12 +90,13 @@ export function PainCards({ content }: { content: Record<string, Json> }) {
     );
 }
 
-export function PainsEyebrow({ label }: { label: string }) {
+export function PainsEyebrow({ label, tone = 'rose' }: { label: string; tone?: 'rose' | 'blue' }) {
     if (!label) return null;
+    const color = tone === 'blue' ? 'border-[var(--c-primary)]/35 bg-[var(--c-primary)]/10 text-[var(--c-primary)]' : 'border-[#e11d48]/35 bg-[#e11d48]/10 text-[#be123c]';
     return (
         <p
             data-reveal="head"
-            className="mb-4 w-fit rounded-full border border-[#e11d48]/35 bg-[#e11d48]/10 px-4 py-1.5 font-[family-name:var(--font-head)] text-xs font-extrabold uppercase tracking-wider text-[#be123c] [.lp-align-center_&]:mx-auto [.lp-align-right_&]:ml-auto"
+            className={`mb-4 w-fit rounded-full border px-4 py-1.5 font-[family-name:var(--font-head)] text-xs font-extrabold uppercase tracking-wider [.lp-align-center_&]:mx-auto [.lp-align-right_&]:ml-auto ${color}`}
         >
             {label}
         </p>

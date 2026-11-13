@@ -28,12 +28,14 @@ class SectionTypes
     ];
 
 
-    /** Íconos disponibles para las tarjetas de «Situaciones del día a día» (los dibuja el componente con Lucide). */
-    public const PAIN_ICONS = [
+    /** Íconos que se pueden elegir en las secciones con tarjetas (los dibuja la landing con Lucide). */
+    public const ICON_SET = [
         'hourglass' => 'Reloj de arena (espera)', 'clock' => 'Reloj', 'wifi' => 'Wi-Fi', 'phone' => 'Teléfono',
         'data' => 'Datos y virus', 'lock' => 'Candado (accesos)', 'receipt' => 'Gastos', 'server' => 'Servidor',
         'laptop' => 'Computadora', 'printer' => 'Impresora', 'shield' => 'Seguridad', 'mail' => 'Correo',
         'users' => 'Personal', 'cloud' => 'Nube', 'camera' => 'Cámaras', 'alert' => 'Alerta',
+        'message' => 'Chat / WhatsApp', 'headset' => 'Soporte', 'database' => 'Copias de seguridad', 'clipboard' => 'Inventario',
+        'chart' => 'Informe', 'wrench' => 'Mantenimiento', 'rocket' => 'Crecimiento',
     ];
 
    public const IMAGE_POSITION = ['right' => 'A la derecha', 'left' => 'A la izquierda', 'top' => 'Arriba'];
@@ -230,7 +232,7 @@ class SectionTypes
                     self::richtext('subtitle', 'Texto de apoyo'),
                     self::select('columns', 'Tarjetas por fila', ['2' => '2', '3' => '3', '4' => '4']),
                     self::list('items', 'Tarjetas', [
-                        self::select('icon', 'Ícono', self::PAIN_ICONS),
+                        self::select('icon', 'Ícono', self::ICON_SET),
                         self::image('image', 'Foto de la tarjeta (opcional; si no hay, se muestra una ilustración animada)'),
                         self::text('tag', 'Etiqueta de la tarjeta', 60),
                         self::select('tone', 'Color de la tarjeta', ['rose' => 'Rojo (urgente)', 'amber' => 'Ámbar (advertencia)', 'blue' => 'Azul', 'green' => 'Verde']),
@@ -243,6 +245,48 @@ class SectionTypes
                 'defaults' => [
                     'eyebrow' => '', 'title' => '¿Te suena familiar?', 'subtitle' => '', 'columns' => '3',
                     'items' => [['icon' => 'alert', 'image' => null, 'tag' => '', 'tone' => 'rose', 'title' => 'Un problema de tu día a día', 'text' => '', 'solution' => '']],
+                ],
+            ],
+            'pillars' => [
+                'label' => 'Qué incluye cada mes (pilares con pestañas)',
+                'description' => 'Pilares del servicio en pestañas: al elegir uno se ve su detalle, sus tarjetas y una tabla «situación → qué hacemos → resultado». Todo editable.',
+                'content' => [
+                    self::text('eyebrow', 'Etiqueta sobre el título (vacío = no se muestra)', 80),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
+                    self::cta('cta', 'Enlace dentro de cada pilar (el texto vacío lo oculta)'),
+                    self::list('items', 'Pilares', [
+                        self::select('icon', 'Ícono', self::ICON_SET),
+                        self::image('image', 'Foto del pilar (opcional; si no hay, se muestra una ilustración animada)'),
+                        self::text('tab_tag', 'Pestaña: etiqueta (ej. Pilar 1 · Atención al personal)', 80),
+                        self::text('tab_title', 'Pestaña: título', 80),
+                        self::text('tab_text', 'Pestaña: frase corta', 160),
+                        self::text('tag', 'Detalle: etiqueta', 100),
+                        self::text('title', 'Detalle: título', 200),
+                        self::text('question', 'Detalle: pregunta sobre la tabla', 200),
+                        self::list('cards', 'Tarjetas del pilar', [
+                            self::text('title', 'Título', 160),
+                            self::textarea('text', 'Texto'),
+                        ], 'title'),
+                        self::text('head_a', 'Tabla: encabezado de la 1.ª columna', 60),
+                        self::text('head_b', 'Tabla: encabezado de la 2.ª columna', 60),
+                        self::text('head_c', 'Tabla: encabezado de la 3.ª columna', 60),
+                        self::list('rows', 'Filas de la tabla', [
+                            self::text('a', 'Situación', 200),
+                            self::text('b', 'Qué hace tu empresa de TI', 200),
+                            self::text('c', 'Resultado para el cliente', 240),
+                        ], 'a'),
+                    ], 'tab_title'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'eyebrow' => '', 'title' => 'Qué incluye cada mes', 'subtitle' => '',
+                    'cta' => ['label' => 'Quiero esto en mi empresa', 'action' => 'lead_form', 'value' => ''],
+                    'items' => [[
+                        'icon' => 'headset', 'image' => null, 'tab_tag' => 'Pilar 1', 'tab_title' => 'Pilar', 'tab_text' => '',
+                        'tag' => '', 'title' => 'Título del pilar', 'question' => '', 'cards' => [],
+                        'head_a' => 'Situación', 'head_b' => 'Qué hacemos', 'head_c' => 'Resultado', 'rows' => [],
+                    ]],
                 ],
             ],
             'marquee' => [

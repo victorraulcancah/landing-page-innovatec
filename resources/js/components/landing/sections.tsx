@@ -2,6 +2,7 @@ import { ContactList, LocationMap } from '@/components/landing/footer';
 import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
 import { PainCards, PainsEyebrow } from '@/components/landing/pains';
+import { PillarTabs } from '@/components/landing/pillars';
 import { Quote } from '@/components/landing/quote';
 import { Rich } from '@/components/landing/rich';
 import { AUTO_VISUALS, Ticker, Visual, type VisualKind } from '@/components/landing/visuals';
@@ -666,6 +667,17 @@ export function Pains({ section, theme, cut }: SectionProps) {
     );
 }
 
+export function Pillars({ section, theme, cut, ctx }: SectionProps) {
+    const c = section.content;
+    return (
+        <Frame section={section} theme={theme} cut={cut}>
+            <PainsEyebrow label={text(c, 'eyebrow')} tone="blue" />
+            <Head section={section} />
+            <PillarTabs content={c} ctx={ctx} />
+        </Frame>
+    );
+}
+
 // ---- Franja de servicios -------------------------------------------------------------------------------------
 
 export function Marquee({ section, theme }: SectionProps) {
@@ -692,6 +704,7 @@ export const RENDERERS: Record<string, (props: SectionProps) => ReactNode> = {
     included: Included,
     marquee: Marquee,
     pains: Pains,
+    pillars: Pillars,
     comparison: Comparison,
     features: Features,
     steps: Steps,
