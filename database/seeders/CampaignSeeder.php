@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Campaign;
+use App\Support\PainsDefaults;
 use App\Support\QuoteDefaults;
 use App\Support\SectionTypes;
 use Illuminate\Database\Seeder;
@@ -62,6 +63,7 @@ class CampaignSeeder extends Seeder
                 'items' => VisualesSeeder::SERVICES,
                 'speed' => 'normal',
             ]],
+            ['pains', 'situaciones', '¿Te pasa esto?', true, PainsDefaults::pains()],
             ['comparison', 'por-que-uco360', 'Por qué UCO360', true, [
                 'title' => '¿Por qué elegir UCO360?',
                 'subtitle' => 'A medida que tu empresa crece, necesita una gestión tecnológica que acompañe sus nuevos desafíos. UCO360 es tu área de TI externa: un equipo de especialistas que atiende a tus usuarios, previene fallas, administra tu infraestructura, protege tu información y coordina con tus proveedores, por una tarifa fija mensual.',
@@ -176,6 +178,7 @@ class CampaignSeeder extends Seeder
             'anuncio' => ['bg_color' => 'accent'],
             'franja' => ['bg_color' => 'accent'],
             'inicio' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
+            'situaciones' => ['align' => 'center'],
             'por-que-uco360' => ['bg_color' => 'surface'],
             'autodiagnostico' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
             'para-la-gerencia' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent', 'image_position' => 'left', 'padding' => 'lg'],

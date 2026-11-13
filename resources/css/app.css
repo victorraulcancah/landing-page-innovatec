@@ -7,6 +7,30 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    /* Animaciones de las tarjetas «Situaciones del día a día» de la landing */
+    --animate-pain-float: pain-float 7s ease-in-out infinite;
+    --animate-pain-ring: pain-ring 3.2s ease-out infinite;
+
+    @keyframes pain-float {
+        0%,
+        100% {
+            transform: translateY(-50%) rotate(-6deg);
+        }
+        50% {
+            transform: translateY(calc(-50% - 10px)) rotate(-1deg);
+        }
+    }
+    @keyframes pain-ring {
+        0% {
+            transform: translateY(-50%) scale(0.55);
+            opacity: 0.6;
+        }
+        100% {
+            transform: translateY(-50%) scale(1.6);
+            opacity: 0;
+        }
+    }
+
     --font-sans:
         'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 

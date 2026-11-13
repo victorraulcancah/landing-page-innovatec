@@ -280,7 +280,7 @@ class CampaignAdminTest extends TestCase
         $this->assertStringContainsString('Montos de ejemplo', $packages->content['note']);
         $this->assertSame(12, $popup->content['seconds']);
 
-        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 14));
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 15));
     }
 
     public function test_los_montos_de_ejemplo_no_pisan_lo_editado_en_el_panel(): void
@@ -584,6 +584,42 @@ class CampaignAdminTest extends TestCase
             ->where('sections.2.content.devices.14.name', 'Tablet'));
     }
 
+    public function test_las_situaciones_del_dia_a_dia_se_editan_se_amplian_y_el_seeder_no_las_duplica(): void
+    {
+        $this->login();
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $pains = $campaign->sections()->where('type', 'pains')->first();
+
+        // De fábrica: 6 tarjetas, justo después de la franja de servicios.
+        $this->assertCount(6, $pains->content['items']);
+        $types = $campaign->sections()->orderBy('position')->pluck('type')->all();
+        $this->assertSame('pains', $types[array_search('marquee', $types, true) + 1]);
+
+        // Todo se edita desde el panel, y se pueden agregar más tarjetas; lo peligroso se descarta.
+        $items = $pains->content['items'];
+        $items[] = ['icon' => '🧯', 'tag' => 'Emergencias', 'tone' => 'verde-fosforescente', 'title' => 'Una nueva', 'text' => '<script>x</script>Detalle', 'solution' => 'Lo resolvemos'];
+        $this->put(route('sections.update', $pains), [
+            'is_visible' => true, 'anchor' => 'situaciones', 'nav_label' => '¿Te pasa esto?',
+            'content' => [...$pains->content, 'eyebrow' => 'Nuevo texto', 'items' => $items],
+            'style' => $pains->style,
+        ])->assertSessionHasNoErrors();
+
+        $pains->refresh();
+        $this->assertCount(7, $pains->content['items']);
+        $this->assertSame('Nuevo texto', $pains->content['eyebrow']);
+        $this->assertSame('rose', $pains->content['items'][6]['tone']);
+
+        // Campaña anterior sin la sección: se agrega una sola vez.
+        $pains->delete();
+        $this->seed(\Database\Seeders\PainsSeeder::class);
+        $this->seed(\Database\Seeders\PainsSeeder::class);
+        $this->assertSame(1, $campaign->sections()->where('type', 'pains')->count());
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('sections', fn ($sections) => collect($sections)->contains(fn ($s) => $s['type'] === 'pains' && count($s['content']['items']) === 6)));
+    }
+
     public function test_los_rubros_de_la_portada_se_editan_y_el_seeder_no_pisa_lo_editado(): void
     {
         $fields = collect(SectionTypes::schemaForClient()['hero']['content'])->pluck('key');
@@ -770,7 +806,7 @@ class CampaignAdminTest extends TestCase
         $this->seed(CampaignSeeder::class);
 
         $campaign = Campaign::query()->active()->firstOrFail();
-        $this->assertSame(15, $campaign->sections()->count());
+        $this->assertSame(16, $campaign->sections()->count());
         $this->assertFalse((bool) $campaign->sections()->where('type', 'packages')->value('is_visible'));
     }
 }

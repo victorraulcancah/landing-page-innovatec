@@ -250,7 +250,7 @@
     width: 100%;
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1240px) {
     .lp-nav__links {
         display: flex;
     }
@@ -275,6 +275,25 @@
     }
     .lp-nav--center.lp-nav--links-left .lp-nav__inner {
         justify-content: flex-start;
+    }
+}
+
+/* Con muchas secciones en el menú, en pantallas medianas se compacta para que el botón no se corte. */
+@media (min-width: 1240px) and (max-width: 1499px) {
+    .lp-nav__inner {
+        gap: 0.75rem;
+        padding-inline: 1rem;
+    }
+    .lp-nav__links {
+        gap: 0;
+    }
+    .lp-nav__links a {
+        padding-inline: 0.55rem;
+        font-size: 0.875rem;
+    }
+    .lp-nav__links a::after {
+        left: 0.55rem;
+        right: 0.55rem;
     }
 }
 

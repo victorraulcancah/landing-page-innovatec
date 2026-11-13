@@ -1,6 +1,7 @@
 import { ContactList, LocationMap } from '@/components/landing/footer';
 import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
+import { PainCards, PainsEyebrow } from '@/components/landing/pains';
 import { Quote } from '@/components/landing/quote';
 import { Rich } from '@/components/landing/rich';
 import { AUTO_VISUALS, Ticker, Visual, type VisualKind } from '@/components/landing/visuals';
@@ -650,6 +651,21 @@ export function Included({ section, theme, cut }: SectionProps) {
     );
 }
 
+// ---- Situaciones del día a día: el problema del cliente y cómo se resuelve ------------------------------------
+
+export function Pains({ section, theme, cut }: SectionProps) {
+    const c = section.content;
+    if (list(c, 'items').length === 0 && !text(c, 'title')) return null;
+
+    return (
+        <Frame section={section} theme={theme} cut={cut}>
+            <PainsEyebrow label={text(c, 'eyebrow')} />
+            <Head section={section} />
+            <PainCards content={c} />
+        </Frame>
+    );
+}
+
 // ---- Franja de servicios -------------------------------------------------------------------------------------
 
 export function Marquee({ section, theme }: SectionProps) {
@@ -675,6 +691,7 @@ export const RENDERERS: Record<string, (props: SectionProps) => ReactNode> = {
     quiz: QuizSection,
     included: Included,
     marquee: Marquee,
+    pains: Pains,
     comparison: Comparison,
     features: Features,
     steps: Steps,

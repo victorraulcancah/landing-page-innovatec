@@ -27,7 +27,16 @@ class SectionTypes
         'on_dark' => 'Texto sobre fondo oscuro',
     ];
 
-    public const IMAGE_POSITION = ['right' => 'A la derecha', 'left' => 'A la izquierda', 'top' => 'Arriba'];
+
+    /** Íconos disponibles para las tarjetas de «Situaciones del día a día» (los dibuja el componente con Lucide). */
+    public const PAIN_ICONS = [
+        'hourglass' => 'Reloj de arena (espera)', 'clock' => 'Reloj', 'wifi' => 'Wi-Fi', 'phone' => 'Teléfono',
+        'data' => 'Datos y virus', 'lock' => 'Candado (accesos)', 'receipt' => 'Gastos', 'server' => 'Servidor',
+        'laptop' => 'Computadora', 'printer' => 'Impresora', 'shield' => 'Seguridad', 'mail' => 'Correo',
+        'users' => 'Personal', 'cloud' => 'Nube', 'camera' => 'Cámaras', 'alert' => 'Alerta',
+    ];
+
+   public const IMAGE_POSITION = ['right' => 'A la derecha', 'left' => 'A la izquierda', 'top' => 'Arriba'];
 
     /** Capa del color de la sección sobre una imagen de fondo, para que el texto siempre se lea. */
     public const BG_OVERLAY = ['soft' => 'Suave', 'strong' => 'Fuerte', 'solid' => 'Casi opaca'];
@@ -211,6 +220,30 @@ class SectionTypes
                 ],
                 'style' => [self::select('image_position', 'Posición de la imagen', SectionTypes::IMAGE_POSITION)],
                 'defaults' => ['title' => 'Título', 'body' => '', 'image' => null, 'image_alt' => '', 'overlay' => 'none'],
+            ],
+            'pains' => [
+                'label' => 'Situaciones del día a día',
+                'description' => 'Tarjetas que muestran un problema real del cliente y cómo lo resuelves. Puedes agregar todas las que quieras.',
+                'content' => [
+                    self::text('eyebrow', 'Etiqueta sobre el título (vacío = no se muestra)', 80),
+                    self::richline('title', 'Título', 200),
+                    self::richtext('subtitle', 'Texto de apoyo'),
+                    self::select('columns', 'Tarjetas por fila', ['2' => '2', '3' => '3', '4' => '4']),
+                    self::list('items', 'Tarjetas', [
+                        self::select('icon', 'Ícono', self::PAIN_ICONS),
+                        self::image('image', 'Foto de la tarjeta (opcional; si no hay, se muestra una ilustración animada)'),
+                        self::text('tag', 'Etiqueta de la tarjeta', 60),
+                        self::select('tone', 'Color de la tarjeta', ['rose' => 'Rojo (urgente)', 'amber' => 'Ámbar (advertencia)', 'blue' => 'Azul', 'green' => 'Verde']),
+                        self::text('title', 'Problema (título)', 200),
+                        self::textarea('text', 'Detalle del problema'),
+                        self::text('solution', 'Cómo lo resuelves (una línea)', 200),
+                    ], 'title'),
+                ],
+                'style' => [],
+                'defaults' => [
+                    'eyebrow' => '', 'title' => '¿Te suena familiar?', 'subtitle' => '', 'columns' => '3',
+                    'items' => [['icon' => 'alert', 'image' => null, 'tag' => '', 'tone' => 'rose', 'title' => 'Un problema de tu día a día', 'text' => '', 'solution' => '']],
+                ],
             ],
             'marquee' => [
                 'label' => 'Franja de servicios',
