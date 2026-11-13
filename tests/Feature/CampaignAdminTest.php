@@ -620,6 +620,50 @@ class CampaignAdminTest extends TestCase
             ->where('sections', fn ($sections) => collect($sections)->contains(fn ($s) => $s['type'] === 'pains' && count($s['content']['items']) === 6)));
     }
 
+    public function test_que_incluye_cada_mes_se_edita_con_pilares_tarjetas_y_filas_propias(): void
+    {
+        $this->login();
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $pillars = $campaign->sections()->where('type', 'pillars')->first();
+
+        // De fábrica: 4 pilares con 3 tarjetas y 3 filas; la versión corta de los pilares queda oculta.
+        $this->assertCount(4, $pillars->content['items']);
+        $this->assertCount(3, $pillars->content['items'][0]['cards']);
+        $this->assertCount(3, $pillars->content['items'][0]['rows']);
+        $this->assertFalse($campaign->sections()->where('type', 'features')->where('anchor', 'servicios')->first()->is_visible);
+
+        // Se puede agregar un pilar nuevo con sus tarjetas y filas, cambiar la foto y el ícono; lo inválido se descarta.
+        $items = $pillars->content['items'];
+        $items[] = [
+            'icon' => 'no-existe', 'image' => 'javascript:alert(1)', 'tab_tag' => 'Pilar 5', 'tab_title' => 'Capacitación', 'tab_text' => 'Tu personal aprende',
+            'tag' => 'Pilar 5', 'title' => 'Capacitación al personal', 'question' => '¿Cómo ayuda?',
+            'cards' => [['title' => 'Charlas', 'text' => 'Cada trimestre']],
+            'head_a' => 'Situación', 'head_b' => 'Qué hacemos', 'head_c' => 'Resultado',
+            'rows' => [['a' => 'Nadie sabe usar el sistema', 'b' => 'Capacitamos', 'c' => 'Todos lo usan bien']],
+        ];
+        $this->put(route('sections.update', $pillars), [
+            'is_visible' => true, 'anchor' => 'pilares', 'nav_label' => 'Servicios',
+            'content' => [...$pillars->content, 'title' => 'Nuevo título', 'items' => $items],
+            'style' => $pillars->style,
+        ])->assertSessionHasNoErrors();
+
+        $pillars->refresh();
+        $this->assertSame('Nuevo título', $pillars->content['title']);
+        $this->assertCount(5, $pillars->content['items']);
+        $this->assertSame('Capacitamos', $pillars->content['items'][4]['rows'][0]['b']);
+        $this->assertNull($pillars->content['items'][4]['image']);
+        $this->assertContains($pillars->content['items'][4]['icon'], array_keys(SectionTypes::ICON_SET));
+
+        // Una campaña anterior: se agrega una sola vez y oculta la versión corta.
+        $campaign->sections()->where('type', 'pillars')->delete();
+        $campaign->sections()->where('type', 'features')->update(['is_visible' => true]);
+        $this->seed(\Database\Seeders\PillarsSeeder::class);
+        $this->seed(\Database\Seeders\PillarsSeeder::class);
+        $this->assertSame(1, $campaign->sections()->where('type', 'pillars')->count());
+        $this->assertFalse($campaign->sections()->where('type', 'features')->first()->is_visible);
+    }
+
     public function test_los_rubros_de_la_portada_se_editan_y_el_seeder_no_pisa_lo_editado(): void
     {
         $fields = collect(SectionTypes::schemaForClient()['hero']['content'])->pluck('key');
@@ -806,7 +850,7 @@ class CampaignAdminTest extends TestCase
         $this->seed(CampaignSeeder::class);
 
         $campaign = Campaign::query()->active()->firstOrFail();
-        $this->assertSame(16, $campaign->sections()->count());
+        $this->assertSame(17, $campaign->sections()->count());
         $this->assertFalse((bool) $campaign->sections()->where('type', 'packages')->value('is_visible'));
     }
 }
