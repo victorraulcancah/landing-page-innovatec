@@ -108,6 +108,48 @@ function Head({ section }: { section: PublicSection }) {
     );
 }
 
+// ---- Rubros de la portada: fichas fijas si caben; si no caben, pasan solas como un carrusel --------------------
+
+function AudienceChips({ items }: { items: Record<string, Json>[] }) {
+    const box = useRef<HTMLDivElement>(null);
+    const track = useRef<HTMLUListElement>(null);
+    const [scrolls, setScrolls] = useState(false);
+
+    useEffect(() => {
+        const measure = () => {
+            if (box.current && track.current) setScrolls(track.current.scrollWidth > box.current.clientWidth + 1);
+        };
+        measure();
+        const ro = new ResizeObserver(measure);
+        if (box.current) ro.observe(box.current);
+        return () => ro.disconnect();
+    }, [items]);
+
+    const chips = (hidden: boolean, ref?: React.Ref<HTMLUListElement>) => (
+        <ul className="lp-chips__track" ref={ref} aria-hidden={hidden || undefined}>
+            {items.map((a, k) => (
+                <li key={k}>
+                    {text(a, 'icon') && <span aria-hidden>{text(a, 'icon')}</span>}
+                    {text(a, 'label')}
+                </li>
+            ))}
+        </ul>
+    );
+
+    return (
+        <div
+            ref={box}
+            className={`lp-chips ${scrolls ? 'is-scrolling' : ''}`}
+            style={{ '--dur': `${Math.max(16, items.length * 5)}s` } as CSSProperties}
+        >
+            <div className="lp-chips__lane">
+                {chips(false, track)}
+                {scrolls && chips(true)}
+            </div>
+        </div>
+    );
+}
+
 // ---- Portada ---------------------------------------------------------------
 
 export function Hero({ section, theme, ctx, aside }: SectionProps) {
@@ -151,14 +193,7 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
                     {audience.length > 0 && (
                         <div className="lp-hero__audience">
                             {text(c, 'audience_label') && <p className="lp-hero__audience-label">{text(c, 'audience_label')}</p>}
-                            <ul>
-                                {audience.map((a, k) => (
-                                    <li key={k}>
-                                        {text(a, 'icon') && <span aria-hidden>{text(a, 'icon')}</span>}
-                                        {text(a, 'label')}
-                                    </li>
-                                ))}
-                            </ul>
+                            <AudienceChips items={audience} />
                         </div>
                     )}
                 </div>

@@ -552,13 +552,85 @@
     background: currentColor;
 }
 
-.lp-hero__audience ul {
+/* Carrusel de rubros: si las fichas caben se quedan quietas; si no, pasan solas y se frenan al apuntarlas. */
+.lp-chips {
+    overflow: hidden;
+    margin-inline: -0.2rem;
+    padding: 0.35rem 0.2rem;
+}
+
+.lp-chips.is-scrolling {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+.lp-chips__lane {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    width: max-content;
+}
+
+.lp-chips.is-scrolling .lp-chips__lane {
+    animation: lp-ticker var(--dur, 24s) linear infinite;
+}
+
+.lp-chips.is-scrolling:hover .lp-chips__lane {
+    animation-play-state: paused;
+}
+
+.lp-chips__track {
+    display: flex;
+    flex-shrink: 0;
     margin: 0;
     padding: 0;
     list-style: none;
+}
+
+.lp-chips__track li {
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+/* Sin movimiento: las fichas quedan quietas y se acomodan en líneas. */
+.lp[data-motion='none'] .lp-chips__lane,
+.lp[data-motion='subtle'] .lp-chips__lane,
+.lp--reduced .lp-chips__lane {
+    width: auto;
+    animation: none !important;
+}
+.lp[data-motion='none'] .lp-chips__track[aria-hidden],
+.lp[data-motion='subtle'] .lp-chips__track[aria-hidden],
+.lp--reduced .lp-chips__track[aria-hidden] {
+    display: none;
+}
+.lp[data-motion='none'] .lp-chips__track,
+.lp[data-motion='subtle'] .lp-chips__track,
+.lp--reduced .lp-chips__track {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+}
+.lp[data-motion='none'] .lp-chips,
+.lp[data-motion='subtle'] .lp-chips,
+.lp--reduced .lp-chips {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lp-chips__lane {
+        width: auto;
+        animation: none !important;
+    }
+    .lp-chips__track[aria-hidden] {
+        display: none;
+    }
+    .lp-chips__track {
+        flex-wrap: wrap;
+        row-gap: 0.5rem;
+    }
+    .lp-chips {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
 }
 
 .lp-hero__audience li {
@@ -574,8 +646,7 @@
     font-weight: 700;
     transition:
         border-color 0.2s ease,
-        background-color 0.2s ease,
-        transform 0.3s var(--ease-out);
+        background-color 0.2s ease;
 }
 
 .lp-hero__audience li:not(:has(span)) {
@@ -596,14 +667,8 @@
 .lp-hero__audience li:hover {
     border-color: color-mix(in srgb, var(--fg) 45%, transparent);
     background: color-mix(in srgb, var(--fg) 12%, transparent);
-    transform: translateY(-2px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .lp-hero__audience li:hover {
-        transform: none;
-    }
-}
 
 .lp-photo {
     position: relative;
