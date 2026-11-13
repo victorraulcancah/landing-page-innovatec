@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Campaign;
+use App\Support\QuoteDefaults;
 use App\Support\SectionTypes;
 use Illuminate\Database\Seeder;
 
@@ -41,10 +42,13 @@ class CampaignSeeder extends Seeder
                 'secondary_cta' => ['label' => 'Hablar por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
                 'image' => '/images/uco360-reunion.jpg', 'image_alt' => 'Reunión de trabajo en una oficina con vista a la ciudad',
                 'note' => 'Soporte · Infraestructura · Ciberseguridad · Gestión TI',
+                ...QuoteDefaults::hero(),
             ]],
-            ['calculator', 'calculadora', null, true, [
+            ['quote', 'cotizador', 'Cotizador', true, QuoteDefaults::quote()],
+            // La calculadora de caídas ya no va en la portada: queda oculta para poder volver a mostrarla.
+            ['calculator', 'calculadora', null, false, [
                 'title' => '¿Cuánto te cuesta una caída?',
-                'in_hero' => true,
+                'in_hero' => false,
                 'people_label' => 'Personas que dejan de trabajar', 'people_min' => 1, 'people_max' => 100, 'people_default' => 26, 'people_unit' => 'personas',
                 'hours_label' => 'Horas de caída al mes (sistema, internet, correo)', 'hours_min' => 1, 'hours_max' => 100, 'hours_default' => 8, 'hours_unit' => 'horas',
                 'cost_label' => 'Costo por persona por hora', 'cost_min' => 5, 'cost_max' => 100, 'cost_default' => 15, 'currency' => 'S/',

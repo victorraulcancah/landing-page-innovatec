@@ -3,6 +3,7 @@ import '../../css/landing.css';
 import { Footer } from '@/components/landing/footer';
 import { Calculator, Popup, PromoBar } from '@/components/landing/interactive';
 import { Navbar } from '@/components/landing/navbar';
+import { Quote } from '@/components/landing/quote';
 import { RENDERERS } from '@/components/landing/sections';
 import { eventForLink, startAnalytics, track } from '@/lib/analytics';
 import { fontHref, fontStack, radiusVars, sectionLook, type CtaContext, type PublicSection } from '@/lib/landing';
@@ -26,8 +27,8 @@ export default function Landing({ campaign, sections: allSections, theme, navbar
     // La barra de anuncio y los pop-ups no forman parte del orden de la página; la calculadora «en portada» va dentro de la portada.
     const promo = allSections.find((s) => s.type === 'promo');
     const popups = allSections.filter((s) => s.type === 'popup');
-    const heroCalc = allSections.some((s) => s.type === 'hero') ? allSections.find((s) => s.type === 'calculator' && s.content.in_hero === true) : undefined;
-    const sections = allSections.filter((s) => s.type !== 'promo' && s.type !== 'popup' && s !== heroCalc);
+    const heroPanel = allSections.some((s) => s.type === 'hero') ? allSections.find((s) => (s.type === 'quote' || s.type === 'calculator') && s.content.in_hero === true) : undefined;
+    const sections = allSections.filter((s) => s.type !== 'promo' && s.type !== 'popup' && s !== heroPanel);
 
     const rootRef = useRef<HTMLDivElement>(null);
     useMotion(rootRef, theme.motion ?? 'full', sections.map((s) => s.id).join(','));
@@ -116,7 +117,10 @@ export default function Landing({ campaign, sections: allSections, theme, navbar
                         const changes = index > 0 && bg(sections[index - 1]) !== bg(section);
                         const cutsBefore = sections.slice(1, index).filter((s, i) => bg(sections[i]) !== bg(s)).length;
                         const cut = changes ? (cutsBefore % 2 === 0 ? 'up' : 'down') : null;
-                        const aside = section.type === 'hero' && heroCalc ? <Calculator section={heroCalc} ctx={ctx} /> : undefined;
+                        const aside =
+                            section.type === 'hero' && heroPanel ? (
+                                heroPanel.type === 'quote' ? <Quote section={heroPanel} ctx={ctx} campaignId={campaign.id} preview={preview} /> : <Calculator section={heroPanel} ctx={ctx} />
+                            ) : undefined;
                         return <Renderer key={section.id} section={section} theme={theme} ctx={ctx} contact={contact} campaignId={campaign.id} preview={preview} cut={cut} aside={aside} />;
                     })
                 )}

@@ -3696,3 +3696,466 @@ textarea.lp-input {
 .lp-map__open svg {
     flex-shrink: 0;
 }
+
+/* ======================================================================
+   Cotizador de tarifa y portada con definición
+   ====================================================================== */
+
+/* ---- Portada: qué incluye de un vistazo y para quién es ---------------------------------------------- */
+
+.lp-hero__chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    max-width: 36rem;
+    margin-top: 1.5rem;
+    padding: 0;
+    list-style: none;
+}
+
+.lp-hero__chips li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+    border-radius: var(--r);
+    background: color-mix(in srgb, var(--fg) 6%, transparent);
+    font-family: var(--font-head);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.lp-ring-dot {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 4px solid var(--line);
+}
+
+.lp-hero__aud {
+    margin-top: 1.25rem;
+}
+
+.lp-hero__aud p {
+    font-family: var(--font-head);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--fg) 78%, transparent);
+}
+
+.lp-hero__aud ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.55rem;
+    padding: 0;
+    list-style: none;
+}
+
+.lp-hero__aud li {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--fg) 24%, transparent);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+/* ---- Cotizador -------------------------------------------------------------------------------------------
+   Mismo lenguaje que la calculadora: panel tintado del color de la sección, borde fino y acentos de la línea
+   (naranja sobre fondo oscuro, azul sobre fondo claro). Todo sale de --bg, --fg, --line y --btn-*. */
+
+.lp-quote {
+    --fg-soft: color-mix(in srgb, var(--fg) 78%, transparent);
+    container-type: inline-size;
+    display: grid;
+    gap: 1.05rem;
+    width: 100%;
+    max-width: 42rem;
+    margin-inline: auto;
+    padding: clamp(1.1rem, 2.2vw, 1.5rem);
+    border-radius: calc(var(--r) * 1.4);
+    background: color-mix(in srgb, var(--fg) 7%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+    color: var(--fg);
+    text-align: left;
+}
+
+.lp-quote__head {
+    display: grid;
+    gap: 0.75rem;
+    align-items: start;
+}
+
+@container (min-width: 27rem) {
+    .lp-quote__head {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+.lp-quote h2 {
+    font-family: var(--font-head);
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+.lp-quote__head > div > p {
+    margin-top: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--fg-soft);
+}
+
+/* El precio base: sin relleno, solo el filo de la línea. */
+.lp-quote__base {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.55rem 0.9rem;
+    border: 2px solid var(--line);
+    border-radius: var(--r);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.lp-quote__base span {
+    font-family: var(--font-head);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--fg-soft);
+}
+
+.lp-quote__base strong {
+    font-family: var(--font-head);
+    font-size: 1.15rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.lp-quote__base small {
+    font-size: 0.8125rem;
+    color: var(--fg-soft);
+}
+
+/* Planes rápidos */
+.lp-quote__plans {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+}
+
+.lp-quote__plans button {
+    min-height: 40px;
+    padding: 0.3rem 0.95rem;
+    border: 1px solid color-mix(in srgb, var(--fg) 28%, transparent);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.3s var(--ease-out);
+}
+
+.lp-quote__plans button:hover {
+    transform: translateY(-1px);
+}
+
+.lp-quote__plans button[aria-pressed='true'] {
+    background: var(--btn-bg);
+    border-color: var(--btn-bg);
+    color: var(--btn-fg);
+}
+
+.lp-quote__plans .lp-quote__clear {
+    border-color: transparent;
+    color: var(--danger);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+/* Grupos de equipos */
+.lp-quote__tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding-bottom: 2px;
+    overflow-x: auto;
+    border-bottom: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+    scrollbar-width: thin;
+}
+
+.lp-quote__tabs button {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 0.4rem 0.8rem;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: var(--fg-soft);
+    font-family: var(--font-head);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.lp-quote__tabs button[aria-selected='true'] {
+    border-bottom-color: var(--line);
+    color: var(--fg);
+}
+
+/* Equipos con su contador */
+.lp-quote__grid {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@container (min-width: 36rem) {
+    .lp-quote__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.lp-quote__grid li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+    border-radius: var(--r);
+    transition: border-color 0.2s ease;
+}
+
+.lp-quote__grid li.is-on {
+    border-color: var(--line);
+    background: color-mix(in srgb, var(--line) 10%, transparent);
+}
+
+.lp-quote__grid label {
+    display: block;
+    font-family: var(--font-head);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.lp-quote__grid small {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    color: var(--fg-soft);
+}
+
+.lp-quote__step {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0.3rem;
+}
+
+.lp-quote__step button {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid color-mix(in srgb, var(--fg) 32%, transparent);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--fg);
+    cursor: pointer;
+}
+
+.lp-quote__step button:last-child {
+    border-color: var(--btn-bg);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+}
+
+.lp-quote__step button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.lp-quote__step input {
+    width: 3.1rem;
+    height: 32px;
+    border: 1px solid color-mix(in srgb, var(--fg) 32%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--fg) 6%, transparent);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.lp-quote__step input::-webkit-inner-spin-button,
+.lp-quote__step input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* En pantallas táctiles los botones son más grandes. */
+@media (pointer: coarse) {
+    .lp-quote__step button,
+    .lp-quote__step input {
+        width: 40px;
+        height: 40px;
+    }
+    .lp-quote__step input {
+        width: 3.4rem;
+    }
+}
+
+.lp-quote__sum {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--r);
+    border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+    font-size: 0.85rem;
+    color: var(--fg-soft);
+}
+
+.lp-quote__sum b {
+    font-family: var(--font-head);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pedir los datos */
+.lp-quote__gate {
+    display: grid;
+    gap: 0.8rem;
+    padding-top: 0.2rem;
+}
+
+.lp-quote__gate-title {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.lp-quote__fields {
+    display: grid;
+    gap: 0.65rem;
+}
+
+@container (min-width: 36rem) {
+    .lp-quote__fields {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: end;
+    }
+}
+
+.lp-quote__gate label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--fg-soft);
+}
+
+.lp-quote__gate .lp-error {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* La tarifa: el bloque de color de la línea, como el resultado de la calculadora. */
+.lp-quote__result {
+    --btn-bg: var(--bg);
+    --btn-fg: var(--fg);
+    display: grid;
+    gap: 0.45rem;
+    padding: 1.15rem;
+    border-radius: calc(var(--r) * 1.2);
+    background: var(--line);
+    color: var(--bg);
+}
+
+.lp-quote__label {
+    font-family: var(--font-head);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.lp-quote__price {
+    font-family: var(--font-head);
+    font-size: clamp(2rem, 1.4rem + 2.4vw, 2.9rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.lp-quote__price small {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.lp-quote__note {
+    min-height: 1.2em;
+    font-size: 0.8125rem;
+}
+
+.lp-quote__benefits {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0.25rem 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+}
+
+.lp-quote__benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.lp-quote__benefits svg {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+}
+
+.lp-quote__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+}
+
+.lp-quote__result .lp-btn--ghost {
+    border-color: color-mix(in srgb, var(--bg) 60%, transparent);
+    color: var(--bg);
+}
+
+.lp-quote__fine {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+/* Con el cotizador (o la calculadora) al lado, el titular largo baja un escalón para que ambos respiren. */
+.lp-hero--aside h1 {
+    font-size: clamp(2.1rem, 1.1rem + 2.7vw, 3.5rem);
+}

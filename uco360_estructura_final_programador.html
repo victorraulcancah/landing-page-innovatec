@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UCO360 · Estructura Final para Programador + Comparador de Desarrollos</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            uco: {
+              navy: '#0B1335',
+              navyLight: '#132054',
+              blue: '#1D4ED8',
+              electric: '#2563EB',
+              orange: '#F97316',
+              orangeHover: '#EA580C',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+    }
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-ticker {
+      display: flex;
+      width: max-content;
+      animation: ticker 26s linear infinite;
+    }
+    .animate-ticker:hover {
+      animation-play-state: paused;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F1F5F9;
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-orange-500 selection:text-white">
+
+  <!-- BARRA SUPERIOR DE CONTROL: COMPARADOR DE LOS 2 DESARROLLOS + GUÍA PARA EL PROGRAMADOR -->
+  <div class="bg-slate-950 text-white py-2.5 px-4 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+        <span class="font-display font-bold text-xs sm:text-sm tracking-tight text-white">PANEL DE COMPARACIÓN Y ENTREGA A PROGRAMADOR:</span>
+      </div>
+
+      <!-- Botones para alternar entre Desarrollo 2 (Final Depurado), Desarrollo 1 (Anterior) y Guía del Programador -->
+      <div class="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+        <button type="button" id="modeBtnFinal" onclick="switchMasterView('final')" class="px-3 py-1.5 rounded-lg text-xs font-extrabold bg-uco-orange text-white shadow transition">
+          1. Desarrollo 2: Estructura Final (Venta Directa)
+        </button>
+        <button type="button" id="modeBtnPrev" onclick="switchMasterView('prev')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+          2. Desarrollo 1: Versión Anterior (Con Tabla Comparativa)
+        </button>
+        <button type="button" id="modeBtnSpec" onclick="switchMasterView('spec')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-950 hover:bg-blue-900 text-blue-200 border border-blue-700 transition">
+          3. Guía Punto por Punto para Programador
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================================
+       VISTA 3: GUÍA TÉCNICA Y COMERCIAL PUNTO POR PUNTO PARA EL PROGRAMADOR (Oculta por defecto)
+       ========================================================================================= -->
+  <div id="viewProgrammerSpec" class="hidden py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
+    <div class="bg-uco-navy text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+      <span class="text-xs font-extrabold uppercase tracking-wider text-orange-400 bg-orange-500/15 px-3 py-1 rounded-full">Documento de Entrega a Desarrollo</span>
+      <h1 class="font-display text-2xl sm:text-3xl font-extrabold mt-3">
+        Guía Completa de Reestructuración de Landing Page UCO360 (Punto por Punto)
+      </h1>
+      <p class="text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
+        Comparativa exacta entre la <strong>Muestra Actual en Servidor (173.249.36.119:8093)</strong>, el <strong>Manual / Brochure Comercial UCO360</strong>, el <strong>Desarrollo 1 (Intermedio)</strong> y el <strong>Desarrollo 2 (Estructura Final Depurada para Venta Directa)</strong>.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button type="button" onclick="switchMasterView('final')" class="bg-uco-orange hover:bg-uco-orangeHover text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+          Ver Desarrollo 2 (Landing Final) →
+        </button>
+        <button type="button" onclick="switchMasterView('prev')" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+          Ver Desarrollo 1 (Versión Anterior) →
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla Comparativa Punto por Punto de la Arquitectura -->
+    <div class="bg-white rounded-3xl shadow-md border border-slate-200 overflow-hidden">
+      <div class="px-6 py-4 bg-slate-100 border-b border-slate-200">
+        <h2 class="font-display font-extrabold text-lg text-uco-navy">1. Mapa de Secciones: Servidor Actual vs. Desarrollo 1 vs. Desarrollo 2 (Final)</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm min-w-[820px]">
+          <thead>
+            <tr class="bg-uco-navy text-white uppercase text-[11px] tracking-wider">
+              <th class="py-3.5 px-4">Orden / Bloque</th>
+              <th class="py-3.5 px-4">Servidor Actual (:8093)</th>
+              <th class="py-3.5 px-4">Desarrollo 1 (Versión Anterior)</th>
+              <th class="py-3.5 px-4 bg-orange-600">Desarrollo 2 (Estructura Final al Programador)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Bloque 1: Primer Banner (Hero)</td>
+              <td class="py-3.5 px-4 text-slate-600">Habla de sueldos sin producir cuando el sistema se cae, sin definir primero qué es UCO360.</td>
+              <td class="py-3.5 px-4 text-slate-600">Introduce el mensaje comercial y rubros (hoteles, comercios, almacenes).</td>
+              <td class="py-3.5 px-4 bg-orange-50/40 font-medium text-slate-900"><strong>Define en el Primer Banner qué es exactamente UCO360</strong> (tu propia Área de TI Externa / Outsourcing TI) con el titular: <em>«Tú dedícate a hacer crecer tu negocio. Nosotros hacemos que tus sistemas, internet y equipos nunca fallen»</em>.</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Bloque 2: Calculadora / Cotizador</td>
+              <td class="py-3.5 px-4 text-slate-600">Calculadora de «Cuánto te cuesta una caída» (no cotiza el servicio).</td>
+              <td class="py-3.5 px-4 text-slate-600">Cotizador con pesos UCO y filtro de registro.</td>
+              <td class="py-3.5 px-4 bg-orange-50/40 font-medium text-slate-900"><strong>Cotizador de Costo Mensual UCO360 (Destacando claramente «Desde S/ 1,500 / mes»)</strong>: filtra pidiendo <strong>Nombre completo, RUC o Empresa y WhatsApp</strong> antes de revelar la tarifa calculada.</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Bloque 3: Dolores del Día a Día + Respuesta UCO360</td>
+              <td class="py-3.5 px-4 text-slate-600">No tenía tarjetas de situaciones cotidianas por rubro.</td>
+              <td class="py-3.5 px-4 text-slate-600">Tarjetas pequeñas de problemas y bloque separado de solución.</td>
+              <td class="py-3.5 px-4 bg-orange-50/40 font-medium text-slate-900"><strong>Tarjetas grandes de alto impacto («¿Te suena familiar?»)</strong> apuntando al dolor diario (recepción paralizada, Wi-Fi que se corta, peloteo Internet vs. Sistema = Gestión de proveedores, PC con virus/pérdida de datos) conectado directo con: <strong>Atención inmediata, Prevención real, Respaldo total y Claridad</strong>.</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Tabla Comparativa & Test</td>
+              <td class="py-3.5 px-4 text-slate-600">Tabla Técnico Freelance vs. UCO360 + Autodiagnóstico de 6 checks.</td>
+              <td class="py-3.5 px-4 text-slate-600">Mantenía tabla comparativa de 3 columnas + Test de 6 checks.</td>
+              <td class="py-3.5 px-4 bg-emerald-50/60 font-bold text-emerald-900">✔ ELIMINADOS en Desarrollo 2 para no recargar la página ni redundar. Nos enfocamos 100% en vender el producto UCO360.</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Bloque 4: Qué incluye cada mes (Los 4 Pilares)</td>
+              <td class="py-3.5 px-4 text-slate-600">4 tarjetas cortas sin el detalle interno del brochure.</td>
+              <td class="py-3.5 px-4 text-slate-600">Pestañas con tablas internas.</td>
+              <td class="py-3.5 px-4 bg-orange-50/40 font-medium text-slate-900"><strong>Los 4 Pilares explicados en lenguaje muy sencillo</strong> (1. Atención a tu personal, 2. Internet, Wi-Fi y Proveedores, 3. Archivos y Seguridad, 4. Inventario y Control) con su detalle claro dentro de cada pilar.</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Bloque 5: Transición Simple (3 Pasos)</td>
+              <td class="py-3.5 px-4 text-slate-600">3 pasos con error tipográfico («para que me cuentes»).</td>
+              <td class="py-3.5 px-4 text-slate-600">Título «Diagnosticar, Ordenar y Tomar el Control» con texto extenso.</td>
+              <td class="py-3.5 px-4 bg-orange-50/40 font-medium text-slate-900"><strong>Transición Simple en 3 Pasos sin redundar</strong>: explica de forma directa cómo empezamos sin interrumpir la operación de la empresa + Demo de WhatsApp e Informe Mensual.</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-uco-navy">Bloque 6: Preguntas y Cierre</td>
+              <td class="py-3.5 px-4 text-slate-600">5 preguntas + Formulario de contacto.</td>
+              <td class="py-3.5 px-4 text-slate-600">6 preguntas + Formulario.</td>
+              <td class="py-3.5 px-4 bg-orange-50/40 font-medium text-slate-900"><strong>Preguntas Frecuentes directas + Formulario «Agenda tu diagnóstico»</strong> conectado a WhatsApp (970 855 741) y correo comercial.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Auditoría profunda página por página del Brochure Comercial (9 páginas) trasladada a la web -->
+    <div class="bg-white rounded-3xl shadow-md border border-slate-200 p-6 sm:p-8 space-y-5">
+      <div>
+        <span class="text-xs font-extrabold uppercase tracking-wider text-uco-electric bg-blue-50 px-3 py-1 rounded-full">Traducción Estratégica del Manual / Brochure (Págs. 1 a 9)</span>
+        <h2 class="font-display font-extrabold text-xl text-uco-navy mt-2">
+          2. Cómo se traduce cada página del Brochure Comercial a lenguaje de venta directa para el cliente final
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">
+          Guía exacta para el programador y copywriter sobre cómo aterrizar cada lámina del PDF en la web sin saturar de texto ni usar jerga técnica:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs sm:text-sm">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p class="font-extrabold text-uco-electric uppercase text-[11px]">Págs. 1 y 2 del Brochure → Banner 1 (Hero)</p>
+          <p class="font-bold text-uco-navy mt-1">De «Apagar incendios» a tu propia Área de TI Externa</p>
+          <p class="text-slate-600 mt-1">En el primer pantallazo el cliente entiende qué es UCO360, que reemplaza la incertidumbre del soporte ocasional por un equipo completo y que cuesta <strong>desde S/ 1,500 al mes</strong>.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p class="font-extrabold text-uco-electric uppercase text-[11px]">Pág. 3 del Brochure → Dolores + 4 Garantías</p>
+          <p class="font-bold text-uco-navy mt-1">Del Dolor Diario a la Solución de Outsourcing TI</p>
+          <p class="text-slate-600 mt-1">Eliminamos la tabla comparativa pesada y conectamos los 6 dolores reales (recepción parada, Wi-Fi lento, peloteo de proveedores, pérdida de datos) con Atención Inmediata, Prevención Real, Respaldo Total y Costo Fijo.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p class="font-extrabold text-uco-electric uppercase text-[11px]">Pág. 4 del Brochure → Pilar 1 (Soporte)</p>
+          <p class="font-bold text-uco-navy mt-1">WhatsApp al instante + Visita Fija Semanal</p>
+          <p class="text-slate-600 mt-1">Destaca que el personal reporta por WhatsApp con seguimiento hasta volver a trabajar, sumado a la visita presencial todas las semanas y prioridad en urgencias de facturación/recepción.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p class="font-extrabold text-uco-electric uppercase text-[11px]">Pág. 5 del Brochure → Pilar 2 (Infraestructura)</p>
+          <p class="font-bold text-uco-navy mt-1">Cero caídas por disco lleno + Gestión de Proveedores</p>
+          <p class="text-slate-600 mt-1">Aterriza el mantenimiento preventivo de servidores, Wi-Fi y nube, y resalta que UCO360 hace el descarte técnico y reclama directamente ante el proveedor de Internet o ERP.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p class="font-extrabold text-uco-electric uppercase text-[11px]">Pág. 6 del Brochure → Pilar 3 (Seguridad)</p>
+          <p class="font-bold text-uco-navy mt-1">«Tener una copia no garantiza recuperar tu empresa»</p>
+          <p class="text-slate-600 mt-1">Explica en simple que UCO360 revisa los backups todos los días, hace pruebas reales de restauración y bloquea al instante a los trabajadores que se retiran.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p class="font-extrabold text-uco-electric uppercase text-[11px]">Págs. 7, 8 y 9 → Pilar 4 + Transición + Gerencia</p>
+          <p class="font-bold text-uco-navy mt-1">Inventario Vivo, Puesta en Marcha y 4 Reportes</p>
+          <p class="text-slate-600 mt-1">Muestra la transición simple en 3 pasos y los 4 entregables mensuales para que la Gerencia conserve las decisiones de negocio sin perder tiempo operativo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================================
+       CONTENEDOR PRINCIPAL DE LAS LANDING PAGES (DESARROLLO 2 Y DESARROLLO 1)
+       ========================================================================================= -->
+  <div id="viewLandingWrapper">
+
+    <!-- 1. Barra Superior de Anuncio -->
+    <div id="topAnnouncement" class="bg-gradient-to-r from-uco-blue via-blue-700 to-uco-navy text-white text-xs sm:text-sm py-2 px-4 relative">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="bg-orange-500 text-white text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded">Este Mes</span>
+          <span class="font-medium">Agenda tu diagnóstico de TI y revisa con nosotros cómo están hoy tus equipos, tu red y tus copias de seguridad.</span>
+          <button type="button" onclick="openBookingModal('Diagnóstico de TI + Revisión de Backups')" class="underline font-bold text-orange-300 hover:text-white ml-1">Reservar →</button>
+        </div>
+        <button type="button" onclick="dismissAnnouncement()" aria-label="Cerrar anuncio" class="text-white/80 hover:text-white p-1 rounded">✕</button>
+      </div>
+    </div>
+
+    <!-- 2. Header / Menú de Navegación -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-11 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <a href="#inicio" class="flex items-center gap-2.5 group">
+          <div class="w-10 h-10 rounded-xl bg-uco-navy flex items-center justify-center shadow-md">
+            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="8" stroke="#3B82F6" stroke-width="2.5" stroke-dasharray="32 10"/>
+              <path d="M12 4H20V12" stroke="#F97316" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="3" fill="#F97316"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-display font-extrabold text-xl tracking-tight text-uco-navy">UCO360</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-uco-blue border border-blue-200">Área de TI Externa</span>
+            </div>
+            <p class="text-[10px] font-semibold text-slate-500 tracking-wider uppercase -mt-0.5">by PROINNOVATEC · Grupo CAME</p>
+          </div>
+        </a>
+
+        <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
+          <a href="#inicio" class="hover:text-uco-electric transition">¿Qué es UCO360?</a>
+          <a href="#calculadora-uco" class="hover:text-uco-electric transition">Cotizador</a>
+          <a href="#dolores-reales" class="hover:text-uco-electric transition">¿Te pasa esto?</a>
+          <a href="#que-es-uco360" class="hover:text-uco-electric transition">Por qué elegirnos</a>
+          <a href="#pilares" class="hover:text-uco-electric transition">Qué incluye cada mes</a>
+          <a href="#como-empezamos" class="hover:text-uco-electric transition">Cómo empezamos</a>
+          <a href="#preguntas" class="hover:text-uco-electric transition">Preguntas</a>
+          <a href="#contacto" class="hover:text-uco-electric transition">Contacto</a>
+        </nav>
+
+        <div class="hidden sm:flex items-center gap-3">
+          <button type="button" onclick="openBookingModal('Diagnóstico desde Header')" class="bg-uco-electric hover:bg-blue-700 text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <span>Agenda tu diagnóstico</span>
+            <span>→</span>
+          </button>
+        </div>
+
+        <button type="button" onclick="toggleMobileMenu()" aria-label="Abrir menú" class="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="mobileMenu" class="hidden lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 text-sm font-semibold text-slate-700">
+        <a href="#inicio" onclick="toggleMobileMenu()" class="block py-2 border-b border-slate-100">¿Qué es UCO360?</a>
+        <a href="#calculadora-uco" onclick="toggleMobileMenu()" class="block py-2 border-b border-slate-100">Cotizador (Desde S/ 1,500)</a>
+        <a href="#dolores-reales" onclick="toggleMobileMenu()" class="block py-2 border-b border-slate-100">Problemas del día a día</a>
+        <a href="#pilares" onclick="toggleMobileMenu()" class="block py-2 border-b border-slate-100">Qué incluye cada mes</a>
+        <a href="#como-empezamos" onclick="toggleMobileMenu()" class="block py-2 border-b border-slate-100">Cómo empezamos</a>
+        <a href="#preguntas" onclick="toggleMobileMenu()" class="block py-2 border-b border-slate-100">Preguntas Frecuentes</a>
+        <a href="#contacto" onclick="toggleMobileMenu()" class="block py-2">Contacto</a>
+      </div>
+    </header>
+
+    <!-- =====================================================================================
+         BLOQUE 1 (PRIMER BANNER): QUÉ ES EXACTAMENTE UCO360 +BLOQUE 2: COTIZADOR DESDE S/ 1,500
+         ===================================================================================== -->
+    <section id="inicio" class="bg-uco-navy text-white relative overflow-hidden pt-8 pb-14 lg:py-14">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-10 w-80 h-80 bg-orange-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+          
+          <!-- Primer Banner: Explicación exacta de UCO360 + Promesa central -->
+          <div class="lg:col-span-5 space-y-5 lg:pt-2">
+            <div class="inline-flex flex-wrap items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3.5 py-1.5 text-xs font-semibold text-blue-200">
+              <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+              <span>UCO360 · OUTSOURCING DE ÁREA DE TI EXTERNA</span>
+            </div>
+
+            <h1 class="font-display text-3xl sm:text-4xl lg:text-[40px] font-extrabold leading-tight tracking-tight">
+              Tú dedícate a hacer crecer tu negocio. <span class="text-orange-400">Nosotros hacemos que tus sistemas, internet y equipos nunca fallen.</span>
+            </h1>
+
+            <!-- Definición exacta de qué es UCO360 en el Primer Banner -->
+            <div class="bg-white/10 border-l-4 border-orange-400 rounded-r-2xl p-4 space-y-1.5">
+              <p class="text-xs font-extrabold uppercase tracking-wider text-orange-300">¿Qué es exactamente UCO360?</p>
+              <p class="text-sm sm:text-base text-white leading-relaxed">
+                <strong>UCO360 es tu propia Área de TI Externa.</strong> Ponemos a trabajar para tu empresa a un equipo completo de especialistas que atiende a tu personal por WhatsApp, visita tu local cada semana, cuida tus servidores, Wi-Fi y copias de seguridad, y trata directo con tus proveedores por una <strong>tarifa fija mensual desde S/ 1,500</strong>.
+              </p>
+            </div>
+
+            <!-- 4 Pilares rápidos en 1 vistazo -->
+            <div class="grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
+              <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-2">
+                <span class="text-orange-400 font-bold">💬</span>
+                <span class="font-semibold text-white">Soporte por WhatsApp</span>
+              </div>
+              <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-2">
+                <span class="text-orange-400 font-bold">🏢</span>
+                <span class="font-semibold text-white">Visita fija semanal</span>
+              </div>
+              <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-2">
+                <span class="text-orange-400 font-bold">🛡️</span>
+                <span class="font-semibold text-white">Backups diarios seguros</span>
+              </div>
+              <div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-2">
+                <span class="text-orange-400 font-bold">🤝</span>
+                <span class="font-semibold text-white">Gestión de proveedores</span>
+              </div>
+            </div>
+
+            <!-- Rubros -->
+            <div>
+              <p class="text-[11px] font-bold uppercase tracking-wider text-blue-300 mb-2">Para empresas de cualquier rubro que no pueden detenerse:</p>
+              <div class="flex flex-wrap gap-1.5 text-xs font-semibold text-slate-200">
+                <span class="bg-white/10 px-2.5 py-1 rounded-lg">🏨 Hoteles</span>
+                <span class="bg-white/10 px-2.5 py-1 rounded-lg">📦 Comercios y Distribuidoras</span>
+                <span class="bg-white/10 px-2.5 py-1 rounded-lg">🏭 Industrias y Almacenes</span>
+                <span class="bg-white/10 px-2.5 py-1 rounded-lg">🏥 Clínicas y Servicios</span>
+              </div>
+            </div>
+
+            <!-- Botones CTA Hero -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+              <button type="button" onclick="openBookingModal('Hero Principal')" class="bg-uco-orange hover:bg-uco-orangeHover text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-2 text-sm sm:text-base">
+                <span>Agenda tu diagnóstico</span>
+                <span>→</span>
+              </button>
+              <a href="https://wa.me/51970855741?text=Hola%20PROINNOVATEC%2C%20quisiera%20informaci%C3%B3n%20sobre%20UCO360" target="_blank" rel="noopener noreferrer" class="border border-white/25 hover:bg-white/10 text-white font-semibold px-5 py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-sm sm:text-base">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span>WhatsApp: 970 855 741</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bloque 2: CALCULADORA / COTIZADOR CON FILTRO DE REGISTRO Y BASE DESDE S/ 1,500 VISIBLE -->
+          <div id="calculadora-uco" class="lg:col-span-7">
+            <div class="bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 p-5 sm:p-6">
+              <!-- Encabezado con "Desde S/ 1,500 / mes" grande y visible -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                <div>
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider text-uco-electric bg-blue-50 px-2.5 py-0.5 rounded-full">Cotizador Online UCO360</span>
+                  <h2 class="font-display text-xl sm:text-2xl font-extrabold text-uco-navy mt-1">¿Cuánto cuesta UCO360 para tu empresa?</h2>
+                  <p class="text-xs text-slate-500">Selecciona los equipos de tu negocio y descubre tu tarifa mensual a medida:</p>
+                </div>
+                <div class="bg-orange-50 border-2 border-orange-300 rounded-2xl px-3.5 py-2 text-right shrink-0 self-start sm:self-center">
+                  <span class="block text-[10px] font-extrabold uppercase tracking-wider text-orange-700">Servicio Integral</span>
+                  <span class="font-display font-extrabold text-base sm:text-lg text-uco-navy">Desde S/ 1,500 <span class="text-xs font-semibold text-slate-600">/ mes</span></span>
+                </div>
+              </div>
+
+              <!-- Ejemplos rápidos -->
+              <div class="mt-3.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button type="button" id="presetBtn1" onclick="applyUcoPreset('pyme')" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-uco-navy text-white transition">
+                    15 Computadoras · 1 Local
+                  </button>
+                  <button type="button" id="presetBtn2" onclick="applyUcoPreset('mediana')" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    30 Computadoras · 2 Locales
+                  </button>
+                  <button type="button" id="presetBtn3" onclick="applyUcoPreset('corporativa')" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    60 Computadoras · 3 Locales
+                  </button>
+                </div>
+                <button type="button" onclick="applyUcoPreset('zero')" class="text-xs font-semibold text-rose-600 hover:underline">
+                  Poner en 0
+                </button>
+              </div>
+
+              <!-- Categorías simples -->
+              <div class="mt-3 flex flex-wrap gap-1.5 border-b border-slate-100 pb-2">
+                <button type="button" id="catTabAll" onclick="setUcoCategory('principales')" class="text-[11px] font-bold px-2.5 py-1 rounded-md bg-blue-100 text-uco-electric">
+                  Equipos principales (6)
+                </button>
+                <button type="button" id="catTabInfra" onclick="setUcoCategory('infra')" class="text-[11px] font-semibold px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-100">
+                  Wi-Fi y Red (5)
+                </button>
+                <button type="button" id="catTabSec" onclick="setUcoCategory('sec')" class="text-[11px] font-semibold px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-100">
+                  Cámaras y Asistencia (3)
+                </button>
+                <button type="button" id="catTabUsers" onclick="setUcoCategory('all')" class="text-[11px] font-semibold px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-100">
+                  Ver los 14 ítems
+                </button>
+              </div>
+
+              <!-- Grid de Dispositivos -->
+              <div id="ucoDevicesGrid" class="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[215px] overflow-y-auto pr-1 custom-scrollbar"></div>
+
+              <!-- Resumen de Selección -->
+              <div class="mt-3 flex items-center justify-between bg-slate-100 rounded-xl px-3.5 py-2 text-xs">
+                <span id="ucoSummaryText" class="font-semibold text-slate-700">15 Computadoras, 1 Local y equipos seleccionados</span>
+                <span id="totalUcoBadge" class="font-mono font-bold text-uco-electric bg-white px-2.5 py-0.5 rounded-md border border-slate-200 shrink-0">29.55 UCO</span>
+              </div>
+
+              <!-- FILTRO DE CAPTURA DE LEADS (Nombre completo, RUC o Empresa y WhatsApp) -->
+              <div id="quoteGateContainer" class="mt-3.5 bg-uco-navy text-white rounded-2xl p-4 sm:p-5">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-400">Descubre tu tarifa mensual exacta (Planes desde S/ 1,500)</span>
+                    <h3 class="font-display font-bold text-sm sm:text-base text-white mt-0.5">
+                      Ingresa tus datos para mostrar el costo mensual de tu empresa en pantalla:
+                    </h3>
+                  </div>
+                </div>
+
+                <form id="unlockQuoteForm" onsubmit="unlockUcoQuote(event)" class="mt-3 space-y-2.5">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                      <input id="gateNombre" type="text" required placeholder="Nombre completo *" class="w-full px-3 py-2.5 rounded-lg bg-white text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                    </div>
+                    <div>
+                      <input id="gateRucEmpresa" type="text" required placeholder="RUC o Nombre de empresa *" class="w-full px-3 py-2.5 rounded-lg bg-white text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                    </div>
+                    <div>
+                      <input id="gateTelefono" type="tel" required placeholder="Número de WhatsApp *" class="w-full px-3 py-2.5 rounded-lg bg-white text-slate-900 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                    </div>
+                  </div>
+
+                  <button type="submit" class="w-full bg-uco-orange hover:bg-uco-orangeHover text-white font-bold py-2.5 px-4 rounded-xl shadow-lg transition text-xs sm:text-sm flex items-center justify-center gap-2">
+                    <span>Ver el costo mensual para mi empresa</span>
+                    <span>→</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- RESULTADO DESBLOQUEADO TRAS ENVIAR DATOS -->
+              <div id="quoteUnlockedContainer" class="hidden mt-3.5 bg-gradient-to-br from-uco-navy via-uco-navyLight to-slate-900 text-white rounded-2xl p-5 border-2 border-orange-400 shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div class="space-y-1">
+                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">✔ Cotización Desbloqueada · Datos enviados a PROINNOVATEC</span>
+                    <p id="unlockedClientHeader" class="text-xs text-blue-200 font-semibold mt-1"></p>
+                    <div class="flex items-baseline gap-2 pt-1">
+                      <span id="totalPricePEN" class="font-display text-3xl sm:text-4xl font-extrabold text-orange-400">S/ 1,500.00</span>
+                      <span class="text-xs text-slate-300 font-medium">/ mes + IGV</span>
+                    </div>
+                    <p id="unlockedPriceNote" class="text-[11px] text-slate-300"></p>
+                  </div>
+
+                  <div class="flex flex-col gap-2 sm:w-56 shrink-0">
+                    <a id="waQuoteDirectBtn" href="https://wa.me/51970855741" target="_blank" rel="noopener noreferrer" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs text-center">
+                      Recibir detalle por WhatsApp →
+                    </a>
+                    <button type="button" onclick="sendQuoteToForm()" class="w-full bg-white/10 hover:bg-white/20 text-white font-semibold py-2 px-3 rounded-xl transition text-xs text-center">
+                      Agendar diagnóstico gratuito
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Cinta inferior -->
+      <div class="mt-10 border-t border-b border-white/10 bg-uco-navyLight/70 py-2.5 overflow-hidden">
+        <div class="animate-ticker text-xs sm:text-sm font-semibold text-blue-200 space-x-8 px-4">
+          <span>✔ Servicio integral desde S/ 1,500 al mes</span>
+          <span>•</span>
+          <span>✔ Visita presencial fija todas las semanas</span>
+          <span>•</span>
+          <span>✔ Ayuda inmediata por WhatsApp para todo tu personal</span>
+          <span>•</span>
+          <span>✔ Copias de seguridad revisadas a diario</span>
+          <span>•</span>
+          <span>✔ Gestión directa con tus proveedores de Internet y sistema</span>
+          <span>•</span>
+          <span>✔ Servicio integral desde S/ 1,500 al mes</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================================
+         BLOQUE 3: APUNTANDO AL DOLOR REAL DEL DÍA A DÍA (Tarjetas más grandes y contundentes)
+         ===================================================================================== -->
+    <section id="dolores-reales" class="py-14 lg:py-18 bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <span class="inline-block text-xs sm:text-sm font-extrabold uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-4 py-1 rounded-full">¿Te suena familiar en tu día a día?</span>
+          <h2 class="font-display text-3xl sm:text-4xl lg:text-[40px] font-extrabold text-uco-navy mt-3 leading-tight">
+            No necesitas saber de tecnología para notar cuando algo está frenando tu empresa
+          </h2>
+          <p class="text-slate-600 mt-3 text-base sm:text-lg">
+            Cuando dependes de un técnico por horas o de alguien que no puede saber de todo a la vez, tu negocio sufre estos problemas todos los meses:
+          </p>
+        </div>
+
+        <!-- 6 Tarjetas Grandes de Dolor Cotidiano -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+          
+          <!-- Dolor 1: Recepción / Caja -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 hover:border-rose-400 hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold">⏳</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-3 py-1 rounded-full">Operación Detenida</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-uco-navy mt-4">
+                La recepción o facturación se paraliza y el técnico «llega en la tarde»
+              </h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Tienes clientes o huéspedes esperando en recepción, cajas sin poder facturar o pedidos detenidos, y el técnico externo no contesta porque está ocupado con otro cliente.
+              </p>
+            </div>
+            <div class="mt-5 pt-3.5 border-t border-slate-200 flex items-center gap-2 text-xs sm:text-sm font-bold text-uco-electric">
+              <span>→</span>
+              <span>UCO360 responde al instante por WhatsApp.</span>
+            </div>
+          </div>
+
+          <!-- Dolor 2: Wi-Fi y Red -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 hover:border-rose-400 hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold">📶</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-800 bg-amber-50 px-3 py-1 rounded-full">Fallas de Red y Wi-Fi</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-uco-navy mt-4">
+                El Wi-Fi se corta a cada rato y el sistema se pone lento
+              </h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Un soporte básico puede arreglar una impresora, pero no tiene la especialidad para configurar bien toda la red, antenas Wi-Fi y servidores de tu hotel, oficina o almacén.
+              </p>
+            </div>
+            <div class="mt-5 pt-3.5 border-t border-slate-200 flex items-center gap-2 text-xs sm:text-sm font-bold text-uco-electric">
+              <span>→</span>
+              <span>UCO360 optimiza toda tu red y servidores.</span>
+            </div>
+          </div>
+
+          <!-- Dolor 3: Gestión de Proveedores (Internet vs Sistema) -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 hover:border-rose-400 hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold">📞</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-3 py-1 rounded-full">Desgaste con Proveedores</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-uco-navy mt-4">
+                El de Internet culpa al sistema y el del sistema culpa al Internet
+              </h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Cuando algo falla, tus proveedores se culpan entre sí y tú o tu administración pierden horas al teléfono haciendo de intermediarios sin que nadie resuelva.
+              </p>
+            </div>
+            <div class="mt-5 pt-3.5 border-t border-slate-200 flex items-center gap-2 text-xs sm:text-sm font-bold text-uco-electric">
+              <span>→</span>
+              <span>UCO360 asume la gestión total de tus proveedores.</span>
+            </div>
+          </div>
+
+          <!-- Dolor 4: PC malograda, virus y pérdida de datos -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 hover:border-rose-400 hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold">💥</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-3 py-1 rounded-full">Pérdida de Datos y Virus</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-uco-navy mt-4">
+                Se malogra una PC o entra un virus y se pierden tus archivos
+              </h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Un equipo se llena de virus o se daña el disco duro y recién en ese momento descubren que las copias de seguridad no se estaban guardando bien.
+              </p>
+            </div>
+            <div class="mt-5 pt-3.5 border-t border-slate-200 flex items-center gap-2 text-xs sm:text-sm font-bold text-uco-electric">
+              <span>→</span>
+              <span>UCO360 vigila y prueba tus backups cada día.</span>
+            </div>
+          </div>
+
+          <!-- Dolor 5: Accesos abiertos -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 hover:border-rose-400 hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold">🔓</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-800 bg-amber-50 px-3 py-1 rounded-full">Fuga de Información</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-uco-navy mt-4">
+                Se retira un trabajador y sigue entrando a correos y carteras de clientes
+              </h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Nadie bloquea sus cuentas el día que se retira y la gerencia ni siquiera tiene el control de las contraseñas de sus propios servidores o correos.
+              </p>
+            </div>
+            <div class="mt-5 pt-3.5 border-t border-slate-200 flex items-center gap-2 text-xs sm:text-sm font-bold text-uco-electric">
+              <span>→</span>
+              <span>UCO360 bloquea accesos al instante y custodia tus claves.</span>
+            </div>
+          </div>
+
+          <!-- Dolor 6: Compras a ciegas -->
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 hover:border-rose-400 hover:shadow-lg transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-bold">🧾</span>
+                <span class="text-xs font-extrabold uppercase tracking-wider text-amber-800 bg-amber-50 px-3 py-1 rounded-full">Gastos sin Control</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg sm:text-xl text-uco-navy mt-4">
+                Compras de equipos a última hora sin saber qué tienes realmente
+              </h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Cada mes aparecen cobros sorpresa o compras urgentes de equipos y licencias sin que nadie valide técnicamente si era la mejor opción.
+              </p>
+            </div>
+            <div class="mt-5 pt-3.5 border-t border-slate-200 flex items-center gap-2 text-xs sm:text-sm font-bold text-uco-electric">
+              <span>→</span>
+              <span>UCO360 mantiene tu inventario al día y planifica tus compras.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================================
+         BLOQUE 4: TE PASA ESTO, PERO CON NOSOTROS TIENES... (Venta directa del Outsourcing TI)
+         ===================================================================================== -->
+    <section id="que-es-uco360" class="py-14 lg:py-16 bg-uco-navy text-white border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-orange-400 bg-orange-500/15 px-3 py-1 rounded-full">¿Por qué elegir nuestro Outsourcing de TI?</span>
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold mt-3 leading-tight">
+            Dejas atrás las emergencias porque con <span class="text-orange-400">UCO360</span> tu empresa pasa a tener:
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
+          <div class="bg-white/5 border border-white/15 rounded-2xl p-6 hover:border-orange-400 transition">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-orange-400">01 · Atención Inmediata</span>
+            <h3 class="font-display font-bold text-xl mt-2">Respuesta en minutos por WhatsApp</h3>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+              Tu personal escribe directo a nuestro WhatsApp ante cualquier falla y un especialista lo atiende al instante hasta dejarlo trabajando.
+            </p>
+          </div>
+
+          <div class="bg-white/5 border border-white/15 rounded-2xl p-6 hover:border-blue-400 transition">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-400">02 · Prevención Real</span>
+            <h3 class="font-display font-bold text-xl mt-2">Visita presencial fija cada semana</h3>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+              No esperamos a que nos llames: vamos a tu empresa todas las semanas para revisar físicamente tus equipos, red y servidores antes de que fallen.
+            </p>
+          </div>
+
+          <div class="bg-white/5 border border-white/15 rounded-2xl p-6 hover:border-emerald-400 transition">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">03 · Respaldo Total</span>
+            <h3 class="font-display font-bold text-xl mt-2">Backups seguros y trato con proveedores</h3>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+              Cuidamos tus copias de seguridad todos los días y hablamos de tú a tú con tu proveedor de Internet o sistema hasta resolver cualquier caída.
+            </p>
+          </div>
+
+          <div class="bg-white/5 border border-white/15 rounded-2xl p-6 hover:border-amber-300 transition">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-300">04 · Claridad y Control</span>
+            <h3 class="font-display font-bold text-xl mt-2">Tarifa fija mensual e informe claro</h3>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+              Sabes exactamente cuánto inviertes cada mes (desde S/ 1,500) y recibes un informe ejecutivo mensual en lenguaje sencillo de negocio.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================================
+         BLOQUE 5: QUÉ INCLUYE UCO360 CADA MES (LOS 4 PILARES EN LENGUAJE MUY SENCILLO)
+         ===================================================================================== -->
+    <section id="pilares" class="py-14 lg:py-18 bg-slate-50 border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-uco-electric bg-blue-100 px-3 py-1 rounded-full">Todo incluido en tu tarifa mensual</span>
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-uco-navy mt-3">¿Qué incluye UCO360 cada mes?</h2>
+          <p class="text-slate-600 mt-2 text-base">
+            Nuestro servicio cubre toda tu empresa a través de <strong>4 pilares muy simples</strong>. Haz clic en cada uno para ver lo que hacemos por ti:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-8">
+          <button type="button" id="pillarTab1" onclick="selectPillar(1)" class="text-left p-4 rounded-2xl border-2 border-uco-electric bg-uco-navy text-white shadow-md transition">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-400">Pilar 1 · Atención al Personal</span>
+            <h3 class="font-display font-bold text-base mt-1">Soporte y Visita Semanal</h3>
+            <p class="text-xs text-slate-300 mt-1">Ayuda por WhatsApp y presencia fija cada semana.</p>
+          </button>
+
+          <button type="button" id="pillarTab2" onclick="selectPillar(2)" class="text-left p-4 rounded-2xl border border-slate-200 bg-white text-slate-800 hover:border-blue-300 transition">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-uco-electric">Pilar 2 · Internet y Equipos</span>
+            <h3 class="font-display font-bold text-base mt-1">Red, Wi-Fi y Proveedores</h3>
+            <p class="text-xs text-slate-500 mt-1">Servidores estables, Wi-Fi rápido y gestión de reclamos.</p>
+          </button>
+
+          <button type="button" id="pillarTab3" onclick="selectPillar(3)" class="text-left p-4 rounded-2xl border border-slate-200 bg-white text-slate-800 hover:border-blue-300 transition">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-uco-electric">Pilar 3 · Archivos Seguros</span>
+            <h3 class="font-display font-bold text-base mt-1">Backups y Seguridad</h3>
+            <p class="text-xs text-slate-500 mt-1">Copias revisadas a diario, antivirus y cierre de accesos.</p>
+          </button>
+
+          <button type="button" id="pillarTab4" onclick="selectPillar(4)" class="text-left p-4 rounded-2xl border border-slate-200 bg-white text-slate-800 hover:border-blue-300 transition">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider text-uco-electric">Pilar 4 · Orden para Gerencia</span>
+            <h3 class="font-display font-bold text-base mt-1">Inventario y Crecimiento</h3>
+            <p class="text-xs text-slate-500 mt-1">Control de equipos, licencias, compras e informe mensual.</p>
+          </button>
+        </div>
+
+        <!-- Contenido detallado pero muy sencillo del Pilar seleccionado -->
+        <div id="pillarDetailContainer" class="mt-6 bg-white rounded-3xl shadow-md border border-slate-200 p-6 sm:p-8"></div>
+      </div>
+    </section>
+
+    <!-- =====================================================================================
+         BLOQUE 6: TRANSICIÓN SIMPLE EN 3 PASOS + DEMO DE WHATSAPP E INFORME MENSUAL
+         ===================================================================================== -->
+    <section id="como-empezamos" class="py-14 lg:py-18 bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-uco-electric bg-blue-50 px-3 py-1 rounded-full">Puesta en marcha sin complicaciones</span>
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-uco-navy mt-3">
+            Así de fácil empezamos a trabajar en tu empresa
+          </h2>
+          <p class="text-slate-600 mt-2 text-base">
+            No necesitas tener nada preparado ni detener tu negocio. Lo hacemos en 3 pasos simples:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-9">
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-uco-electric text-white font-display font-extrabold text-lg">1</span>
+            <h3 class="font-display font-bold text-lg text-uco-navy mt-4">Revisión inicial y propuesta clara</h3>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Conocemos tu operación, locales y cantidad de equipos para entregarte tu alcance exacto con una tarifa mensual fija y sin sorpresas.
+            </p>
+          </div>
+
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-uco-electric text-white font-display font-extrabold text-lg">2</span>
+            <h3 class="font-display font-bold text-lg text-uco-navy mt-4">Puesta en orden desde el primer día</h3>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Atendemos a tu personal por WhatsApp desde el día 1 mientras levantamos el inventario, aseguramos tus claves, revisamos tus copias y corregimos lo urgente.
+            </p>
+          </div>
+
+          <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+            <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-uco-orange text-white font-display font-extrabold text-lg">3</span>
+            <h3 class="font-display font-bold text-lg text-uco-navy mt-4">Cuidado semanal y mejora continua</h3>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Realizamos las visitas presenciales todas las semanas, el mantenimiento preventivo, la gestión con tus proveedores y te entregamos tu informe mensual.
+            </p>
+          </div>
+        </div>
+
+        <!-- Demo Visual de Atención por WhatsApp y Entregables a Gerencia -->
+        <div id="gerencia" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-12">
+          <div class="lg:col-span-6 bg-slate-50 rounded-3xl p-6 border border-slate-200">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">Para tu Personal</span>
+            <h3 class="font-display text-xl sm:text-2xl font-extrabold text-uco-navy mt-2">Piden ayuda por WhatsApp y lo resolvemos</h3>
+
+            <div class="flex flex-wrap gap-2 mt-3">
+              <button type="button" id="waBtn1" onclick="setWhatsappScenario(1)" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-uco-navy text-white transition">
+                Recepción / Facturación
+              </button>
+              <button type="button" id="waBtn2" onclick="setWhatsappScenario(2)" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+                Retiro de personal
+              </button>
+              <button type="button" id="waBtn3" onclick="setWhatsappScenario(3)" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+                Falla de Internet / Wi-Fi
+              </button>
+            </div>
+
+            <div class="mt-4 bg-[#EFEAE2] rounded-2xl overflow-hidden border border-slate-300">
+              <div class="bg-[#075E54] text-white px-4 py-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs">UCO</div>
+                  <div>
+                    <p class="text-xs font-bold">Soporte UCO360</p>
+                    <p class="text-[10px] text-emerald-200">En línea · Respuesta inmediata</p>
+                  </div>
+                </div>
+                <span id="waTicketBadge" class="text-[10px] font-mono bg-black/25 px-2 py-0.5 rounded">Ticket #UCO-4821</span>
+              </div>
+              <div id="waChatMessages" class="p-4 space-y-2.5 text-xs min-h-[195px]"></div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 bg-uco-navy text-white rounded-3xl p-6 shadow-xl">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-orange-400 bg-orange-500/15 px-3 py-1 rounded-full">Para la Gerencia</span>
+            <h3 class="font-display text-xl sm:text-2xl font-extrabold mt-2">¿Qué recibes tú cada mes?</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Reportes claros en lenguaje de negocio para tener control total sin perder tiempo:
+            </p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+              <button type="button" id="repBtn1" onclick="selectReportPreview(1)" class="text-xs font-bold py-2 px-2 rounded-lg bg-uco-orange text-white transition">
+                Informe Mensual
+              </button>
+              <button type="button" id="repBtn2" onclick="selectReportPreview(2)" class="text-xs font-semibold py-2 px-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20 transition">
+                Inventario al Día
+              </button>
+              <button type="button" id="repBtn3" onclick="selectReportPreview(3)" class="text-xs font-semibold py-2 px-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20 transition">
+                Control Backups
+              </button>
+              <button type="button" id="repBtn4" onclick="selectReportPreview(4)" class="text-xs font-semibold py-2 px-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20 transition">
+                Visitas y Soporte
+              </button>
+            </div>
+
+            <div id="reportPreviewCard" class="mt-4 bg-white text-slate-900 rounded-2xl p-5 shadow-lg"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================================
+         SECCIONES EXCLUSIVAS DEL DESARROLLO 1 (Ocultas en Desarrollo 2 Final para no saturar,
+         visibles al activar "2. Desarrollo 1: Versión Anterior" para comparar punto por punto)
+         ===================================================================================== -->
+    <div id="legacyDev1Sections" class="hidden">
+      <!-- Tabla Comparativa del Desarrollo 1 -->
+      <section id="comparativa" class="py-12 lg:py-16 bg-amber-50/40 border-b border-amber-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-4 inline-flex items-center gap-2 bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">
+            <span>📌 SECCIÓN DE DESARROLLO 1 (Omitida en Desarrollo 2 Final para ir directo a la venta)</span>
+          </div>
+          <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div>
+              <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-uco-navy">
+                Cuadro Comparativo: Técnico por horas vs. Soporte básico vs. UCO360
+              </h2>
+            </div>
+            <div class="inline-flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm self-start">
+              <button type="button" id="filterBtnAll" onclick="setComparisonFilter('all')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-uco-navy text-white transition">Ver todos</button>
+              <button type="button" id="filterBtnFreelance" onclick="setComparisonFilter('freelance')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Vs. Técnico por horas</button>
+              <button type="button" id="filterBtnBasic" onclick="setComparisonFilter('basic')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Vs. Soporte básico</button>
+            </div>
+          </div>
+
+          <div class="mt-5 overflow-x-auto bg-white rounded-2xl shadow border border-slate-200">
+            <table class="w-full text-left border-collapse min-w-[700px] text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 uppercase">
+                  <th class="py-3 px-4 bg-slate-100 text-slate-700 font-extrabold">Criterio</th>
+                  <th id="colHeadFreelance" class="py-3 px-4 bg-rose-50 text-rose-900 font-extrabold">Técnico por horas</th>
+                  <th id="colHeadBasic" class="py-3 px-4 bg-amber-50 text-amber-900 font-extrabold">Soporte básico</th>
+                  <th class="py-3 px-4 bg-uco-navy text-white font-extrabold">UCO360 — Tu Área de TI</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr>
+                  <td class="py-3 px-4 font-bold text-uco-navy">Cuándo actúan</td>
+                  <td class="col-freelance py-3 px-4 text-slate-600">✕ Recién cuando algo ya se malogró.</td>
+                  <td class="col-basic py-3 px-4 text-slate-600">✕ Vive apagando urgencias del día.</td>
+                  <td class="py-3 px-4 bg-blue-50/40 font-semibold">✔ Previene fallas antes de que ocurran.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 font-bold text-uco-navy">Quién te atiende</td>
+                  <td class="col-freelance py-3 px-4 text-slate-600">✕ Si está ocupado, tu empresa espera.</td>
+                  <td class="col-basic py-3 px-4 text-slate-600">✕ No domina redes, servidores y seguridad a la vez.</td>
+                  <td class="py-3 px-4 bg-blue-50/40 font-semibold">✔ Equipo completo de especialistas siempre listo.</td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 font-bold text-uco-navy">Proveedores</td>
+                  <td class="col-freelance py-3 px-4 text-slate-600">✕ Tú pierdes horas reclamando.</td>
+                  <td class="col-basic py-3 px-4 text-slate-600">✕ Los proveedores se culpan entre sí.</td>
+                  <td class="py-3 px-4 bg-blue-50/40 font-semibold">✔ Nosotros gestionamos a tus proveedores hasta resolverlo.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Autodiagnóstico del Desarrollo 1 -->
+      <section id="autodiagnostico" class="py-12 bg-amber-50/20 border-b border-amber-200">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-3 inline-flex items-center gap-2 bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">
+            <span>📌 TEST DE DESARROLLO 1 (Integrado en las tarjetas de dolor en Desarrollo 2 Final)</span>
+          </div>
+          <h3 class="font-display text-2xl font-extrabold text-uco-navy">Autodiagnóstico de exposición</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white cursor-pointer">
+              <input type="checkbox" onchange="updateRiskScore()" class="risk-check w-4 h-4 rounded text-uco-electric" />
+              <span class="text-xs font-medium text-slate-800">Dependo de una sola persona cuando algo falla</span>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white cursor-pointer">
+              <input type="checkbox" onchange="updateRiskScore()" class="risk-check w-4 h-4 rounded text-uco-electric" />
+              <span class="text-xs font-medium text-slate-800">No estoy seguro de que mis copias de seguridad funcionen hoy</span>
+            </label>
+          </div>
+          <div class="mt-4 bg-uco-navy text-white rounded-xl p-4 flex items-center justify-between">
+            <div>
+              <span id="riskLevelBadge" class="text-xs font-bold text-emerald-300">0 Marcados</span>
+              <span id="riskPercentText" class="text-xs text-slate-300 ml-3">0%</span>
+              <div class="w-48 h-2 bg-white/10 rounded-full mt-1 overflow-hidden">
+                <div id="riskProgressBar" class="h-full bg-emerald-400" style="width: 0%"></div>
+              </div>
+              <p id="riskAdviceText" class="text-xs text-slate-300 mt-1">Marca tus puntos actuales.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- =====================================================================================
+         BLOQUE 7: PREGUNTAS FRECUENTES + AGENDA TU DIAGNÓSTICO (CONTACTO)
+         ===================================================================================== -->
+    <section id="preguntas" class="py-14 lg:py-16 bg-slate-50 border-b border-slate-200">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-4">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-uco-electric bg-blue-100 px-3 py-1 rounded-full">Dudas Frecuentes</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-uco-navy mt-2">Preguntas frecuentes</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1.5">Todo lo que necesitas saber sobre cómo funciona UCO360 en tu empresa.</p>
+            <div class="mt-5 bg-white border border-slate-200 rounded-2xl p-4">
+              <p class="text-xs font-bold text-uco-navy">¿Tienes otra consulta?</p>
+              <a href="https://wa.me/51970855741?text=Hola%2C%20tengo%20una%20consulta%20sobre%20UCO360" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center justify-center w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition">
+                Escríbenos por WhatsApp →
+              </a>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 space-y-2.5" id="faqContainer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOQUE 8: CONTACTO Y FORMULARIO -->
+    <section id="contacto" class="py-14 lg:py-16 bg-uco-navy text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          
+          <div class="lg:col-span-5 space-y-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/20 text-orange-300 border border-orange-400/30">
+              PROINNOVATEC by Grupo CAME
+            </span>
+            <h2 class="font-display text-3xl font-extrabold leading-tight">
+              ¡Concéntrate en tu negocio, nosotros nos encargamos de tu TI!
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base">
+              Agenda hoy una reunión de diagnóstico inicial y descubre cómo contar con tu propia Área de TI Externa <strong>desde S/ 1,500 al mes</strong>.
+            </p>
+
+            <div class="space-y-3 pt-2 text-sm">
+              <div class="flex items-start gap-3 bg-white/5 border border-white/10 p-3.5 rounded-xl">
+                <span class="text-orange-400 font-bold">✆</span>
+                <div>
+                  <p class="text-[11px] uppercase text-slate-400 font-bold">WhatsApp / Teléfono</p>
+                  <a href="https://wa.me/51970855741" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-white hover:text-orange-300">970 855 741</a>
+                  <span class="text-xs text-slate-400 ml-2">· Fijo: +511 748-3615</span>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-white/5 border border-white/10 p-3.5 rounded-xl">
+                <span class="text-blue-400 font-bold">✉</span>
+                <div>
+                  <p class="text-[11px] uppercase text-slate-400 font-bold">Correo y Web</p>
+                  <a href="mailto:ventas@proinnovatec.com" class="text-sm font-bold text-white hover:text-blue-300">ventas@proinnovatec.com</a>
+                  <span class="text-xs text-slate-400 ml-2">· <a href="https://www.proinnovatec.com" target="_blank" rel="noopener noreferrer" class="underline">www.proinnovatec.com</a></span>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-white/5 border border-white/10 p-3.5 rounded-xl">
+                <span class="text-emerald-400 font-bold">📍</span>
+                <div>
+                  <p class="text-[11px] uppercase text-slate-400 font-bold">Oficina en Lima</p>
+                  <p class="text-xs sm:text-sm font-semibold text-white">Av. Javier Prado Este Nro. 1166 Of 801 - San Isidro, Lima</p>
+                  <a href="https://www.google.com/maps/search/?api=1&query=Av.+Javier+Prado+Este+1166+San+Isidro+Lima" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 mt-1">
+                    <span>Ver ubicación en Google Maps ↗</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7">
+            <div class="bg-white text-slate-900 rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-200">
+              <h3 class="font-display text-2xl font-extrabold text-uco-navy">Agenda tu diagnóstico</h3>
+              <p class="text-xs text-slate-500 mt-1">Déjanos tus datos y nos comunicaremos contigo hoy mismo.</p>
+
+              <form id="diagnosticForm" onsubmit="submitDiagnosticForm(event)" class="space-y-3.5 mt-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="inputNombre" class="block text-xs font-bold text-slate-700 mb-1">Nombre completo *</label>
+                    <input id="inputNombre" type="text" required placeholder="Tu nombre y apellido" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-uco-electric" />
+                  </div>
+                  <div>
+                    <label for="inputEmpresa" class="block text-xs font-bold text-slate-700 mb-1">RUC o Nombre de tu empresa *</label>
+                    <input id="inputEmpresa" type="text" required placeholder="RUC o nombre comercial" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-uco-electric" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="inputTelefono" class="block text-xs font-bold text-slate-700 mb-1">Celular o WhatsApp *</label>
+                    <input id="inputTelefono" type="tel" required placeholder="999 999 999" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-uco-electric" />
+                  </div>
+                  <div>
+                    <label for="inputCorreo" class="block text-xs font-bold text-slate-700 mb-1">Correo electrónico *</label>
+                    <input id="inputCorreo" type="email" required placeholder="correo@tuempresa.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-uco-electric" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="inputEscenario" class="block text-xs font-bold text-slate-700 mb-1">¿Cómo ven sus equipos hoy?</label>
+                    <select id="inputEscenario" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:border-uco-electric">
+                      <option value="Técnico Freelance ocasional">Llamamos a un técnico cuando algo falla</option>
+                      <option value="Soporte que no se da abasto">Tenemos soporte pero no se da abasto</option>
+                      <option value="Sin encargado de TI">No tenemos a nadie fijo viendo esto</option>
+                      <option value="Cambiar de proveedor TI">Queremos cambiar de proveedor actual</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="inputUsuarios" class="block text-xs font-bold text-slate-700 mb-1">Tamaño aproximado</label>
+                    <select id="inputUsuarios" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:border-uco-electric">
+                      <option value="10 a 25 usuarios">De 10 a 25 computadoras</option>
+                      <option value="26 a 60 usuarios" selected>De 26 a 60 computadoras</option>
+                      <option value="61 a 120 usuarios">De 61 a 120 computadoras</option>
+                      <option value="Más de 120 usuarios / Múltiples sedes">Más de 120 computadoras / Varios locales</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label for="inputMensaje" class="block text-xs font-bold text-slate-700 mb-1">¿Qué necesitas resolver? (opcional)</label>
+                  <textarea id="inputMensaje" rows="2" placeholder="Ej. Mejorar el Wi-Fi, evitar cortes en facturación, asegurar nuestras copias..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-uco-electric"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-uco-electric hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm sm:text-base">
+                  Solicitar diagnóstico →
+                </button>
+              </form>
+
+              <div id="formSuccessBox" class="hidden mt-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl p-4 text-sm">
+                <p class="font-bold">✔ ¡Recibimos tus datos!</p>
+                <p id="formSuccessSummary" class="mt-1 text-xs text-emerald-800"></p>
+                <div class="mt-2.5">
+                  <a id="formWhatsappDirectLink" href="https://wa.me/51970855741" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg">
+                    Confirmar por WhatsApp ahora →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 text-slate-400 py-6 border-t border-slate-800 text-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="font-display font-extrabold text-white text-sm">UCO360</span>
+          <span>·</span>
+          <span>Tu área de TI externa</span>
+          <span>·</span>
+          <span class="text-slate-300 font-semibold">PROINNOVATEC by Grupo CAME</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="https://www.proinnovatec.com" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">www.proinnovatec.com</a>
+          <span>|</span>
+          <span>San Isidro, Lima</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- MODAL -->
+  <div id="bookingModal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
+      <button type="button" onclick="closeBookingModal()" aria-label="Cerrar ventana" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold">✕</button>
+      <span id="modalOriginBadge" class="text-[11px] font-extrabold uppercase tracking-wider text-uco-electric bg-blue-50 px-2.5 py-1 rounded-full">UCO360</span>
+      <h3 class="font-display text-2xl font-extrabold text-uco-navy mt-2">¿Hablamos de tu TI?</h3>
+      <p class="text-xs sm:text-sm text-slate-600 mt-1">
+        Agenda tu diagnóstico y descubre cómo olvidarte de los problemas técnicos en tu empresa.
+      </p>
+
+      <div class="mt-5 space-y-2.5">
+        <button type="button" onclick="scrollToContactForm()" class="w-full bg-uco-orange hover:bg-uco-orangeHover text-white font-bold py-3 px-4 rounded-xl transition text-sm flex items-center justify-center gap-2">
+          <span>Agenda tu diagnóstico</span>
+          <span>→</span>
+        </button>
+        <a href="https://wa.me/51970855741?text=Hola%20PROINNOVATEC%2C%20quiero%20agendar%20un%20diagn%C3%B3stico%20de%20UCO360" target="_blank" rel="noopener noreferrer" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition text-sm flex items-center justify-center gap-2">
+          <span>Hablar por WhatsApp (970 855 741)</span>
+        </a>
+        <button type="button" onclick="closeBookingModal()" class="w-full text-slate-500 hover:text-slate-800 text-xs font-semibold py-1.5">
+          Ahora no
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Selector Maestro entre Desarrollo 2 (Final), Desarrollo 1 (Con Tabla Comparativa) y Guía del Programador
+    function switchMasterView(mode) {
+      const btnFinal = document.getElementById('modeBtnFinal');
+      const btnPrev = document.getElementById('modeBtnPrev');
+      const btnSpec = document.getElementById('modeBtnSpec');
+      const specView = document.getElementById('viewProgrammerSpec');
+      const landingWrapper = document.getElementById('viewLandingWrapper');
+      const legacyBlock = document.getElementById('legacyDev1Sections');
+
+      const activeBtn = 'px-3 py-1.5 rounded-lg text-xs font-extrabold bg-uco-orange text-white shadow transition';
+      const inactiveBtn = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition';
+
+      btnFinal.className = mode === 'final' ? activeBtn : inactiveBtn;
+      btnPrev.className = mode === 'prev' ? activeBtn : inactiveBtn;
+      btnSpec.className = mode === 'spec' ? activeBtn : inactiveBtn;
+
+      if (mode === 'spec') {
+        specView.classList.remove('hidden');
+        landingWrapper.classList.add('hidden');
+      } else {
+        specView.classList.add('hidden');
+        landingWrapper.classList.remove('hidden');
+        if (mode === 'prev') {
+          legacyBlock.classList.remove('hidden');
+        } else {
+          legacyBlock.classList.add('hidden');
+        }
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function dismissAnnouncement() {
+      const bar = document.getElementById('topAnnouncement');
+      if (bar) bar.classList.add('hidden');
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    // COTIZADOR UCO360 (Desde S/ 1,500 / mes con filtro de Nombre completo, RUC/Empresa y WhatsApp)
+    const MINIMUM_MONTHLY_PEN = 1500.00;
+    let isQuoteUnlocked = false;
+    let registeredLead = { nombre: '', rucEmpresa: '', telefono: '' };
+
+    const UCO_DEVICES = [
+      { id: 'pc', name: 'Computadoras / Laptops', hint: 'Recepción, oficinas, cajas', weight: 1.00, price: 50.00, cat: 'principales', qty: 15 },
+      { id: 'lic_o365', name: 'Cuentas de Correo / Office', hint: 'Correos corporativos del personal', weight: 0.05, price: 2.50, cat: 'principales', qty: 15 },
+      { id: 'sede', name: 'Locales / Sedes', hint: 'Oficinas, hoteles, sucursales o almacenes', weight: 2.00, price: 100.00, cat: 'principales', qty: 1 },
+      { id: 'servidor', name: 'Servidor (Sistema Central)', hint: 'Donde corre tu sistema o archivos', weight: 2.00, price: 100.00, cat: 'principales', qty: 1 },
+      { id: 'impresora', name: 'Impresoras / Fotocopiadoras', hint: 'Impresoras de red o facturación', weight: 0.50, price: 25.00, cat: 'principales', qty: 2 },
+      { id: 'tel_ip', name: 'Anexos Telefónicos', hint: 'Teléfonos fijos IP en oficina/recepción', weight: 0.50, price: 25.00, cat: 'principales', qty: 4 },
+      { id: 'ap', name: 'Antenas Wi-Fi (Access Point)', hint: 'Repetidores de Wi-Fi en pisos/áreas', weight: 0.50, price: 25.00, cat: 'infra', qty: 2 },
+      { id: 'switch_red', name: 'Repartidores de Red (Switch)', hint: 'Equipos que conectan los cables de red', weight: 0.50, price: 25.00, cat: 'infra', qty: 2 },
+      { id: 'firewall', name: 'Equipo de Seguridad de Internet', hint: 'Firewall protector de tu red', weight: 1.50, price: 75.00, cat: 'infra', qty: 1 },
+      { id: 'nas', name: 'Equipo de Copias Locales (NAS)', hint: 'Disco central de respaldo', weight: 1.00, price: 50.00, cat: 'infra', qty: 1 },
+      { id: 'ups', name: 'Baterías de Respaldo (UPS)', hint: 'Protección ante cortes de luz', weight: 0.25, price: 12.50, cat: 'infra', qty: 2 },
+      { id: 'cctv', name: 'Cámaras de Seguridad', hint: 'Cámaras conectadas a la red', weight: 0.20, price: 10.00, cat: 'sec', qty: 4 },
+      { id: 'dvr', name: 'Grabador de Cámaras (DVR/NVR)', hint: 'Equipo que guarda los videos', weight: 0.50, price: 25.00, cat: 'sec', qty: 1 },
+      { id: 'biometrico', name: 'Reloj Marcador de Asistencia', hint: 'Huellero de ingreso de personal', weight: 0.50, price: 25.00, cat: 'sec', qty: 1 }
+    ];
+
+    let currentUcoCategory = 'principales';
+
+    function setUcoCategory(cat) {
+      currentUcoCategory = cat;
+      const map = {
+        principales: 'catTabAll',
+        infra: 'catTabInfra',
+        sec: 'catTabSec',
+        all: 'catTabUsers'
+      };
+      Object.keys(map).forEach(function (key) {
+        const el = document.getElementById(map[key]);
+        if (key === cat) {
+          el.className = 'text-[11px] font-bold px-2.5 py-1 rounded-md bg-blue-100 text-uco-electric';
+        } else {
+          el.className = 'text-[11px] font-semibold px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-100';
+        }
+      });
+      renderUcoCalculator();
+    }
+
+    function applyUcoPreset(preset) {
+      const presets = {
+        pyme: { pc: 15, lic_o365: 15, sede: 1, servidor: 1, firewall: 1, impresora: 2, ap: 2, switch_red: 2, tel_ip: 4, nas: 1, ups: 2, biometrico: 1, dvr: 1, cctv: 4 },
+        mediana: { pc: 30, lic_o365: 30, sede: 2, servidor: 2, firewall: 2, impresora: 4, ap: 4, switch_red: 4, tel_ip: 10, nas: 1, ups: 4, biometrico: 2, dvr: 2, cctv: 8 },
+        corporativa: { pc: 60, lic_o365: 60, sede: 3, servidor: 4, firewall: 3, impresora: 6, ap: 8, switch_red: 6, tel_ip: 20, nas: 2, ups: 6, biometrico: 3, dvr: 3, cctv: 16 },
+        zero: { pc: 0, lic_o365: 0, sede: 0, servidor: 0, firewall: 0, impresora: 0, ap: 0, switch_red: 0, tel_ip: 0, nas: 0, ups: 0, biometrico: 0, dvr: 0, cctv: 0 }
+      };
+
+      const values = presets[preset] || presets.pyme;
+      UCO_DEVICES.forEach(function (d) {
+        d.qty = values[d.id] !== undefined ? values[d.id] : 0;
+      });
+
+      const p1 = document.getElementById('presetBtn1');
+      const p2 = document.getElementById('presetBtn2');
+      const p3 = document.getElementById('presetBtn3');
+      const activeCls = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-uco-navy text-white transition';
+      const normalCls = 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition';
+      p1.className = preset === 'pyme' ? activeCls : normalCls;
+      p2.className = preset === 'mediana' ? activeCls : normalCls;
+      p3.className = preset === 'corporativa' ? activeCls : normalCls;
+
+      renderUcoCalculator();
+    }
+
+    function changeDeviceQty(id, delta) {
+      const item = UCO_DEVICES.find(function (d) { return d.id === id; });
+      if (!item) return;
+      item.qty = Math.max(0, item.qty + delta);
+      renderUcoCalculator();
+    }
+
+    function setDeviceQtyInput(id, rawVal) {
+      const item = UCO_DEVICES.find(function (d) { return d.id === id; });
+      if (!item) return;
+      const parsed = parseInt(rawVal, 10);
+      item.qty = isNaN(parsed) || parsed < 0 ? 0 : parsed;
+      updateUcoTotalsOnly();
+    }
+
+    function renderUcoCalculator() {
+      const grid = document.getElementById('ucoDevicesGrid');
+      const filtered = UCO_DEVICES.filter(function (d) {
+        return currentUcoCategory === 'all' || d.cat === currentUcoCategory;
+      });
+
+      grid.innerHTML = filtered.map(function (d) {
+        const activeBorder = d.qty > 0 ? 'border-blue-300 bg-blue-50/40' : 'border-slate-200 bg-white';
+        return '<div class="rounded-xl border px-3 py-2 flex items-center justify-between gap-2 transition ' + activeBorder + '">' +
+          '<div class="min-w-0">' +
+            '<p class="text-xs font-bold text-uco-navy truncate">' + d.name + '</p>' +
+            '<p id="sub_' + d.id + '" class="text-[10px] text-slate-500 truncate">' + d.hint + '</p>' +
+          '</div>' +
+          '<div class="flex items-center gap-1 shrink-0">' +
+            '<button type="button" onclick="changeDeviceQty(\'' + d.id + '\', -1)" class="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center">−</button>' +
+            '<input type="number" min="0" value="' + d.qty + '" oninput="setDeviceQtyInput(\'' + d.id + '\', this.value)" class="w-11 h-6 text-center text-xs font-bold border border-slate-300 rounded-md bg-white text-uco-navy" />' +
+            '<button type="button" onclick="changeDeviceQty(\'' + d.id + '\', 1)" class="w-6 h-6 rounded-md bg-uco-electric hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center">+</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      updateUcoTotalsOnly();
+    }
+
+    function getQuoteBreakdownText() {
+      const selected = UCO_DEVICES.filter(function (d) { return d.qty > 0; });
+      let totalUco = 0;
+      let rawSol = 0;
+      const lines = selected.map(function (d) {
+        const uco = d.qty * d.weight;
+        const sol = d.qty * d.price;
+        totalUco += uco;
+        rawSol += sol;
+        return '• ' + d.qty + 'x ' + d.name;
+      });
+      const finalSol = totalUco > 0 ? Math.max(MINIMUM_MONTHLY_PEN, rawSol) : MINIMUM_MONTHLY_PEN;
+      return {
+        countItems: selected.length,
+        totalUco: totalUco,
+        rawSol: rawSol,
+        totalSol: finalSol,
+        lines: lines
+      };
+    }
+
+    function updateUcoTotalsOnly() {
+      const info = getQuoteBreakdownText();
+      document.getElementById('totalUcoBadge').textContent = info.totalUco.toFixed(2) + ' UCO';
+
+      const pcItem = UCO_DEVICES.find(function (d) { return d.id === 'pc'; });
+      const sedeItem = UCO_DEVICES.find(function (d) { return d.id === 'sede'; });
+      const summaryEl = document.getElementById('ucoSummaryText');
+      if (info.countItems > 0) {
+        summaryEl.textContent = (pcItem ? pcItem.qty : 0) + ' Computadoras, ' + (sedeItem ? sedeItem.qty : 1) + ' Local(es) y equipos seleccionados';
+      } else {
+        summaryEl.textContent = 'Selecciona tus equipos arriba (Servicio desde S/ 1,500 / mes)';
+      }
+
+      if (isQuoteUnlocked) {
+        document.getElementById('totalPricePEN').textContent =
+          'S/ ' + info.totalSol.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const noteEl = document.getElementById('unlockedPriceNote');
+        if (info.rawSol < MINIMUM_MONTHLY_PEN) {
+          noteEl.textContent = 'Tarifa base mensual UCO360 (desde S/ 1,500/mes). Incluye los 4 pilares y visita presencial semanal.';
+        } else {
+          noteEl.textContent = 'Tarifa fija mensual calculada para tus equipos. Incluye visita semanal, soporte por WhatsApp y backups diarios.';
+        }
+
+        const waQuoteText = encodeURIComponent(
+          'Hola PROINNOVATEC, soy ' + registeredLead.nombre + ' (' + registeredLead.rucEmpresa + ' - WhatsApp: ' + registeredLead.telefono + ').\n' +
+          'Cotización calculada en la web UCO360:\n' +
+          (info.lines.length ? info.lines.join('\n') : '• Plan base UCO360') +
+          '\nTarifa Mensual Estimada: S/ ' + info.totalSol.toFixed(2) + ' / mes.\nDeseo recibir más información.'
+        );
+        document.getElementById('waQuoteDirectBtn').href = 'https://wa.me/51970855741?text=' + waQuoteText;
+      }
+    }
+
+    function unlockUcoQuote(event) {
+      event.preventDefault();
+      const nombre = document.getElementById('gateNombre').value.trim();
+      const rucEmpresa = document.getElementById('gateRucEmpresa').value.trim();
+      const telefono = document.getElementById('gateTelefono').value.trim();
+      if (!nombre || !rucEmpresa || !telefono) return;
+
+      registeredLead = { nombre: nombre, rucEmpresa: rucEmpresa, telefono: telefono };
+      isQuoteUnlocked = true;
+
+      document.getElementById('quoteGateContainer').classList.add('hidden');
+      document.getElementById('quoteUnlockedContainer').classList.remove('hidden');
+      document.getElementById('unlockedClientHeader').textContent =
+        nombre + ' · ' + rucEmpresa + ' (' + telefono + ')';
+
+      document.getElementById('inputNombre').value = nombre;
+      document.getElementById('inputEmpresa').value = rucEmpresa;
+      document.getElementById('inputTelefono').value = telefono;
+
+      updateUcoTotalsOnly();
+    }
+
+    function sendQuoteToForm() {
+      const info = getQuoteBreakdownText();
+      const msgArea = document.getElementById('inputMensaje');
+      if (msgArea) {
+        msgArea.value =
+          'Cotización UCO360 (S/ ' + info.totalSol.toFixed(2) + '/mes):\n' +
+          info.lines.join('\n');
+      }
+      const contactEl = document.getElementById('contacto');
+      if (contactEl) {
+        contactEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Funciones de Desarrollo 1 (Comparativa y Autodiagnóstico)
+    function setComparisonFilter(mode) {
+      const btnAll = document.getElementById('filterBtnAll');
+      const btnFree = document.getElementById('filterBtnFreelance');
+      const btnBasic = document.getElementById('filterBtnBasic');
+
+      const activeClass = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-uco-navy text-white transition';
+      const inactiveClass = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+
+      btnAll.className = mode === 'all' ? activeClass : inactiveClass;
+      btnFree.className = mode === 'freelance' ? activeClass : inactiveClass;
+      btnBasic.className = mode === 'basic' ? activeClass : inactiveClass;
+
+      const freeCols = document.querySelectorAll('.col-freelance');
+      const basicCols = document.querySelectorAll('.col-basic');
+      const headFree = document.getElementById('colHeadFreelance');
+      const headBasic = document.getElementById('colHeadBasic');
+
+      freeCols.forEach(function (el) { el.classList.toggle('opacity-35', mode === 'basic'); });
+      basicCols.forEach(function (el) { el.classList.toggle('opacity-35', mode === 'freelance'); });
+      headFree.classList.toggle('opacity-35', mode === 'basic');
+      headBasic.classList.toggle('opacity-35', mode === 'freelance');
+    }
+
+    function updateRiskScore() {
+      const checks = document.querySelectorAll('.risk-check');
+      let count = 0;
+      checks.forEach(function (c) { if (c.checked) count += 1; });
+      const pct = Math.round((count / 2) * 100);
+      document.getElementById('riskLevelBadge').textContent = count + ' Marcados';
+      document.getElementById('riskPercentText').textContent = pct + '%';
+      document.getElementById('riskProgressBar').style.width = pct + '%';
+    }
+
+    // Los 4 Pilares explicados en lenguaje muy sencillo (Basado en el Brochure páginas 3 a 7)
+    const PILLARS_DATA = {
+      1: {
+        tag: 'PILAR 1 · ATENCIÓN DIARIA A TU PERSONAL',
+        title: 'Soporte inmediato por WhatsApp y Visita Presencial Semanal',
+        subtitle: '¿Cómo ayuda este pilar a tu empresa en el día a día?',
+        cards: [
+          {
+            title: '1. Ayuda al instante por WhatsApp',
+            desc: 'Si a alguien de tu equipo le falla el correo, el sistema, la impresora o su PC, nos escribe directo por WhatsApp y nos conectamos al instante hasta dejarlo trabajando.'
+          },
+          {
+            title: '2. Visita fija todas las semanas a tu local',
+            desc: 'No solo atendemos a distancia: un profesional va a tu empresa todas las semanas de forma programada para revisar tus equipos físicamente, más visitas extra si hay una emergencia.'
+          },
+          {
+            title: '3. Nunca dependes de una sola persona',
+            desc: 'Tienes detrás a todo un equipo de especialistas siempre disponible. Si alguien necesita ayuda urgente en recepción, ventas o almacén, siempre hay quién le responda.'
+          }
+        ],
+        headers: ['Situación en tu empresa', 'Qué hace UCO360', 'Resultado directo para ti'],
+        rows: [
+          ['Falla urgente en recepción, caja o facturación', 'Atención prioritaria al instante', 'Tu negocio no se detiene ni haces esperar a tus clientes.'],
+          ['Consultas y problemas de todos los días', 'Ayuda rápida por WhatsApp con control de atención', 'Tu personal resuelve todo en minutos sin perder horas.'],
+          ['Cuidado físico de tus equipos en tus locales', 'Visita presencial fija cada semana', 'Previenes fallas antes de que interrumpan el trabajo.']
+        ]
+      },
+      2: {
+        tag: 'PILAR 2 · INTERNET, WI-FI, SERVIDORES Y PROVEEDORES',
+        title: 'Equipos Rápidos, Buena Red y Gestión de tus Proveedores',
+        subtitle: '¿Cómo evita este pilar que tu empresa se quede paralizada?',
+        cards: [
+          {
+            title: '1. Cuidado preventivo de servidores y PCs',
+            desc: 'Revisamos periódicamente que tus servidores y computadoras no tengan el disco lleno ni se pongan lentos, evitando caídas sorpresivas.'
+          },
+          {
+            title: '2. Wi-Fi estable y red segura en todo tu local',
+            desc: 'Cuidamos tus antenas Wi-Fi, cables de red, routers, firewalls y correos en la nube para que todos trabajen fluido en cada piso, sede o almacén.'
+          },
+          {
+            title: '3. Hablamos con tus proveedores por ti',
+            desc: 'Cuando falla tu Internet o tu sistema ERP, tú no pierdes tiempo reclamando: nosotros hacemos las pruebas, abrimos el reclamo y exigimos solución a tu proveedor.'
+          }
+        ],
+        headers: ['Qué cuidamos', 'Qué hace UCO360', 'Resultado directo para ti'],
+        rows: [
+          ['Servidores y sistema central', 'Mantenimiento preventivo programado', 'Tu facturación y archivos funcionan rápidos y sin colgarse.'],
+          ['Wi-Fi, red e internet', 'Monitoreo y optimización continua', 'Conexión estable en recepción, oficinas, pisos y almacenes.'],
+          ['Proveedor de Internet y Sistema', 'Trato técnico directo de principio a fin', 'Te olvidas del peloteo entre proveedores; nosotros lo resolvemos.']
+        ]
+      },
+      3: {
+        tag: 'PILAR 3 · ARCHIVOS SEGUROS Y PROTECCIÓN CONTRA VIRUS',
+        title: 'Copias de Seguridad Diarias y Control de Accesos',
+        subtitle: '¿Cómo protege este pilar la información valiosa de tu empresa?',
+        cards: [
+          {
+            title: '1. Vigilamos tus copias de seguridad cada día',
+            desc: 'Revisamos todos los días que las copias (backups) de tus servidores, sistemas y carpetas importantes se hayan guardado bien. Si hay un error, lo corregimos en el día.'
+          },
+          {
+            title: '2. Comprobamos que tus archivos sí se puedan recuperar',
+            desc: 'Hacemos pruebas periódicas de recuperación para garantizar al 100% que, si algún día se daña un equipo o entra un virus, tu información vuelve a estar lista.'
+          },
+          {
+            title: '3. Bloqueo inmediato en salidas de personal',
+            desc: 'Protegemos tus equipos contra virus, guardamos las claves de tu empresa en un lugar seguro y bloqueamos al instante los accesos cuando un trabajador se retira.'
+          }
+        ],
+        headers: ['Qué protegemos', 'Qué hace UCO360', 'Resultado directo para ti'],
+        rows: [
+          ['Información contable y comercial', 'Copias diarias y pruebas reales de recuperación', 'Certeza total de no perder nunca los datos de tu negocio.'],
+          ['Retiro de trabajadores', 'Cierre inmediato de correo, claves y sistema', 'Ningún ex trabajador se lleva ni sigue viendo tu información.'],
+          ['Computadoras y correos', 'Defensa activa contra virus y estafas', 'Tu empresa opera segura frente a virus y secuestro de archivos.']
+        ]
+      },
+      4: {
+        tag: 'PILAR 4 · ORDEN, INVENTARIO Y CRECIMIENTO',
+        title: 'Control de tus Equipos, Compras Claras e Informe Mensual',
+        subtitle: '¿Cómo le da este pilar control y ahorro a la Gerencia?',
+        cards: [
+          {
+            title: '1. Inventario exacto y siempre al día',
+            desc: 'Sabes exactamente cuántas computadoras, servidores, equipos y licencias tiene tu empresa, quién usa cada equipo y en qué local se encuentra.'
+          },
+          {
+            title: '2. Alertas de vencimientos y compras sin gastar de más',
+            desc: 'Te avisamos antes de que venzan tus licencias, garantías o dominios y revisamos las cotizaciones de proveedores para que compres solo lo necesario.'
+          },
+          {
+            title: '3. Acompañamos la expansión de tu empresa',
+            desc: 'Si abres una nueva sede, almacén o área, diseñamos e implementamos todo lo necesario para que tu negocio crezca en orden.'
+          }
+        ],
+        headers: ['Área de control', 'Qué hace UCO360', 'Resultado directo para ti'],
+        rows: [
+          ['Computadoras y licencias', 'Inventario actualizado al detalle', 'Eliminas pérdidas de equipos y compras a ciegas.'],
+          ['Renovaciones y compras', 'Aviso a tiempo y revisión de cotizaciones', 'Cuidas tu presupuesto sin urgencias de última hora.'],
+          ['Nuevos locales o crecimiento', 'Planificación y puesta en marcha', 'Tu tecnología acompaña el crecimiento de tu empresa.']
+        ]
+      }
+    };
+
+    function selectPillar(num) {
+      for (let i = 1; i <= 4; i++) {
+        const tab = document.getElementById('pillarTab' + i);
+        if (i === num) {
+          tab.className = 'text-left p-4 rounded-2xl border-2 border-uco-electric bg-uco-navy text-white shadow-md transition';
+          tab.querySelector('span').className = 'text-[11px] font-extrabold uppercase tracking-wider text-orange-400';
+          tab.querySelector('p').className = 'text-xs text-slate-300 mt-1';
+        } else {
+          tab.className = 'text-left p-4 rounded-2xl border border-slate-200 bg-white text-slate-800 hover:border-blue-300 transition';
+          tab.querySelector('span').className = 'text-[11px] font-extrabold uppercase tracking-wider text-uco-electric';
+          tab.querySelector('p').className = 'text-xs text-slate-500 mt-1';
+        }
+      }
+
+      const data = PILLARS_DATA[num];
+      const container = document.getElementById('pillarDetailContainer');
+
+      const cardsHtml = data.cards.map(function (c) {
+        return '<div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">' +
+          '<h4 class="font-display font-bold text-base text-uco-navy">' + c.title + '</h4>' +
+          '<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">' + c.desc + '</p>' +
+        '</div>';
+      }).join('');
+
+      const rowsHtml = data.rows.map(function (r) {
+        return '<tr class="border-b border-slate-100 last:border-0 bg-white">' +
+          '<td class="py-3 px-4 font-bold text-uco-navy text-xs sm:text-sm">' + r[0] + '</td>' +
+          '<td class="py-3 px-4 font-semibold text-uco-electric text-xs sm:text-sm">' + r[1] + '</td>' +
+          '<td class="py-3 px-4 text-slate-700 text-xs sm:text-sm">' + r[2] + '</td>' +
+        '</tr>';
+      }).join('');
+
+      container.innerHTML =
+        '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">' +
+          '<div>' +
+            '<span class="text-xs font-extrabold uppercase tracking-wider text-orange-600">' + data.tag + '</span>' +
+            '<h3 class="font-display text-xl sm:text-2xl font-extrabold text-uco-navy mt-0.5">' + data.title + '</h3>' +
+          '</div>' +
+          '<button type="button" onclick="openBookingModal(\'' + data.title + '\')" class="self-start sm:self-center text-xs font-bold text-uco-electric hover:underline">Quiero esto en mi empresa →</button>' +
+        '</div>' +
+        '<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">' + cardsHtml + '</div>' +
+        '<div class="mt-6">' +
+          '<h4 class="font-display font-bold text-xs uppercase tracking-wider text-uco-electric mb-2.5">' + data.subtitle + '</h4>' +
+          '<div class="overflow-x-auto rounded-xl border border-slate-200">' +
+            '<table class="w-full text-left border-collapse">' +
+              '<thead>' +
+                '<tr class="bg-uco-navy text-white text-xs uppercase">' +
+                  '<th class="py-2.5 px-4">' + data.headers[0] + '</th>' +
+                  '<th class="py-2.5 px-4">' + data.headers[1] + '</th>' +
+                  '<th class="py-2.5 px-4">' + data.headers[2] + '</th>' +
+                '</tr>' +
+              '</thead>' +
+              '<tbody>' + rowsHtml + '</tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>';
+    }
+
+    // Simulador de WhatsApp
+    const WA_SCENARIOS = {
+      1: {
+        ticket: 'Ticket #UCO-4821 · Recepción / Caja',
+        messages: [
+          { from: 'user', name: 'Recepción / Facturación', text: 'Hola UCO360, no podemos emitir boletas ni registrar clientes en recepción.', time: '09:12' },
+          { from: 'uco', text: '¡Hola! Ya nos conectamos a tu equipo (#UCO-4821). Estamos destrabando el sistema ahora mismo.', time: '09:13' },
+          { from: 'uco', text: 'Listo, ya quedó operativo e imprimiendo. ¿Nos confirmas?', time: '09:16' },
+          { from: 'user', name: 'Recepción / Facturación', text: '¡Sí, ya salió la factura! Mil gracias por atender tan rápido.', time: '09:17' }
+        ]
+      },
+      2: {
+        ticket: 'Ticket #UCO-4890 · Salida de Personal',
+        messages: [
+          { from: 'user', name: 'Administración', text: 'Hola UCO360, hoy se retira un trabajador. Necesitamos cerrar sus accesos.', time: '16:45' },
+          { from: 'uco', text: 'De inmediato (#UCO-4890). Ya bloqueamos su correo y acceso al sistema, y guardamos copia de toda su información para gerencia.', time: '16:47' }
+        ]
+      },
+      3: {
+        ticket: 'Ticket #UCO-4915 · Internet / Wi-Fi',
+        messages: [
+          { from: 'user', name: 'Gerencia', text: 'El internet está fallando y el proveedor del sistema dice que es culpa de la línea.', time: '10:04' },
+          { from: 'uco', text: 'Nosotros nos encargamos (#UCO-4915). Ya activamos la línea de respaldo y estamos hablando directo con el proveedor hasta dejarlo resuelto.', time: '10:06' }
+        ]
+      }
+    };
+
+    function setWhatsappScenario(idx) {
+      for (let i = 1; i <= 3; i++) {
+        const b = document.getElementById('waBtn' + i);
+        b.className = i === idx
+          ? 'text-xs font-bold px-3 py-1.5 rounded-lg bg-uco-navy text-white transition'
+          : 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition';
+      }
+      const data = WA_SCENARIOS[idx];
+      document.getElementById('waTicketBadge').textContent = data.ticket;
+      const box = document.getElementById('waChatMessages');
+      box.innerHTML = data.messages.map(function (m) {
+        if (m.from === 'user') {
+          return '<div class="bg-white rounded-xl p-2.5 max-w-[85%] shadow-sm border border-slate-200">' +
+            '<p class="text-[10px] font-bold text-uco-electric">' + m.name + '</p>' +
+            '<p class="text-slate-800 mt-0.5">' + m.text + '</p>' +
+            '<p class="text-[10px] text-slate-400 text-right mt-0.5">' + m.time + '</p>' +
+          '</div>';
+        } else {
+          return '<div class="bg-[#DCF8C6] rounded-xl p-2.5 max-w-[88%] ml-auto shadow-sm border border-emerald-200">' +
+            '<p class="text-[10px] font-bold text-emerald-900">Equipo UCO360</p>' +
+            '<p class="text-slate-900 mt-0.5">' + m.text + '</p>' +
+            '<p class="text-[10px] text-emerald-700 text-right mt-0.5">' + m.time + ' ✔✔</p>' +
+          '</div>';
+        }
+      }).join('');
+    }
+
+    // Entregables Mensuales
+    const REPORTS_DATA = {
+      1: {
+        title: 'Informe Ejecutivo Mensual',
+        badge: 'En lenguaje de negocio',
+        info: 'Estado de salud de tus sistemas, mejoras realizadas y recomendaciones para seguir creciendo.',
+        benefit: 'Decisiones simples sin perder tiempo operativo.',
+        metrics: [
+          ['Estado de tus Sistemas', '99.9% Operativo', 'text-emerald-600'],
+          ['Urgencias sin resolver', '0 pendientes', 'text-uco-electric'],
+          ['Próximas renovaciones', 'Avisadas a tiempo', 'text-orange-600']
+        ]
+      },
+      2: {
+        title: 'Inventario Actualizado de TI',
+        badge: 'Orden total',
+        info: 'Registro al día de todas tus computadoras, servidores, licencias, vencimientos y proveedores.',
+        benefit: 'Control de tus activos y cero compras a ciegas.',
+        metrics: [
+          ['Computadoras registradas', '100% con responsable', 'text-uco-electric'],
+          ['Correos y licencias', 'Al día y sin excesos', 'text-emerald-600'],
+          ['Garantías de equipos', 'Controladas', 'text-orange-600']
+        ]
+      },
+      3: {
+        title: 'Control de Copias de Seguridad',
+        badge: 'Cero pérdida de datos',
+        info: 'Constancia del monitoreo diario de tus respaldos y de las pruebas periódicas de recuperación.',
+        benefit: 'Tranquilidad total sobre tu información crítica.',
+        metrics: [
+          ['Revisiones en el mes', '30 de 30 días OK', 'text-emerald-600'],
+          ['Prueba de recuperación', '100% Exitosa', 'text-uco-electric'],
+          ['Ex trabajadores bloqueados', 'Al instante', 'text-orange-600']
+        ]
+      },
+      4: {
+        title: 'Reporte de Soporte y Visitas',
+        badge: 'Trabajo transparente',
+        info: 'Resumen de todas las atenciones resueltas a tu personal y de cada visita presencial semanal.',
+        benefit: 'Visibilidad del trabajo real entregado a tu empresa.',
+        metrics: [
+          ['Visitas a tu local', 'Todas las semanas', 'text-emerald-600'],
+          ['Ayudas por WhatsApp', 'Resueltas al instante', 'text-uco-electric'],
+          ['Trato con proveedores', '100% encargado a UCO360', 'text-orange-600']
+        ]
+      }
+    };
+
+    function selectReportPreview(idx) {
+      for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById('repBtn' + i);
+        btn.className = i === idx
+          ? 'text-xs font-bold py-2 px-2 rounded-lg bg-uco-orange text-white transition'
+          : 'text-xs font-semibold py-2 px-2 rounded-lg bg-white/10 text-slate-200 hover:bg-white/20 transition';
+      }
+      const r = REPORTS_DATA[idx];
+      const metricsHtml = r.metrics.map(function (m) {
+        return '<div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5">' +
+          '<p class="text-[11px] text-slate-500 font-semibold">' + m[0] + '</p>' +
+          '<p class="text-xs sm:text-sm font-extrabold mt-0.5 ' + m[2] + '">' + m[1] + '</p>' +
+        '</div>';
+      }).join('');
+
+      document.getElementById('reportPreviewCard').innerHTML =
+        '<div class="flex items-center justify-between gap-2 border-b border-slate-200 pb-2.5">' +
+          '<div>' +
+            '<span class="text-[10px] font-extrabold uppercase tracking-wider text-uco-electric bg-blue-50 px-2 py-0.5 rounded">' + r.badge + '</span>' +
+            '<h4 class="font-display font-extrabold text-base sm:text-lg text-uco-navy mt-1">' + r.title + '</h4>' +
+          '</div>' +
+          '<span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg">✔ Incluido</span>' +
+        '</div>' +
+        '<p class="text-xs sm:text-sm text-slate-700 mt-2.5">' + r.info + '</p>' +
+        '<p class="text-xs font-bold text-uco-navy mt-1">✔ ' + r.benefit + '</p>' +
+        '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3.5">' + metricsHtml + '</div>';
+    }
+
+    // Preguntas Frecuentes
+    const FAQS_LIST = [
+      {
+        q: '¿Cuánto cuesta el servicio UCO360 al mes?',
+        a: 'Nuestros planes integrales inician desde S/ 1,500 al mes (tarifa fija sin cobros sorpresa) y se calculan según la cantidad de computadoras, equipos y locales de tu empresa. Puedes usar el cotizador de arriba para conocer tu tarifa al instante.'
+      },
+      {
+        q: '¿Cómo pide ayuda mi personal cuando algo le falla?',
+        a: 'Tus colaboradores reportan cualquier inconveniente de correo, impresora, red o sistema directamente por WhatsApp. Nuestro equipo inicia la asistencia al instante y da seguimiento hasta confirmar que el usuario volvió a trabajar.'
+      },
+      {
+        q: '¿Incluye visitas presenciales a mi empresa?',
+        a: 'Sí. Incluimos una visita presencial programada todas las semanas en tu local para revisiones físicas, mantenimiento y acompañamiento a tu personal, más visitas adicionales ante emergencias.'
+      },
+      {
+        q: '¿Qué pasa si falla mi Internet o mi sistema de facturación / ERP?',
+        a: 'Nosotros asumimos el trato técnico directo con tus proveedores: hacemos las pruebas de descarte, abrimos el reclamo con evidencia y exigimos solución hasta que tu empresa vuelva a operar.'
+      },
+      {
+        q: '¿Cómo sé que mis copias de seguridad realmente funcionan?',
+        a: 'Supervisamos todos los días que tus copias se guarden sin errores y realizamos pruebas periódicas de recuperación para garantizar que tus archivos y sistemas estén 100 % seguros.'
+      }
+    ];
+
+    let activeFaq = 0;
+    function renderFaqs() {
+      const container = document.getElementById('faqContainer');
+      container.innerHTML = FAQS_LIST.map(function (item, idx) {
+        const isOpen = idx === activeFaq;
+        return '<div class="border border-slate-200 rounded-2xl overflow-hidden bg-white">' +
+          '<button type="button" onclick="toggleFaq(' + idx + ')" class="w-full text-left px-5 py-3.5 flex items-center justify-between gap-4 font-display font-bold text-sm text-uco-navy hover:bg-slate-50 transition">' +
+            '<span>' + item.q + '</span>' +
+            '<span class="text-uco-electric font-extrabold text-lg">' + (isOpen ? '−' : '+') + '</span>' +
+          '</button>' +
+          (isOpen
+            ? '<div class="px-5 pb-4 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100">' + item.a + '</div>'
+            : '') +
+        '</div>';
+      }).join('');
+    }
+
+    function toggleFaq(idx) {
+      activeFaq = activeFaq === idx ? -1 : idx;
+      renderFaqs();
+    }
+
+    function openBookingModal(originText) {
+      const badge = document.getElementById('modalOriginBadge');
+      if (badge && originText) {
+        badge.textContent = originText;
+      }
+      document.getElementById('bookingModal').classList.remove('hidden');
+    }
+
+    function closeBookingModal() {
+      document.getElementById('bookingModal').classList.add('hidden');
+    }
+
+    function scrollToContactForm() {
+      closeBookingModal();
+      const contactEl = document.getElementById('contacto');
+      if (contactEl) {
+        contactEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function submitDiagnosticForm(event) {
+      event.preventDefault();
+      const nombre = document.getElementById('inputNombre').value.trim();
+      const empresa = document.getElementById('inputEmpresa').value.trim();
+      const correo = document.getElementById('inputCorreo').value.trim();
+      const telefono = document.getElementById('inputTelefono').value.trim();
+      const mensaje = document.getElementById('inputMensaje').value.trim();
+
+      const info = getQuoteBreakdownText();
+      const summary = 'Gracias ' + nombre + ' (' + empresa + '). Nos comunicaremos contigo hoy mismo al ' +
+        telefono + ' / ' + correo + '.';
+
+      document.getElementById('formSuccessSummary').textContent = summary;
+
+      const waText = encodeURIComponent(
+        'Hola PROINNOVATEC, solicito agendar mi diagnóstico de UCO360.\n' +
+        '• Nombre: ' + nombre + '\n' +
+        '• RUC / Empresa: ' + empresa + '\n' +
+        '• Teléfono: ' + telefono + '\n' +
+        '• Estimado UCO360: S/ ' + info.totalSol.toFixed(2) + '/mes\n' +
+        (mensaje ? '• Detalle: ' + mensaje : '')
+      );
+      document.getElementById('formWhatsappDirectLink').href = 'https://wa.me/51970855741?text=' + waText;
+      document.getElementById('formSuccessBox').classList.remove('hidden');
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+      renderUcoCalculator();
+      selectPillar(1);
+      setWhatsappScenario(1);
+      selectReportPreview(1);
+      renderFaqs();
+    });
+  </script>
+</body>
+</html>

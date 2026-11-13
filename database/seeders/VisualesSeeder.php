@@ -83,7 +83,7 @@ class VisualesSeeder extends Seeder
         }
 
         // Va justo debajo de la portada (y de su calculadora, que forma parte de ella).
-        $after = (int) $campaign->sections()->whereIn('type', ['hero', 'calculator'])->max('position');
+        $after = (int) $campaign->sections()->whereIn('type', ['hero', 'quote', 'calculator'])->max('position');
         if ($after === 0) {
             return;
         }

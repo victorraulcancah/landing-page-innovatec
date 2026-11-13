@@ -1,6 +1,7 @@
 import { ContactList, LocationMap } from '@/components/landing/footer';
 import { Calculator, Quiz } from '@/components/landing/interactive';
 import { LeadForm } from '@/components/landing/lead-form';
+import { Quote } from '@/components/landing/quote';
 import { Rich } from '@/components/landing/rich';
 import { AUTO_VISUALS, Ticker, Visual, type VisualKind } from '@/components/landing/visuals';
 import { ctaHref, ctaOf, flag, list, sectionLook, splitStations, text, type CtaContext, type PublicSection } from '@/lib/landing';
@@ -116,6 +117,9 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
     const primary = ctaOf(c, 'primary_cta');
     const secondary = ctaOf(c, 'secondary_cta');
     const stations = splitStations(text(c, 'note'));
+    const lines = (key: string) => text(c, key).split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(0, 8);
+    const highlights = lines('highlights');
+    const audience = lines('audience');
     const position = section.style.image_position;
 
     return (
@@ -131,6 +135,26 @@ export function Hero({ section, theme, ctx, aside }: SectionProps) {
                 <div>
                     <Rich as="h1" inline id={`h-${section.id}`} html={text(c, 'title')} />
                     {text(c, 'subtitle') && <Rich className="lp-hero__lead" html={text(c, 'subtitle')} />}
+                    {highlights.length > 0 && (
+                        <ul className="lp-hero__chips" aria-label="Qué incluye">
+                            {highlights.map((h) => (
+                                <li key={h}>
+                                    <span className="lp-ring-dot" aria-hidden />
+                                    {h}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {audience.length > 0 && (
+                        <div className="lp-hero__aud">
+                            {text(c, 'audience_label') && <p>{text(c, 'audience_label')}</p>}
+                            <ul>
+                                {audience.map((a) => (
+                                    <li key={a}>{a}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     {(primary || secondary) && (
                         <div className="lp-hero__actions">
                             {primary && (
@@ -510,6 +534,18 @@ export function CalculatorSection({ section, theme, ctx, cut }: SectionProps) {
     );
 }
 
+// ---- Cotizador como sección ------------------------------------------------------------------------------
+
+export function QuoteSection({ section, theme, ctx, campaignId, preview, cut }: SectionProps) {
+    return (
+        <Frame section={section} theme={theme} cut={cut}>
+            <div className="lp-calc-wrap">
+                <Quote section={section} ctx={ctx} campaignId={campaignId} preview={preview} />
+            </div>
+        </Frame>
+    );
+}
+
 // ---- Autodiagnóstico -------------------------------------------------------------------------------
 
 export function QuizSection({ section, theme, ctx, cut }: SectionProps) {
@@ -609,6 +645,7 @@ export function Marquee({ section, theme }: SectionProps) {
 export const RENDERERS: Record<string, (props: SectionProps) => ReactNode> = {
     hero: Hero,
     calculator: CalculatorSection,
+    quote: QuoteSection,
     quiz: QuizSection,
     included: Included,
     marquee: Marquee,

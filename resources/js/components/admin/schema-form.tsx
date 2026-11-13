@@ -107,6 +107,7 @@ function FieldControl({ field, value, onChange, error }: FieldControlProps) {
                     <Input
                         id={id}
                         type="number"
+                        step="any"
                         inputMode="decimal"
                         min={field.min}
                         max={field.max}
