@@ -185,7 +185,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                     <li key={i} className={qty[i] > 0 ? 'is-on' : ''}>
                         <div>
                             <label htmlFor={`${uid}-${i}`}>{d.name}</label>
-                            {d.hint && <small>{d.hint}</small>}
+                            {d.hint && <small title={d.hint}>{d.hint}</small>}
                         </div>
                         <div className="lp-quote__step">
                             <button type="button" aria-label={`Quitar uno de ${d.name}`} disabled={qty[i] <= 0} onClick={() => change(i, qty[i] - 1)}>
