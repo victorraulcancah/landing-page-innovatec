@@ -42,7 +42,6 @@ class CampaignSeeder extends Seeder
                 'secondary_cta' => ['label' => 'Hablar por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
                 'image' => '/images/uco360-reunion.jpg', 'image_alt' => 'Reunión de trabajo en una oficina con vista a la ciudad',
                 'note' => 'Soporte · Infraestructura · Ciberseguridad · Gestión TI',
-                ...QuoteDefaults::hero(),
             ]],
             ['quote', 'cotizador', 'Cotizador', true, QuoteDefaults::quote()],
             // La calculadora de caídas ya no va en la portada: queda oculta para poder volver a mostrarla.

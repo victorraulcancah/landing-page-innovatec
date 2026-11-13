@@ -59,6 +59,10 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
     const ucoPrice = Math.max(0, toNumber(c.uco_price, 50));
     const minPrice = Math.max(0, toNumber(c.min_price, 0));
     const currency = text(c, 'currency') || 'S/';
+    // Los textos vienen del panel; si una campaña anterior no los trae, se usan los de fábrica.
+    const t = (key: string, fallback: string) => text(c, key) || fallback;
+    const fill = (template: string, n: number | string) => template.split('{n}').join(String(n));
+    const unit = t('uco_label', 'UCO');
     const resultUnit = text(c, 'result_unit');
     const open = text(c, 'reveal') === 'open';
 
@@ -92,12 +96,16 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
 
     const summary = () => {
         const picked = devices.map((d, i) => (qty[i] > 0 ? `${qty[i]} ${d.name}` : '')).filter(Boolean);
-        return `Cotizador (referencial): ${uco.format(totalUco)} UCO → ${currency} ${money.format(price)} ${resultUnit}. Equipos: ${picked.join(', ') || 'sin equipos elegidos'}.`;
+        return `${t('summary_prefix', 'Cotizador (referencial):')} ${uco.format(totalUco)} ${unit} → ${currency} ${money.format(price)} ${resultUnit}. Equipos: ${picked.join(', ') || t('empty_label', 'sin equipos elegidos')}.`;
     };
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        const missing = { name: 'Escribe tu nombre.', company: 'Escribe el RUC o el nombre de tu empresa.', phone: 'Escribe tu número de WhatsApp.' } as const;
+        const missing = {
+            name: t('error_name', 'Escribe tu nombre.'),
+            company: t('error_company', 'Escribe el RUC o el nombre de tu empresa.'),
+            phone: t('error_phone', 'Escribe tu número de WhatsApp.'),
+        } as const;
         form.clearErrors();
         let invalid = false;
         (Object.keys(missing) as (keyof typeof missing)[]).forEach((k) => {
@@ -154,7 +162,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                         </button>
                     ))}
                     <button type="button" className="lp-quote__clear" onClick={clear}>
-                        Poner en 0
+                        {t('clear_label', 'Poner en 0')}
                     </button>
                 </div>
             )}
@@ -165,12 +173,14 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                         {g} ({devices.filter((d) => d.group === g).length})
                     </button>
                 ))}
-                <button type="button" role="tab" aria-selected={tab === 'all'} onClick={() => setTab('all')}>
-                    Ver los {devices.length} ítems
-                </button>
+                {t('all_label', 'Ver los {n} ítems') && (
+                    <button type="button" role="tab" aria-selected={tab === 'all'} onClick={() => setTab('all')}>
+                        {fill(t('all_label', 'Ver los {n} ítems'), devices.length)}
+                    </button>
+                )}
             </div>
 
-            <ul className="lp-quote__grid">
+            <ul className={`lp-quote__grid ${tab === 'all' ? 'is-all' : ''}`}>
                 {visible.map(({ d, i }) => (
                     <li key={i} className={qty[i] > 0 ? 'is-on' : ''}>
                         <div>
@@ -191,8 +201,12 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
             </ul>
 
             <p className="lp-quote__sum" aria-live="polite">
-                <span>{units === 0 ? 'Todavía no elegiste equipos.' : `${units} ${units === 1 ? 'unidad elegida' : 'unidades elegidas'}`}</span>
-                {flag(c, 'show_uco') && <b>{uco.format(totalUco)} UCO</b>}
+                <span>{units === 0 ? t('empty_label', 'Todavía no elegiste equipos.') : fill(t('units_label', 'Unidades elegidas: {n}'), units)}</span>
+                {flag(c, 'show_uco') && (
+                    <b>
+                        {uco.format(totalUco)} {unit}
+                    </b>
+                )}
             </p>
 
             {showResult ? (
@@ -202,7 +216,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                         {currency} {money.format(price)} <small>{resultUnit}</small>
                     </p>
                     <p className="lp-quote__note">
-                        {belowMin ? text(c, 'min_note') : flag(c, 'show_uco') && totalUco > 0 ? `${uco.format(totalUco)} UCO × ${currency} ${uco.format(ucoPrice)}` : ''}
+                        {belowMin ? text(c, 'min_note') : flag(c, 'show_uco') && totalUco > 0 ? `${uco.format(totalUco)} ${unit} × ${currency} ${uco.format(ucoPrice)}` : ''}
                     </p>
                     {benefits.length > 0 && (
                         <ul className="lp-quote__benefits">
@@ -234,19 +248,26 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                     <p className="lp-quote__gate-title">{text(c, 'gate_title')}</p>
                     <div className="lp-quote__fields">
                         <div>
-                            <label htmlFor={`${uid}-name`}>Nombre completo *</label>
+                            <label htmlFor={`${uid}-name`}>{t('name_label', 'Nombre completo *')}</label>
                             <input id={`${uid}-name`} className="lp-input" autoComplete="name" value={form.data.name} aria-invalid={err.name ? true : undefined} onChange={(e) => form.setData('name', e.target.value)} />
                             {err.name && <span className="lp-error">{err.name}</span>}
                         </div>
                         <div>
-                            <label htmlFor={`${uid}-company`}>RUC o nombre de tu empresa *</label>
+                            <label htmlFor={`${uid}-company`}>{t('company_label', 'RUC o nombre de tu empresa *')}</label>
                             <input id={`${uid}-company`} className="lp-input" autoComplete="organization" value={form.data.company} aria-invalid={err.company ? true : undefined} onChange={(e) => form.setData('company', e.target.value)} />
                             {err.company && <span className="lp-error">{err.company}</span>}
                         </div>
                         <div>
-                            <label htmlFor={`${uid}-phone`}>Número de WhatsApp *</label>
+                            <label htmlFor={`${uid}-phone`}>{t('phone_label', 'Número de WhatsApp *')}</label>
                             <input id={`${uid}-phone`} className="lp-input" type="tel" autoComplete="tel" value={form.data.phone} aria-invalid={err.phone ? true : undefined} onChange={(e) => form.setData('phone', e.target.value)} />
                             {err.phone && <span className="lp-error">{err.phone}</span>}
+                        </div>
+                        <div className="lp-quote__go">
+                        <button type="submit" className="lp-btn" disabled={form.processing}>
+                            {form.processing && <LoaderCircle className="animate-spin" aria-hidden />}
+                            {form.processing ? t('sending_label', 'Enviando…') : t('gate_button', 'Ver la tarifa')}
+                            {!form.processing && <ArrowRight size={18} aria-hidden />}
+                        </button>
                         </div>
                     </div>
                     {/* Campo trampa: las personas no lo ven; los bots lo llenan. */}
@@ -254,11 +275,6 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                         <label htmlFor={`${uid}-web`}>No llenar este campo</label>
                         <input id={`${uid}-web`} type="text" tabIndex={-1} autoComplete="off" value={form.data.website_url} onChange={(e) => form.setData('website_url', e.target.value)} />
                     </div>
-                    <button type="submit" className="lp-btn" disabled={form.processing}>
-                        {form.processing && <LoaderCircle className="animate-spin" aria-hidden />}
-                        {form.processing ? 'Enviando…' : text(c, 'gate_button') || 'Ver la tarifa'}
-                        {!form.processing && <ArrowRight size={18} aria-hidden />}
-                    </button>
                     {preview && <p className="lp-error">Vista previa: no se envían datos; el botón solo muestra la tarifa.</p>}
                 </form>
             )}

@@ -464,6 +464,118 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('', Setting::get('analytics')['ga_id']);
     }
 
+    public function test_el_cotizador_conserva_los_pesos_decimales_y_limita_los_valores(): void
+    {
+        $clean = SectionTypes::sanitizeContent('quote', [
+            'uco_price' => '50', 'min_price' => 1500, 'reveal' => 'inventado',
+            'devices' => [
+                ['name' => 'Licencia Office 365', 'group' => 'Equipos', 'weight' => '0.05', 'qty' => 15, 'preset_qty' => '15, 30, 60'],
+                ['name' => 'UPS', 'group' => 'Red', 'weight' => 0.25, 'qty' => -3],
+                ['name' => 'Absurdo', 'weight' => 99999999, 'qty' => 99999999],
+            ],
+        ]);
+
+        $this->assertSame(0.05, $clean['devices'][0]['weight']);
+        $this->assertSame(0.25, $clean['devices'][1]['weight']);
+        $this->assertSame(0, $clean['devices'][1]['qty']);
+        $this->assertSame(1000, $clean['devices'][2]['weight']);
+        $this->assertSame(100000, $clean['devices'][2]['qty']);
+        $this->assertSame('gate', $clean['reveal']);
+        $this->assertSame('15, 30, 60', $clean['devices'][0]['preset_qty']);
+    }
+
+    public function test_los_datos_de_fabrica_del_cotizador_siguen_el_pdf_de_pesos(): void
+    {
+        $devices = collect(\App\Support\QuoteDefaults::devices());
+
+        // 14 tipos de equipo y los pesos oficiales.
+        $this->assertCount(14, $devices);
+        $this->assertSame(1.0, $devices->firstWhere('name', 'PC / Laptop')['weight']);
+        $this->assertSame(0.05, $devices->firstWhere('name', 'Licencia Office 365')['weight']);
+        $this->assertSame(0.2, $devices->firstWhere('name', 'Cámara CCTV')['weight']);
+        $this->assertSame(1.5, $devices->firstWhere('name', 'Firewall')['weight']);
+
+        // El plan inicial suma los 29.55 UCO de la maqueta, y 1 UCO = S/ 50 con mínimo de S/ 1,500.
+        $total = $devices->sum(fn ($d) => $d['qty'] * $d['weight']);
+        $this->assertEqualsWithDelta(29.55, $total, 0.001);
+        $quote = \App\Support\QuoteDefaults::quote();
+        $this->assertSame(50, $quote['uco_price']);
+        $this->assertSame(1500, $quote['min_price']);
+        $this->assertSame(1500, (int) max($quote['min_price'], $total * $quote['uco_price']));
+    }
+
+    public function test_la_campana_nueva_trae_el_cotizador_en_la_portada_y_la_calculadora_oculta(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $types = $campaign->sections()->orderBy('position')->pluck('type')->all();
+
+        $this->assertSame('hero', $types[1]);
+        $this->assertSame('quote', $types[2]);
+        $this->assertTrue($campaign->sections()->where('type', 'quote')->first()->content['in_hero']);
+
+        $calc = $campaign->sections()->where('type', 'calculator')->first();
+        $this->assertFalse($calc->is_visible);
+        $this->assertFalse($calc->content['in_hero']);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('sections.1.type', 'hero')
+            ->where('sections.2.type', 'quote')
+            ->where('sections.2.content.min_price', 1500));
+    }
+
+    public function test_el_seeder_del_cotizador_actualiza_una_campana_anterior_sin_tocar_la_portada(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+
+        // Una campaña anterior: sin cotizador y con la calculadora en la portada.
+        $campaign->sections()->where('type', 'quote')->delete();
+        $calc = $campaign->sections()->where('type', 'calculator')->first();
+        $calc->update(['is_visible' => true, 'content' => [...$calc->content, 'in_hero' => true]]);
+        $hero = $campaign->sections()->where('type', 'hero')->first();
+        $title = $hero->content['title'];
+
+        $this->seed(\Database\Seeders\CotizadorSeeder::class);
+        $this->seed(\Database\Seeders\CotizadorSeeder::class);
+
+        $this->assertSame(1, $campaign->sections()->where('type', 'quote')->count());
+        $this->assertFalse($calc->fresh()->is_visible);
+        $this->assertFalse($calc->fresh()->content['in_hero']);
+        $this->assertSame($title, $hero->fresh()->content['title']);
+    }
+
+    public function test_todos_los_textos_del_cotizador_se_editan_en_el_panel(): void
+    {
+        $fields = collect(SectionTypes::schemaForClient()['quote']['content'])->pluck('key');
+
+        foreach (['uco_price', 'min_price', 'currency', 'presets', 'devices', 'uco_label', 'clear_label', 'all_label', 'units_label', 'empty_label',
+            'name_label', 'company_label', 'phone_label', 'error_name', 'error_company', 'error_phone', 'gate_title', 'gate_button',
+            'result_label', 'result_unit', 'min_note', 'benefits', 'whatsapp_cta', 'diag_cta', 'disclaimer', 'summary_prefix', 'reveal', 'show_uco'] as $key) {
+            $this->assertTrue($fields->contains($key), "Falta editar {$key} en el panel");
+        }
+
+        $clean = SectionTypes::sanitizeContent('quote', ['clear_label' => 'Reiniciar', 'uco_label' => 'puntos']);
+        $this->assertSame('Reiniciar', $clean['clear_label']);
+        $this->assertSame('puntos', $clean['uco_label']);
+    }
+
+    public function test_el_contacto_del_cotizador_guarda_la_cotizacion_en_el_mensaje(): void
+    {
+        $campaign = $this->makeCampaign('Con cotizador', 'active');
+        $message = 'Cotizador (referencial): 29.55 UCO → S/ 1,500.00 / mes + IGV. Equipos: 15 PC / Laptop, 1 Sede / Site.';
+
+        $this->post(route('leads.store'), [
+            'name' => 'Ana Pérez', 'company' => '20123456789', 'phone' => '999888777',
+            'message' => $message, 'website_url' => '', 'campaign_id' => $campaign->id,
+        ])->assertSessionHasNoErrors();
+
+        $lead = Lead::first();
+        $this->assertSame('20123456789', $lead->company);
+        $this->assertSame($message, $lead->message);
+        $this->assertSame($campaign->id, $lead->campaign_id);
+    }
+
     public function test_las_secciones_se_pueden_reordenar(): void
     {
         $this->login();
@@ -589,7 +701,7 @@ class CampaignAdminTest extends TestCase
         $this->seed(CampaignSeeder::class);
 
         $campaign = Campaign::query()->active()->firstOrFail();
-        $this->assertSame(14, $campaign->sections()->count());
+        $this->assertSame(15, $campaign->sections()->count());
         $this->assertFalse((bool) $campaign->sections()->where('type', 'packages')->value('is_visible'));
     }
 }
