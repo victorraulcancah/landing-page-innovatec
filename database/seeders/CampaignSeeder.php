@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Campaign;
+use App\Support\FormDefaults;
 use App\Support\PainsDefaults;
 use App\Support\PillarsDefaults;
 use App\Support\QuoteDefaults;
@@ -164,7 +165,7 @@ class CampaignSeeder extends Seeder
                 'show_form' => true,
                 'show_contact' => true,
                 'show_map' => true,
-                'form_button' => 'Solicitar diagnóstico',
+                ...FormDefaults::cta(),
                 'button' => ['label' => 'Escríbenos por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
             ]],
             ['popup', 'popup', null, true, [

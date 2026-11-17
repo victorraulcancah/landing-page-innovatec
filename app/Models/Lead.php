@@ -15,7 +15,12 @@ class Lead extends Model
         'lost' => 'Descartado',
     ];
 
-    protected $fillable = ['campaign_id', 'name', 'company', 'email', 'phone', 'message', 'status'];
+    protected $fillable = ['campaign_id', 'name', 'company', 'email', 'phone', 'message', 'extras', 'status'];
+
+    protected function casts(): array
+    {
+        return ['extras' => 'array'];
+    }
 
     public function campaign(): BelongsTo
     {

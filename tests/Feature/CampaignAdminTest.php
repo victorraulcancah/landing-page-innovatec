@@ -664,6 +664,83 @@ class CampaignAdminTest extends TestCase
         $this->assertFalse($campaign->sections()->where('type', 'features')->first()->is_visible);
     }
 
+    public function test_el_formulario_de_contacto_se_arma_desde_el_panel_y_guarda_las_respuestas_extra(): void
+    {
+        $this->login();
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $cta = $campaign->sections()->where('type', 'cta')->first();
+
+        // De fábrica: los 7 campos del formulario del HTML, todos editables.
+        $this->assertCount(7, $cta->content['form_fields']);
+        $this->assertSame('Agenda tu diagnóstico', $cta->content['form_title']);
+
+        $base = ['campaign_id' => $campaign->id, 'source' => 'form', 'name' => 'Ana Ruiz'];
+
+        // Con los campos de fábrica el empresa, teléfono y correo son obligatorios y las opciones se validan.
+        $this->post(route('leads.store'), $base)->assertSessionHasErrors(['company', 'phone', 'email']);
+        $this->post(route('leads.store'), [...$base, 'company' => 'ACME SAC', 'phone' => '999111222', 'email' => 'ana@acme.pe', 'extras' => ['Inventada', 'De 26 a 60 computadoras']])
+            ->assertSessionHasErrors(['extras.0']);
+
+        $this->post(route('leads.store'), [...$base, 'company' => 'ACME SAC', 'phone' => '999111222', 'email' => 'ana@acme.pe', 'message' => 'Quiero revisar mi red',
+            'extras' => ['Tenemos soporte pero no se da abasto', 'De 26 a 60 computadoras']])->assertSessionHasNoErrors();
+
+        $lead = Lead::latest('id')->first();
+        $this->assertSame('ACME SAC', $lead->company);
+        $this->assertSame('Quiero revisar mi red', $lead->message);
+        $this->assertSame([
+            ['label' => '¿Cómo ven sus equipos hoy?', 'value' => 'Tenemos soporte pero no se da abasto'],
+            ['label' => 'Tamaño aproximado', 'value' => 'De 26 a 60 computadoras'],
+        ], $lead->extras);
+
+        // Desde el panel: la empresa pasa a opcional, se quita el correo y se agrega una pregunta nueva.
+        $fields = collect($cta->content['form_fields'])
+            ->reject(fn ($f) => $f['kind'] === 'email')
+            ->map(fn ($f) => $f['kind'] === 'company' ? [...$f, 'required' => false] : $f)
+            ->push(['kind' => 'text', 'label' => '¿Cuántas sedes tienes?', 'placeholder' => '', 'options' => '', 'required' => true])
+            ->values()->all();
+        $this->put(route('sections.update', $cta), [
+            'is_visible' => true, 'anchor' => 'contacto', 'nav_label' => 'Contacto',
+            'content' => [...$cta->content, 'form_title' => 'Cuéntanos de tu empresa', 'form_fields' => $fields],
+            'style' => $cta->style,
+        ])->assertSessionHasNoErrors();
+        $this->assertSame('Cuéntanos de tu empresa', $cta->fresh()->content['form_title']);
+        $this->assertCount(7, $cta->fresh()->content['form_fields']);
+
+        $this->post(route('leads.store'), [...$base, 'phone' => '999111222'])->assertSessionHasErrors(['extras.2']);
+        $this->post(route('leads.store'), [...$base, 'phone' => '999111222', 'extras' => ['', '', '3 sedes']])->assertSessionHasNoErrors();
+        $this->assertSame([['label' => '¿Cuántas sedes tienes?', 'value' => '3 sedes']], Lead::latest('id')->first()->extras);
+
+        // El cotizador y las demás entradas siguen con la regla simple (sin pedir los campos del formulario).
+        $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'name' => 'Luis', 'phone' => '988777666'])->assertSessionHasNoErrors();
+        $this->assertSame('Luis', Lead::latest('id')->first()->name);
+    }
+
+    public function test_el_seeder_del_formulario_agrega_los_campos_a_una_campana_anterior_sin_pisar_el_boton(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $cta = $campaign->sections()->where('type', 'cta')->first();
+
+        $content = $cta->content;
+        foreach (['form_fields', 'form_title', 'form_note', 'thanks_title', 'thanks_text'] as $key) {
+            unset($content[$key]);
+        }
+        $content['form_button'] = 'Pedir reunión';
+        $cta->update(['content' => $content]);
+
+        $this->seed(\Database\Seeders\LeadFormSeeder::class);
+        $cta->refresh();
+        $this->assertCount(7, $cta->content['form_fields']);
+        $this->assertSame('Pedir reunión', $cta->content['form_button']);
+        $this->assertSame($content['title'], $cta->content['title']);
+
+        // Repetirlo no cambia lo que ya se editó.
+        $cta->update(['content' => [...$cta->content, 'form_title' => 'Mi título']]);
+        $this->seed(\Database\Seeders\LeadFormSeeder::class);
+        $this->assertSame('Mi título', $cta->fresh()->content['form_title']);
+    }
+
     public function test_los_rubros_de_la_portada_se_editan_y_el_seeder_no_pisa_lo_editado(): void
     {
         $fields = collect(SectionTypes::schemaForClient()['hero']['content'])->pluck('key');

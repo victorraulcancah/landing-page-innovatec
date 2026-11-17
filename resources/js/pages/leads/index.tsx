@@ -13,6 +13,7 @@ interface LeadRow {
     email: string | null;
     phone: string | null;
     message: string | null;
+    extras?: { label: string; value: string }[] | null;
     status: string;
     campaign: string | null;
     created_at: string;
@@ -101,6 +102,16 @@ export default function LeadsIndex({ leads, statuses, filter, counts }: Props) {
                                         <span>{dateFormat.format(new Date(lead.created_at))}</span>
                                         {lead.campaign && <span>Campaña: {lead.campaign}</span>}
                                     </p>
+                                    {lead.extras && lead.extras.length > 0 && (
+                                        <dl className="mt-2 grid max-w-prose gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
+                                            {lead.extras.map((x, i) => (
+                                                <div key={i} className="contents">
+                                                    <dt className="text-muted-foreground">{x.label}</dt>
+                                                    <dd className="font-medium">{x.value}</dd>
+                                                </div>
+                                            ))}
+                                        </dl>
+                                    )}
                                     {lead.message && <p className="mt-2 max-w-prose text-sm whitespace-pre-line">{lead.message}</p>}
                                 </div>
                                 <div className="flex items-start gap-2">

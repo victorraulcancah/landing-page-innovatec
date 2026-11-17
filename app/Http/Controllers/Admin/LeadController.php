@@ -22,7 +22,7 @@ class LeadController extends Controller
             ->paginate(20)
             ->withQueryString()
             ->through(fn (Lead $l) => [
-                ...$l->only(['id', 'name', 'company', 'email', 'phone', 'message', 'status']),
+                ...$l->only(['id', 'name', 'company', 'email', 'phone', 'message', 'extras', 'status']),
                 'campaign' => $l->campaign?->name,
                 'created_at' => $l->created_at->toIso8601String(),
             ]);

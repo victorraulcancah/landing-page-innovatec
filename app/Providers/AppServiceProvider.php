@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Jobs\SendLeadToGoogleSheet;
+use App\Models\Lead;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Cada lead nuevo (del formulario o del cotizador) también se copia a Google Sheets.
+        Lead::created(fn (Lead $lead) => SendLeadToGoogleSheet::dispatchAfterResponse($lead));
     }
 }

@@ -1427,8 +1427,8 @@
 
 @media (min-width: 960px) {
     .lp-cta__grid--form {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 28rem);
-        gap: 4.5rem;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 36rem);
+        gap: 3.5rem;
     }
 }
 
@@ -3630,7 +3630,7 @@ textarea.lp-input {
 @media (min-width: 960px) {
     .lp-faqwrap {
         grid-template-columns: minmax(0, 1fr) minmax(0, 25rem);
-        gap: 4.5rem;
+        gap: 3.5rem;
     }
     .lp-faq__side {
         position: sticky;

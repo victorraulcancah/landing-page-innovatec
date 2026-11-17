@@ -542,7 +542,7 @@ export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: 
                 </div>
                 {showForm && (
                     <div className="lp-panel" data-reveal="up" style={{ '--i': 2 } as CSSProperties}>
-                        <LeadForm campaignId={campaignId} buttonLabel={text(c, 'form_button')} preview={preview} />
+                        <LeadForm campaignId={campaignId} content={c} preview={preview} />
                     </div>
                 )}
             </div>

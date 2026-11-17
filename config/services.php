@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    // Copia de cada lead a una hoja de Google Sheets (Apps Script publicado como aplicación web). Vacío = apagado.
+    'google_sheets' => [
+        'webhook_url' => env('GOOGLE_SHEETS_WEBHOOK_URL'),
+        'secret' => env('GOOGLE_SHEETS_SECRET'),
+    ],
+
     // Ruta del archivo de certificados para las conexiones salientes. Vacío = el del sistema (lo normal en Linux).
     // En Laragon/Windows, PHP no trae uno: apunta a C:/laragon/etc/ssl/cacert.pem.
     'http' => [
