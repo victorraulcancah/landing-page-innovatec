@@ -1,7 +1,7 @@
 import { track } from '@/lib/analytics';
 import { list, text } from '@/lib/landing';
-import { cleanPhone } from '@/lib/phone';
 import { clearPrefill, getPrefill } from '@/lib/prefill';
+import { cleanCompany, cleanName, cleanPhone } from '@/lib/validate';
 import { type Json } from '@/types/cms';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
@@ -135,7 +135,7 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
                     const value = isExtra ? data.extras[index] ?? '' : (data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'] ?? '');
                     const onChange = (v: string) => {
                         if (isExtra) setData('extras', data.extras.map((x, k) => (k === index ? v : x)));
-                        else setData(f.kind as 'name' | 'company' | 'email' | 'phone' | 'message', f.kind === 'phone' ? cleanPhone(v) : v);
+                        else setData(f.kind as 'name' | 'company' | 'email' | 'phone' | 'message', f.kind === 'phone' ? cleanPhone(v) : f.kind === 'name' ? cleanName(v) : f.kind === 'company' ? cleanCompany(v) : v);
                     };
                     return (
                         <div key={i} className={`lp-field ${f.kind === 'message' ? 'sm:col-span-2' : ''}`}>

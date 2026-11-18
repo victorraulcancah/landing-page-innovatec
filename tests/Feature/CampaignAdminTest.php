@@ -745,22 +745,42 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('Ver más detalle', $saved['more_label']);
     }
 
-    public function test_el_whatsapp_no_acepta_letras_ni_numeros_incompletos(): void
+    public function test_el_nombre_el_ruc_y_el_celular_se_validan(): void
     {
         $this->seed(\Database\Seeders\CampaignSeeder::class);
         $campaign = Campaign::where('status', 'active')->first();
+        $ok = ['campaign_id' => $campaign->id, 'name' => 'Ana Pérez', 'company' => '20100070970', 'phone' => '987 654 321'];
 
-        // Cotizador y entradas simples
-        foreach (['99abc9999', '12345'] as $bad) {
-            $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'name' => 'Ana', 'phone' => $bad])->assertSessionHasErrors('phone');
+        // Las reglas se prueban directamente: el formulario limita los envíos por minuto.
+        $rules = \App\Support\LeadRules::class;
+        foreach (['Ana2', '556464468', 'A', '@@@'] as $bad) {
+            $this->assertFalse($rules::isName($bad), "Nombre inválido aceptado: {$bad}");
         }
-        foreach (['+51 999-111-222'] as $good) {
-            $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'name' => 'Ana', 'phone' => $good])->assertSessionHasNoErrors();
+        foreach (['Ana Pérez', "O'Brien-Díaz", 'María del Carmen'] as $good) {
+            $this->assertTrue($rules::isName($good), "Nombre válido rechazado: {$good}");
         }
 
-        // Formulario de la página
+        foreach (['85646894651', '20100070971', '2010007097', '856468946515146', '@@@'] as $bad) {
+            $this->assertFalse($rules::isCompany($bad), "Empresa inválida aceptada: {$bad}");
+        }
+        foreach (['20100070970', '20131312955', 'Grupo 360 SAC', '3M Perú S.A.'] as $good) {
+            $this->assertTrue($rules::isCompany($good), "Empresa válida rechazada: {$good}");
+        }
+
+        foreach (['326596556565656', '12345', '887654321', '99abc9999', '9876543210'] as $bad) {
+            $this->assertFalse($rules::isPhone($bad), "Celular inválido aceptado: {$bad}");
+        }
+        foreach (['987654321', '987 654 321', '+51 987-654-321', '51987654321', '+57 3001234567'] as $good) {
+            $this->assertTrue($rules::isPhone($good), "Celular válido rechazado: {$good}");
+        }
+
+        // En el servidor: el cotizador y el formulario de la página rechazan lo mismo (5 envíos como máximo por minuto).
+        $this->post(route('leads.store'), [...$ok, 'name' => '556464468'])->assertSessionHasErrors('name');
+        $this->post(route('leads.store'), [...$ok, 'company' => '85646894651'])->assertSessionHasErrors('company');
+        $this->post(route('leads.store'), [...$ok, 'phone' => '326596556565656'])->assertSessionHasErrors('phone');
         $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'source' => 'form', 'name' => 'Ana', 'company' => 'ACME', 'email' => 'a@acme.pe', 'phone' => 'abc'])
             ->assertSessionHasErrors('phone');
+        $this->post(route('leads.store'), $ok)->assertSessionHasNoErrors();
     }
 
     public function test_el_formulario_de_contacto_se_arma_desde_el_panel_y_guarda_las_respuestas_extra(): void
@@ -891,12 +911,12 @@ class CampaignAdminTest extends TestCase
         $message = 'Cotizador (referencial): 29.55 UCO → S/ 1,500.00 / mes + IGV. Equipos: 15 PC / Laptop, 1 Sede / Site.';
 
         $this->post(route('leads.store'), [
-            'name' => 'Ana Pérez', 'company' => '20123456789', 'phone' => '999888777',
+            'name' => 'Ana Pérez', 'company' => '20100070970', 'phone' => '999888777',
             'message' => $message, 'website_url' => '', 'campaign_id' => $campaign->id,
         ])->assertSessionHasNoErrors();
 
         $lead = Lead::first();
-        $this->assertSame('20123456789', $lead->company);
+        $this->assertSame('20100070970', $lead->company);
         $this->assertSame($message, $lead->message);
         $this->assertSame($campaign->id, $lead->campaign_id);
     }

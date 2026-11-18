@@ -1,5 +1,5 @@
 import { track } from '@/lib/analytics';
-import { cleanPhone, isValidPhone } from '@/lib/phone';
+import { cleanCompany, cleanName, cleanPhone, isValidCompany, isValidName, isValidPhone } from '@/lib/validate';
 import { ctaHref, ctaOf, flag, list, text, whatsappHref, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json } from '@/types/cms';
@@ -115,9 +115,20 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                 invalid = true;
             }
         });
-        if (!invalid && !isValidPhone(form.data.phone)) {
-            form.setError('phone', t('error_phone_format', 'Escribe un número válido, solo con números.'));
-            invalid = true;
+        // Si todo está escrito, se revisa que también sea correcto: nombre con letras, RUC válido y celular de 9 dígitos.
+        if (!invalid) {
+            if (!isValidName(form.data.name)) {
+                form.setError('name', t('error_name_format', 'Escribe tu nombre solo con letras.'));
+                invalid = true;
+            }
+            if (!isValidCompany(form.data.company)) {
+                form.setError('company', t('error_company_format', 'Escribe un RUC válido de 11 dígitos o el nombre de tu empresa.'));
+                invalid = true;
+            }
+            if (!isValidPhone(form.data.phone)) {
+                form.setError('phone', t('error_phone_format', 'Escribe un celular válido de 9 dígitos (ej. 987 654 321).'));
+                invalid = true;
+            }
         }
         if (invalid) return;
         if (preview) {
@@ -254,12 +265,12 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                     <div className="lp-quote__fields">
                         <div>
                             <label htmlFor={`${uid}-name`}>{t('name_label', 'Nombre completo *')}</label>
-                            <input id={`${uid}-name`} className="lp-input" autoComplete="name" value={form.data.name} aria-invalid={err.name ? true : undefined} onChange={(e) => form.setData('name', e.target.value)} />
+                            <input id={`${uid}-name`} className="lp-input" autoComplete="name" maxLength={120} value={form.data.name} aria-invalid={err.name ? true : undefined} onChange={(e) => form.setData('name', cleanName(e.target.value))} />
                             {err.name && <span className="lp-error">{err.name}</span>}
                         </div>
                         <div>
                             <label htmlFor={`${uid}-company`}>{t('company_label', 'RUC o nombre de tu empresa *')}</label>
-                            <input id={`${uid}-company`} className="lp-input" autoComplete="organization" value={form.data.company} aria-invalid={err.company ? true : undefined} onChange={(e) => form.setData('company', e.target.value)} />
+                            <input id={`${uid}-company`} className="lp-input" autoComplete="organization" inputMode="text" maxLength={150} value={form.data.company} aria-invalid={err.company ? true : undefined} onChange={(e) => form.setData('company', cleanCompany(e.target.value))} />
                             {err.company && <span className="lp-error">{err.company}</span>}
                         </div>
                         <div>

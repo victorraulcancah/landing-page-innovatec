@@ -50,7 +50,9 @@ class QuoteDefaults
             'error_name' => 'Escribe tu nombre.',
             'error_company' => 'Escribe el RUC o el nombre de tu empresa.',
             'error_phone' => 'Escribe tu número de WhatsApp.',
-            'error_phone_format' => 'Escribe un número válido, solo con números.',
+            'error_name_format' => 'Escribe tu nombre solo con letras.',
+            'error_company_format' => 'Escribe un RUC válido de 11 dígitos o el nombre de tu empresa.',
+            'error_phone_format' => 'Escribe un celular válido de 9 dígitos (ej. 987 654 321).',
             'sending_label' => 'Enviando…',
             'summary_prefix' => 'Cotizador (referencial):',
         ];
