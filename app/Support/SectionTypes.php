@@ -239,12 +239,26 @@ class SectionTypes
                         self::text('title', 'Problema (título)', 200),
                         self::textarea('text', 'Detalle del problema'),
                         self::text('solution', 'Cómo lo resuelves (una línea)', 200),
+                        self::richtext('detail_text', 'Al abrir la tarjeta: explicación ampliada'),
+                        self::textarea('detail_points', 'Al abrir la tarjeta: puntos clave (uno por línea)'),
+                        self::list('gallery', 'Al abrir la tarjeta: fotos', [
+                            self::image('image', 'Foto'),
+                            self::text('caption', 'Texto bajo la foto (opcional)', 140),
+                        ], 'caption'),
+                        self::file('video', 'Al abrir la tarjeta: video (enlace de YouTube o Vimeo, o sube un MP4)', 'video'),
+                        self::list('docs', 'Al abrir la tarjeta: documentos para descargar', [
+                            self::file('file', 'Archivo (PDF, Word, Excel o PowerPoint)'),
+                            self::text('label', 'Nombre que ve el visitante', 100),
+                        ], 'label'),
                     ], 'title'),
+                    self::text('more_label', 'Texto del botón que abre el detalle', 40),
+                    self::cta('modal_cta', 'Botón dentro del detalle (el texto vacío lo oculta)'),
                 ],
                 'style' => [],
                 'defaults' => [
                     'eyebrow' => '', 'title' => '¿Te suena familiar?', 'subtitle' => '', 'columns' => '3',
-                    'items' => [['icon' => 'alert', 'image' => null, 'tag' => '', 'tone' => 'rose', 'title' => 'Un problema de tu día a día', 'text' => '', 'solution' => '']],
+                    'more_label' => 'Ver más detalle', 'modal_cta' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],
+                    'items' => [['icon' => 'alert', 'image' => null, 'tag' => '', 'tone' => 'rose', 'title' => 'Un problema de tu día a día', 'text' => '', 'solution' => '', 'detail_text' => '', 'detail_points' => '', 'gallery' => [], 'video' => null, 'docs' => []]],
                 ],
             ],
             'pillars' => [
@@ -626,6 +640,7 @@ class SectionTypes
                 'select' => array_key_exists((string) $value, $f['options']) ? (string) $value : (string) array_key_first($f['options']),
                 'color' => self::color_value($value, true),
                 'image' => self::imageUrl($value),
+                'file' => self::fileUrl($value, (string) ($f['kind'] ?? 'document')),
                 'cta' => self::sanitizeCta($value),
                 'list' => self::sanitizeList($f, $value),
                 default => null,
@@ -685,6 +700,39 @@ class SectionTypes
         return $tokens && array_key_exists($value, self::COLOR_TOKENS) ? $value : null;
     }
 
+    /** Extensiones permitidas al subir documentos y videos desde el panel. */
+    public const DOCUMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+
+    public const VIDEO_EXTENSIONS = ['mp4', 'webm'];
+
+    /** Sitios de video que se pueden enlazar (se muestran incrustados, sin cookies de seguimiento). */
+    public const VIDEO_HOSTS = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'vimeo.com', 'player.vimeo.com'];
+
+    /**
+     * Archivo subido desde el panel (documento o video). Un video también puede ser un enlace https de YouTube o
+     * Vimeo. Cualquier otra cosa se descarta.
+     */
+    public static function fileUrl(mixed $value, string $kind = 'document'): ?string
+    {
+        if (! is_string($value) || $value === '') {
+            return null;
+        }
+
+        $allowed = $kind === 'video' ? self::VIDEO_EXTENSIONS : self::DOCUMENT_EXTENSIONS;
+
+        if (preg_match('#^/uploads/[A-Za-z0-9._-]+$#', $value) && ! str_contains($value, '..')) {
+            return in_array(strtolower(pathinfo($value, PATHINFO_EXTENSION)), $allowed, true) ? mb_substr($value, 0, 500) : null;
+        }
+
+        if ($kind === 'video' && preg_match('#^https://#i', $value)) {
+            $host = strtolower((string) parse_url($value, PHP_URL_HOST));
+
+            return in_array($host, self::VIDEO_HOSTS, true) ? mb_substr($value, 0, 500) : null;
+        }
+
+        return null;
+    }
+
     public static function imageUrl(mixed $value): ?string
     {
         if (! is_string($value) || $value === '') {
@@ -733,6 +781,12 @@ class SectionTypes
     private static function image(string $key, string $label): array
     {
         return ['key' => $key, 'label' => $label, 'type' => 'image'];
+    }
+
+    /** Archivo del panel: «document» (PDF, Word, Excel, PowerPoint) o «video» (MP4/WebM o enlace de YouTube/Vimeo). */
+    private static function file(string $key, string $label, string $kind = 'document'): array
+    {
+        return ['key' => $key, 'label' => $label, 'type' => 'file', 'kind' => $kind];
     }
 
     private static function color(string $key, string $label): array

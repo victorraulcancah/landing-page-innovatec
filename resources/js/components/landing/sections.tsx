@@ -654,7 +654,7 @@ export function Included({ section, theme, cut }: SectionProps) {
 
 // ---- Situaciones del día a día: el problema del cliente y cómo se resuelve ------------------------------------
 
-export function Pains({ section, theme, cut }: SectionProps) {
+export function Pains({ section, theme, cut, ctx }: SectionProps) {
     const c = section.content;
     if (list(c, 'items').length === 0 && !text(c, 'title')) return null;
 
@@ -662,7 +662,7 @@ export function Pains({ section, theme, cut }: SectionProps) {
         <Frame section={section} theme={theme} cut={cut}>
             <PainsEyebrow label={text(c, 'eyebrow')} />
             <Head section={section} />
-            <PainCards content={c} />
+            <PainCards content={c} ctx={ctx} />
         </Frame>
     );
 }

@@ -11,6 +11,7 @@ use App\Support\SectionTypes;
 use Database\Seeders\CampaignSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -666,6 +667,82 @@ class CampaignAdminTest extends TestCase
         $this->seed(\Database\Seeders\PillarsSeeder::class);
         $this->assertSame(1, $campaign->sections()->where('type', 'pillars')->count());
         $this->assertFalse($campaign->sections()->where('type', 'features')->first()->is_visible);
+    }
+
+    public function test_las_tarjetas_de_situaciones_abren_un_detalle_con_fotos_video_y_documentos_editables(): void
+    {
+        $this->login();
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $pains = $campaign->sections()->where('type', 'pains')->first();
+
+        // De fábrica cada tarjeta ya trae explicación y puntos clave para el detalle.
+        $this->assertNotEmpty($pains->content['items'][0]['detail_text']);
+        $this->assertCount(3, array_filter(explode("\n", $pains->content['items'][0]['detail_points'])));
+        $this->assertSame('Ver más detalle', $pains->content['more_label']);
+
+        $fields = collect(SectionTypes::schemaForClient()['pains']['content'])->firstWhere('key', 'items')['fields'];
+        foreach (['detail_text', 'detail_points', 'gallery', 'video', 'docs'] as $key) {
+            $this->assertTrue(collect($fields)->pluck('key')->contains($key), "Falta editar {$key}");
+        }
+
+        // Fotos, video y documentos: solo se aceptan rutas subidas al panel y enlaces de YouTube o Vimeo.
+        $items = $pains->content['items'];
+        $items[0]['gallery'] = [['image' => '/uploads/foto.jpg', 'caption' => 'Visita'], ['image' => 'javascript:alert(1)', 'caption' => 'Mala']];
+        $items[0]['video'] = 'https://youtu.be/dQw4w9WgXcQ';
+        $items[0]['docs'] = [['file' => '/uploads/guia.pdf', 'label' => 'Guía'], ['file' => '/uploads/virus.exe', 'label' => 'Peligroso'], ['file' => 'https://malo.com/a.pdf', 'label' => 'Externo']];
+        $items[1]['video'] = 'https://malo.com/video.mp4';
+        $items[2]['video'] = '/uploads/clip.mp4';
+        $this->put(route('sections.update', $pains), [
+            'is_visible' => true, 'anchor' => 'situaciones', 'nav_label' => '¿Te pasa esto?',
+            'content' => [...$pains->content, 'items' => $items], 'style' => $pains->style,
+        ])->assertSessionHasNoErrors();
+
+        $saved = $pains->fresh()->content['items'];
+        $this->assertSame('/uploads/foto.jpg', $saved[0]['gallery'][0]['image']);
+        $this->assertNull($saved[0]['gallery'][1]['image']);
+        $this->assertSame('https://youtu.be/dQw4w9WgXcQ', $saved[0]['video']);
+        $this->assertSame('/uploads/guia.pdf', $saved[0]['docs'][0]['file']);
+        $this->assertNull($saved[0]['docs'][1]['file']);
+        $this->assertNull($saved[0]['docs'][2]['file']);
+        $this->assertNull($saved[1]['video']);
+        $this->assertSame('/uploads/clip.mp4', $saved[2]['video']);
+    }
+
+    public function test_el_panel_sube_documentos_y_rechaza_archivos_peligrosos(): void
+    {
+        $this->login();
+        Storage::fake('uploads');
+
+        $ok = $this->postJson(route('media.file'), ['file' => UploadedFile::fake()->create('Guia de red.pdf', 200, 'application/pdf')]);
+        $ok->assertOk();
+        $this->assertMatchesRegularExpression('#^/uploads/[A-Za-z0-9]+\.pdf$#', $ok->json('url'));
+        $this->assertSame('Guia de red', $ok->json('name'));
+
+        $this->postJson(route('media.file'), ['file' => UploadedFile::fake()->create('virus.exe', 50, 'application/x-msdownload')])->assertStatus(422);
+        $this->postJson(route('media.file'), ['file' => UploadedFile::fake()->create('script.php', 5, 'text/x-php')])->assertStatus(422);
+    }
+
+    public function test_el_seeder_completa_el_detalle_de_las_tarjetas_sin_pisar_lo_editado(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $pains = Campaign::where('status', 'active')->first()->sections()->where('type', 'pains')->first();
+
+        // Una campaña anterior: tarjetas sin detalle, y una de ellas ya editada por el cliente.
+        $content = $pains->content;
+        unset($content['more_label'], $content['modal_cta']);
+        foreach ($content['items'] as $i => $item) {
+            unset($content['items'][$i]['detail_text'], $content['items'][$i]['detail_points'], $content['items'][$i]['gallery'], $content['items'][$i]['video'], $content['items'][$i]['docs']);
+        }
+        $content['items'][1]['title'] = 'Título cambiado por el cliente';
+        $pains->update(['content' => $content]);
+
+        $this->seed(\Database\Seeders\PainsSeeder::class);
+        $saved = $pains->fresh()->content;
+        $this->assertNotEmpty($saved['items'][0]['detail_text']);
+        $this->assertSame('', $saved['items'][1]['detail_text']);
+        $this->assertSame('Título cambiado por el cliente', $saved['items'][1]['title']);
+        $this->assertSame('Ver más detalle', $saved['more_label']);
     }
 
     public function test_el_whatsapp_no_acepta_letras_ni_numeros_incompletos(): void

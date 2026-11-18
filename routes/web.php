@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('contactos/{lead}', [AdminLeadController::class, 'destroy'])->name('leads.destroy');
 
     Route::post('medios', [MediaController::class, 'store'])->name('media.store');
+    Route::post('medios/archivo', [MediaController::class, 'file'])->name('media.file');
 });
 
 require __DIR__.'/settings.php';

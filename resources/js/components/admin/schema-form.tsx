@@ -1,4 +1,5 @@
 import { ColorField } from '@/components/admin/color-field';
+import { FileField } from '@/components/admin/file-field';
 import { ImageField } from '@/components/admin/image-field';
 import { RichTextField } from '@/components/admin/rich-text-field';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export function blankValue(field: FieldDef): Json {
             return [];
         case 'color':
         case 'image':
+        case 'file':
             return null;
         default:
             return '';
@@ -152,6 +154,8 @@ function FieldControl({ field, value, onChange, error }: FieldControlProps) {
             return wrap(<ColorField label={field.label} value={(value as string | null) ?? null} onChange={onChange} optional />);
         case 'image':
             return wrap(<ImageField label={field.label} value={(value as string | null) ?? null} onChange={onChange} />);
+        case 'file':
+            return wrap(<FileField label={field.label} kind={field.kind ?? 'document'} value={(value as string | null) ?? null} onChange={onChange} />);
         case 'cta':
             return wrap(<CtaControl label={field.label} actions={field.actions ?? {}} value={value as unknown as Cta} onChange={onChange} />);
         case 'list':

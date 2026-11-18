@@ -3,7 +3,9 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 export interface FieldDef {
     key: string;
     label: string;
-    type: 'text' | 'textarea' | 'richtext' | 'richline' | 'toggle' | 'select' | 'color' | 'image' | 'cta' | 'list' | 'number';
+    type: 'text' | 'textarea' | 'richtext' | 'richline' | 'toggle' | 'select' | 'color' | 'image' | 'file' | 'cta' | 'list' | 'number';
+    /** Solo para «file»: documento (PDF, Word…) o video. */
+    kind?: 'document' | 'video';
     max?: number;
     min?: number;
     options?: Record<string, string>;
