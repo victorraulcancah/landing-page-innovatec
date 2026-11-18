@@ -17,11 +17,6 @@ function Window({ title, children, className = '' }: { title: string; children: 
     return (
         <div className={`lp-vis__win ${className}`}>
             <div className="lp-vis__bar">
-                <span className="lp-vis__dots" aria-hidden>
-                    <i />
-                    <i />
-                    <i />
-                </span>
                 <strong>{title}</strong>
             </div>
             {children}

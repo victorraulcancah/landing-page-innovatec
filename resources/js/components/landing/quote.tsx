@@ -1,4 +1,5 @@
 import { track } from '@/lib/analytics';
+import { cleanPhone, isValidPhone } from '@/lib/phone';
 import { ctaHref, ctaOf, flag, list, text, whatsappHref, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json } from '@/types/cms';
@@ -114,6 +115,10 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                 invalid = true;
             }
         });
+        if (!invalid && !isValidPhone(form.data.phone)) {
+            form.setError('phone', t('error_phone_format', 'Escribe un número válido, solo con números.'));
+            invalid = true;
+        }
         if (invalid) return;
         if (preview) {
             setUnlocked(true);
@@ -259,7 +264,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                         </div>
                         <div>
                             <label htmlFor={`${uid}-phone`}>{t('phone_label', 'Número de WhatsApp *')}</label>
-                            <input id={`${uid}-phone`} className="lp-input" type="tel" autoComplete="tel" value={form.data.phone} aria-invalid={err.phone ? true : undefined} onChange={(e) => form.setData('phone', e.target.value)} />
+                            <input id={`${uid}-phone`} className="lp-input" type="tel" inputMode="tel" maxLength={20} autoComplete="tel" value={form.data.phone} aria-invalid={err.phone ? true : undefined} onChange={(e) => form.setData('phone', cleanPhone(e.target.value))} />
                             {err.phone && <span className="lp-error">{err.phone}</span>}
                         </div>
                         <div className="lp-quote__go">

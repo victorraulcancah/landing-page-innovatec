@@ -3084,7 +3084,7 @@ textarea.lp-input {
 .lp-rows {
     position: relative;
     display: grid;
-    gap: clamp(2.5rem, 6vw, 5rem);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
     list-style: none;
     padding: 0;
 }
@@ -3203,7 +3203,7 @@ textarea.lp-input {
 }
 
 .lp-included__foot {
-    margin-top: clamp(2.5rem, 5vw, 4rem);
+    margin-top: clamp(1.75rem, 3.5vw, 2.75rem);
 }
 
 .lp-included__foot--visual {
@@ -3262,21 +3262,6 @@ textarea.lp-input {
     font-weight: 700;
 }
 
-.lp-vis__dots {
-    display: flex;
-    gap: 5px;
-}
-.lp-vis__dots i {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--c-text) 22%, transparent);
-}
-.lp-vis__dots i:first-child {
-    background: var(--c-accent);
-}
-
-/* Soporte: conversación */
 .lp-vis__chat {
     display: grid;
     gap: 0.6rem;

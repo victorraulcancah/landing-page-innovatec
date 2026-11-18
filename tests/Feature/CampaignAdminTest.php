@@ -280,7 +280,7 @@ class CampaignAdminTest extends TestCase
         $this->assertStringContainsString('Montos de ejemplo', $packages->content['note']);
         $this->assertSame(12, $popup->content['seconds']);
 
-        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 15));
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 14));
     }
 
     public function test_los_montos_de_ejemplo_no_pisan_lo_editado_en_el_panel(): void
@@ -311,7 +311,11 @@ class CampaignAdminTest extends TestCase
 
         // Una campaña creada antes del diseño con imágenes: sin franja y sin tarjeta flotante.
         $campaign->sections()->where('type', 'marquee')->delete();
-        $text = $campaign->sections()->where('type', 'text')->first();
+        $text = $campaign->sections()->create([
+            'type' => 'text', 'position' => $campaign->sections()->max('position') + 1, 'is_visible' => true, 'anchor' => 'texto-con-foto', 'nav_label' => null,
+            'content' => SectionTypes::sanitizeContent('text', ['title' => 'Texto con foto', 'body' => 'Detalle', 'image' => '/images/uco360-equipo.jpg', 'image_alt' => 'Reunión']),
+            'style' => SectionTypes::sanitizeStyle('text', []),
+        ]);
         $content = $text->content;
         unset($content['overlay']);
         $text->update(['content' => $content]);
@@ -664,6 +668,24 @@ class CampaignAdminTest extends TestCase
         $this->assertFalse($campaign->sections()->where('type', 'features')->first()->is_visible);
     }
 
+    public function test_el_whatsapp_no_acepta_letras_ni_numeros_incompletos(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+
+        // Cotizador y entradas simples
+        foreach (['99abc9999', '12345'] as $bad) {
+            $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'name' => 'Ana', 'phone' => $bad])->assertSessionHasErrors('phone');
+        }
+        foreach (['+51 999-111-222'] as $good) {
+            $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'name' => 'Ana', 'phone' => $good])->assertSessionHasNoErrors();
+        }
+
+        // Formulario de la página
+        $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'source' => 'form', 'name' => 'Ana', 'company' => 'ACME', 'email' => 'a@acme.pe', 'phone' => 'abc'])
+            ->assertSessionHasErrors('phone');
+    }
+
     public function test_el_formulario_de_contacto_se_arma_desde_el_panel_y_guarda_las_respuestas_extra(): void
     {
         $this->login();
@@ -927,7 +949,7 @@ class CampaignAdminTest extends TestCase
         $this->seed(CampaignSeeder::class);
 
         $campaign = Campaign::query()->active()->firstOrFail();
-        $this->assertSame(17, $campaign->sections()->count());
+        $this->assertSame(16, $campaign->sections()->count());
         $this->assertFalse((bool) $campaign->sections()->where('type', 'packages')->value('is_visible'));
     }
 }

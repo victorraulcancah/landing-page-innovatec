@@ -53,6 +53,21 @@ class LeadController extends Controller
         return back()->with('lead_sent', true);
     }
 
+    /** Teléfono: 7 a 15 dígitos; solo se permiten «+» al inicio, espacios, guiones y paréntesis. */
+    private const PHONE = '/^\+?(?:[\s\-()]*\d){7,15}[\s\-()]*$/';
+
+    private const PHONE_MESSAGE = 'Escribe un número válido: solo números (puedes usar +, espacios y guiones).';
+
+    /** Regla de teléfono propia (la de «regex» de Laravel parte el patrón en la coma de {7,15}). */
+    private function phoneRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if (! preg_match(self::PHONE, (string) $value)) {
+                $fail(self::PHONE_MESSAGE);
+            }
+        };
+    }
+
     /** @return array<string, mixed> */
     private function legacyRules(): array
     {
@@ -60,7 +75,7 @@ class LeadController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'company' => ['nullable', 'string', 'max:150'],
             'email' => ['nullable', 'email:rfc', 'max:150', 'required_without:phone'],
-            'phone' => ['nullable', 'string', 'max:40', 'required_without:email'],
+            'phone' => ['nullable', 'string', 'max:40', $this->phoneRule(), 'required_without:email'],
             'message' => ['nullable', 'string', 'max:2000'],
             'campaign_id' => ['nullable', 'integer'],
         ];
@@ -74,6 +89,7 @@ class LeadController extends Controller
             'email.required_without' => 'Déjanos un correo o un teléfono para contactarte.',
             'phone.required_without' => 'Déjanos un correo o un teléfono para contactarte.',
             'email.email' => 'Revisa el correo: no parece válido.',
+            'phone.regex' => self::PHONE_MESSAGE,
         ];
     }
 
@@ -102,7 +118,7 @@ class LeadController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'company' => [$required('company') ? 'required' : 'nullable', 'string', 'max:150'],
             'email' => [$required('email') ? 'required' : 'nullable', 'email:rfc', 'max:150'],
-            'phone' => [$required('phone') ? 'required' : 'nullable', 'string', 'max:40'],
+            'phone' => [$required('phone') ? 'required' : 'nullable', 'string', 'max:40', $this->phoneRule()],
             'message' => [$required('message') ? 'required' : 'nullable', 'string', 'max:2000'],
             'campaign_id' => ['nullable', 'integer'],
         ];
@@ -122,6 +138,7 @@ class LeadController extends Controller
             'email.email' => 'Revisa el correo: no parece válido.',
             'email.required_without' => 'Déjanos un correo o un teléfono para contactarte.',
             'phone.required_without' => 'Déjanos un correo o un teléfono para contactarte.',
+            'phone.regex' => self::PHONE_MESSAGE,
         ];
 
         // Preguntas extra (con opciones o de texto corto): se validan contra lo configurado, en el mismo orden.

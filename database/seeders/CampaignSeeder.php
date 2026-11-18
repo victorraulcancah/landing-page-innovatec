@@ -110,13 +110,6 @@ class CampaignSeeder extends Seeder
                 ],
             ]],
             ['pillars', 'pilares', 'Servicios', true, PillarsDefaults::pillars()],
-            ['text', 'para-la-gerencia', null, true, [
-                'title' => 'Pensado para la gerencia',
-                'body' => "Coordinación centralizada con tus proveedores: hablamos de tú a tú con tu proveedor de Internet, ERP o software hasta resolver el problema.\n\nVisibilidad ejecutiva y costo mensual predecible: tarifa fija mensual, informes claros en lenguaje de negocio y acompañamiento para crecer.",
-                'image' => '/images/uco360-equipo.jpg',
-                'image_alt' => 'Profesional de una empresa atendiendo una reunión de trabajo',
-                'overlay' => 'report',
-            ]],
             ['steps', 'como-funciona', null, true, [
                 'title' => 'Cómo implementamos UCO360 en tu empresa',
                 'subtitle' => '',
@@ -186,7 +179,6 @@ class CampaignSeeder extends Seeder
             'pilares' => ['bg_color' => 'surface', 'align' => 'center'],
             'por-que-uco360' => ['bg_color' => 'surface'],
             'autodiagnostico' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
-            'para-la-gerencia' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent', 'image_position' => 'left', 'padding' => 'lg'],
             'que-incluye' => ['bg_color' => 'surface'],
             'contacto' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
         ];

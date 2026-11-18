@@ -50,6 +50,7 @@ class QuoteDefaults
             'error_name' => 'Escribe tu nombre.',
             'error_company' => 'Escribe el RUC o el nombre de tu empresa.',
             'error_phone' => 'Escribe tu número de WhatsApp.',
+            'error_phone_format' => 'Escribe un número válido, solo con números.',
             'sending_label' => 'Enviando…',
             'summary_prefix' => 'Cotizador (referencial):',
         ];

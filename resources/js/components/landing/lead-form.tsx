@@ -1,5 +1,6 @@
 import { track } from '@/lib/analytics';
 import { list, text } from '@/lib/landing';
+import { cleanPhone } from '@/lib/phone';
 import { clearPrefill, getPrefill } from '@/lib/prefill';
 import { type Json } from '@/types/cms';
 import { useForm } from '@inertiajs/react';
@@ -134,7 +135,7 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
                     const value = isExtra ? data.extras[index] ?? '' : (data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'] ?? '');
                     const onChange = (v: string) => {
                         if (isExtra) setData('extras', data.extras.map((x, k) => (k === index ? v : x)));
-                        else setData(f.kind as 'name' | 'company' | 'email' | 'phone' | 'message', v);
+                        else setData(f.kind as 'name' | 'company' | 'email' | 'phone' | 'message', f.kind === 'phone' ? cleanPhone(v) : v);
                     };
                     return (
                         <div key={i} className={`lp-field ${f.kind === 'message' ? 'sm:col-span-2' : ''}`}>
@@ -159,6 +160,8 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
                                     className="lp-input"
                                     type={INPUT[f.kind].type}
                                     autoComplete={INPUT[f.kind].auto}
+                                    inputMode={f.kind === 'phone' ? 'tel' : undefined}
+                                    maxLength={f.kind === 'phone' ? 20 : undefined}
                                     placeholder={f.placeholder}
                                     required={f.required}
                                     value={value}
