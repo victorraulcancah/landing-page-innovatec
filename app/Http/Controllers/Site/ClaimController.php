@@ -26,6 +26,13 @@ class ClaimController extends Controller
 
         $isMinor = $request->boolean('is_minor');
 
+        // Documentos y celular sin espacios (quien pega «987 654 321» o «1234 5678» no debería tener un error por eso).
+        foreach (['doc_number', 'guardian_doc_number', 'phone'] as $field) {
+            if (is_string($request->input($field))) {
+                $request->merge([$field => preg_replace('/\s+/', '', $request->input($field))]);
+            }
+        }
+
         $data = $request->validate([
             'type' => ['required', Rule::in(array_keys(Claim::TYPES))],
 

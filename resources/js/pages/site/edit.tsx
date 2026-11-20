@@ -393,8 +393,22 @@ function AnalyticsForm({ analytics }: { analytics: AnalyticsData }) {
     );
 }
 
+/** Lista de documentos del pie: cada uno lleva su nombre y su archivo (se sube desde aquí). */
+const FOOTER_DOC_FIELDS: FieldDef[] = [
+    {
+        key: 'docs',
+        label: 'Documentos',
+        type: 'list',
+        itemLabel: 'label',
+        fields: [
+            { key: 'label', label: 'Nombre que ve el visitante (ej. Términos y Condiciones)', type: 'text', max: 80 },
+            { key: 'file', label: 'Archivo PDF', type: 'file', kind: 'document' },
+        ],
+    },
+];
+
 function FooterForm({ footer }: { footer: FooterData }) {
-    const { data, setData, put, processing, isDirty } = useForm<FooterData>({ ...footer });
+    const { data, setData, put, processing, isDirty, errors } = useForm<FooterData>({ ...footer });
 
     return (
         <form
@@ -415,6 +429,42 @@ function FooterForm({ footer }: { footer: FooterData }) {
                 </div>
             </div>
             <Check id="footer_contact" label="Mostrar datos de contacto en el pie" checked={data.show_contact} onChange={(v) => setData('show_contact', v)} />
+
+            <fieldset className="grid gap-4 rounded-lg border p-4">
+                <legend className="px-1 text-sm font-medium">Libro de Reclamaciones</legend>
+                <Check id="footer_claims" label="Mostrar el Libro de Reclamaciones en el pie de página" checked={data.claims_enabled} onChange={(v) => setData('claims_enabled', v)} />
+                <div className="grid gap-1.5">
+                    <Label htmlFor="footer_claims_label">Texto del enlace</Label>
+                    <Input id="footer_claims_label" value={data.claims_label} maxLength={60} onChange={(e) => setData('claims_label', e.target.value)} />
+                </div>
+                <p className="text-muted-foreground text-sm">Datos del proveedor: salen en cada hoja de reclamación y se guardan tal como estaban al registrarla.</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-1.5 sm:col-span-2">
+                        <Label htmlFor="footer_provider_name">Razón social</Label>
+                        <Input id="footer_provider_name" value={data.provider_name} maxLength={150} onChange={(e) => setData('provider_name', e.target.value)} />
+                    </div>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="footer_provider_ruc">RUC (11 números)</Label>
+                        <Input id="footer_provider_ruc" inputMode="numeric" value={data.provider_ruc} maxLength={11} onChange={(e) => setData('provider_ruc', e.target.value.replace(/\D/g, ''))} />
+                        {errors.provider_ruc && <p className="text-destructive text-sm">{errors.provider_ruc}</p>}
+                    </div>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="footer_provider_address">Dirección</Label>
+                        <Input id="footer_provider_address" value={data.provider_address} maxLength={200} onChange={(e) => setData('provider_address', e.target.value)} />
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset className="grid gap-3 rounded-lg border p-4">
+                <legend className="px-1 text-sm font-medium">Documentos legales (PDF)</legend>
+                <p className="text-muted-foreground text-sm">Términos y Condiciones, política de privacidad, etc. En el pie se muestran con «Ver» y «Descargar». Un documento sin archivo no se muestra.</p>
+                <SchemaForm
+                    fields={FOOTER_DOC_FIELDS}
+                    values={{ docs: data.docs as unknown as Json }}
+                    onChange={(v) => setData('docs', (v.docs as unknown as FooterData['docs']) ?? [])}
+                />
+            </fieldset>
+
             <div className="grid gap-4 sm:grid-cols-2">
                 <ColorField label="Color de fondo" value={data.bg_color} optional onChange={(v) => setData('bg_color', v)} />
                 <ColorField label="Color del texto" value={data.text_color} optional onChange={(v) => setData('text_color', v)} />

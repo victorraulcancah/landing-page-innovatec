@@ -112,10 +112,18 @@ export type AnalyticsData = {
     ga_id: string;
 };
 
+export type FooterDoc = { label: string; file: string | null };
+
 export type FooterData = {
     text: string;
     legal: string;
     show_contact: boolean;
+    claims_enabled: boolean;
+    claims_label: string;
+    provider_name: string;
+    provider_ruc: string;
+    provider_address: string;
+    docs: FooterDoc[];
     bg_color: string | null;
     text_color: string | null;
 };

@@ -126,7 +126,7 @@ export default function Landing({ campaign, sections: allSections, theme, navbar
                 )}
             </main>
 
-            <Footer footer={footer} contact={contact} theme={theme} />
+            <Footer footer={footer} contact={contact} theme={theme} preview={preview} />
 
             {popups.map((popup) => (
                 <Popup key={popup.id} section={popup} theme={theme} ctx={ctx} />

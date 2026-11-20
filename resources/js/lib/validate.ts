@@ -37,6 +37,15 @@ export function isValidCompany(value: string): boolean {
     return v.length >= 2 && v.length <= 150 && HAS_LETTER.test(v) && /^[\p{L}\p{M}\p{N}\s.,&'’\-/()]+$/u.test(v);
 }
 
+// ---- Documento de identidad ------------------------------------------------------------------------------------
+
+/** DNI: 8 números. RUC: 11 números. Carné de extranjería y pasaporte: letras y números (máximo 12). */
+export function cleanDoc(type: string, value: string): string {
+    if (type === 'DNI') return value.replace(/\D/g, '').slice(0, 8);
+    if (type === 'RUC') return value.replace(/\D/g, '').slice(0, 11);
+    return value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 12);
+}
+
 // ---- Celular / WhatsApp: 9 números ---------------------------------------------------------------------------------
 
 /** Solo números, máximo 9. */

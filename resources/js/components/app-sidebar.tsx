@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, Megaphone, Palette, Users } from 'lucide-react';
+import { BookOpen, LayoutGrid, Megaphone, Palette, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -26,6 +26,11 @@ const mainNavItems: NavItem[] = [
         title: 'Contactos',
         url: '/contactos',
         icon: Users,
+    },
+    {
+        title: 'Reclamos',
+        url: '/reclamos',
+        icon: BookOpen,
     },
 ];
 

@@ -1,8 +1,9 @@
-import CreditoMagus from '@/components/credito-magus';
+import { ClaimModal } from '@/components/landing/claim-modal';
+import { PdfModal } from '@/components/landing/pdf-modal';
 import { mapLinks, resolveColor, readableOn, sectionLook, whatsappHref } from '@/lib/landing';
 import { type ContactData, type FooterData, type ThemeData } from '@/types/cms';
-import { ExternalLink, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
-import { type CSSProperties } from 'react';
+import { BookOpen, Download, ExternalLink, FileText, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { type CSSProperties, useState } from 'react';
 
 export function ContactList({ contact }: { contact: ContactData }) {
     const phoneDigits = contact.phone.replace(/[^\d+]/g, '');
@@ -62,10 +63,17 @@ export function LocationMap({ contact }: { contact: ContactData }) {
     );
 }
 
-export function Footer({ footer, contact, theme }: { footer: FooterData; contact: ContactData; theme: ThemeData }) {
+export function Footer({ footer, contact, theme, preview = false }: { footer: FooterData; contact: ContactData; theme: ThemeData; preview?: boolean }) {
     const bg = resolveColor(footer.bg_color, theme) ?? theme.dark;
     const fg = resolveColor(footer.text_color, theme) ?? readableOn(bg, theme);
     const look = sectionLook({ bg_color: bg, text_color: fg, accent_color: null, align: 'left', padding: 'md', width: 'normal', image_position: 'right' }, theme);
+    const [claimOpen, setClaimOpen] = useState(false);
+    const [pdf, setPdf] = useState<{ title: string; file: string } | null>(null);
+
+    const docs = (footer.docs ?? []).filter((d) => d.file && d.label);
+    const provider = [footer.provider_name, footer.provider_ruc && `RUC ${footer.provider_ruc}`, footer.provider_address].filter(Boolean).join(' · ');
+    const hasLinks = footer.claims_enabled || docs.length > 0;
+    const line = 'border-[color-mix(in_srgb,var(--fg)_16%,transparent)]';
 
     return (
         <footer className="lp-footer" style={look.style}>
@@ -76,11 +84,46 @@ export function Footer({ footer, contact, theme }: { footer: FooterData; contact
                     {contact.website && <p className="lp-footer__legal">{contact.website}</p>}
                 </div>
                 {footer.show_contact && <ContactList contact={contact} />}
-                {/* La firma de quien desarrolló el sistema va siempre, no se edita desde el panel. */}
-                <div className="lp-footer__credit">
-                    <CreditoMagus variante="chip" />
-                </div>
+
+                {/* Libro de Reclamaciones y documentos legales (se editan en Ajustes del sitio → Pie de página). */}
+                {hasLinks && (
+                    <nav aria-label="Información legal" className={`col-span-full flex flex-wrap items-center gap-x-7 gap-y-4 border-t pt-5 ${line}`}>
+                        {footer.claims_enabled && (
+                            <button
+                                type="button"
+                                onClick={() => setClaimOpen(true)}
+                                aria-haspopup="dialog"
+                                className={`group inline-flex cursor-pointer items-center gap-3 rounded-xl border bg-white/5 py-2 pl-2 pr-4 text-left text-sm font-bold transition hover:bg-white/10 ${line}`}
+                            >
+                                <span className="grid size-9 place-items-center rounded-lg bg-[#be123c] text-white transition group-hover:scale-105">
+                                    <BookOpen size={20} aria-hidden />
+                                </span>
+                                {footer.claims_label || 'Libro de Reclamaciones'}
+                            </button>
+                        )}
+                        {docs.map((d, i) => (
+                            <div key={i} className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                                <span className="inline-flex items-center gap-2 font-bold">
+                                    <FileText size={18} aria-hidden />
+                                    {d.label}
+                                </span>
+                                <button type="button" onClick={() => setPdf({ title: d.label, file: d.file as string })} aria-haspopup="dialog" className="cursor-pointer font-semibold underline underline-offset-4 transition hover:opacity-75">
+                                    Ver
+                                </button>
+                                <a href={d.file as string} download={`${d.label.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}.pdf`} className="inline-flex items-center gap-1 font-semibold underline underline-offset-4 transition hover:opacity-75">
+                                    <Download size={14} aria-hidden />
+                                    Descargar
+                                </a>
+                            </div>
+                        ))}
+                    </nav>
+                )}
+
+                {provider && <p className={`col-span-full text-xs opacity-70 ${hasLinks ? '' : `border-t pt-5 ${line}`}`}>{provider}</p>}
             </div>
+
+            {claimOpen && <ClaimModal footer={footer} preview={preview} onClose={() => setClaimOpen(false)} />}
+            {pdf && <PdfModal title={pdf.title} file={pdf.file} onClose={() => setPdf(null)} />}
         </footer>
     );
 }
