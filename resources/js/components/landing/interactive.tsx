@@ -201,7 +201,7 @@ export function Quiz({ section, ctx }: { section: PublicSection; ctx: CtaContext
 
                 {/* Lo que el visitante ya marcó: se ve aquí, con la opción de quitar cada punto. */}
                 {count > 0 && (
-                    <div className="mt-4 text-left duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2">
+                    <div className="w-full text-left duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2">
                         <p className="mb-2.5 flex items-center gap-2 font-[family-name:var(--font-head)] text-xs font-extrabold uppercase tracking-wider text-[var(--line)]">
                             <Check size={14} strokeWidth={3} aria-hidden />
                             {text(c, 'selected_label') || 'Lo que marcaste'} ({count})

@@ -2505,7 +2505,6 @@ textarea.lp-input {
 
 .lp-quiz__msg {
     font-weight: 700;
-    min-height: 3.2em;
 }
 
 .lp-quiz__result--critical .lp-quiz__msg {

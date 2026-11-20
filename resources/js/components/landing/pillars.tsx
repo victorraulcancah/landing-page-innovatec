@@ -2,7 +2,7 @@ import { ICONS } from '@/components/landing/icons';
 import { ctaHref, ctaOf, list, type CtaContext } from '@/lib/landing';
 import { type Json } from '@/types/cms';
 import { ArrowRight, Check } from 'lucide-react';
-import { type CSSProperties, type KeyboardEvent, useRef, useState } from 'react';
+import { type KeyboardEvent, useRef, useState } from 'react';
 
 const str = (v: Json | undefined): string => (typeof v === 'string' ? v : '');
 
@@ -58,8 +58,6 @@ export function PillarTabs({ content, ctx }: { content: Record<string, Json>; ct
                             tabIndex={on ? 0 : -1}
                             onClick={() => setActive(i)}
                             onKeyDown={(e) => onKey(e, i)}
-                            data-reveal="up"
-                            style={{ '--d': `${i * 90}ms` } as CSSProperties}
                             className={`group relative flex cursor-pointer flex-col gap-3 overflow-hidden rounded-2xl border p-4 pb-5 text-left transition duration-300 motion-safe:hover:-translate-y-1 ${
                                 on
                                     ? 'border-[var(--c-accent)] bg-[var(--c-dark)] text-[var(--c-on-dark)] shadow-2xl'
@@ -92,7 +90,7 @@ export function PillarTabs({ content, ctx }: { content: Record<string, Json>; ct
                 role="tabpanel"
                 id="pillar-panel"
                 aria-labelledby={`pillar-tab-${active}`}
-                className="mt-6 grid overflow-hidden rounded-[1.75rem] border border-[color-mix(in_srgb,var(--c-text)_12%,transparent)] bg-[var(--c-background)] text-[var(--c-text)] shadow-xl duration-500 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-3 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
+                className="mt-6 grid overflow-hidden rounded-[1.75rem] border border-[color-mix(in_srgb,var(--c-text)_12%,transparent)] bg-[var(--c-background)] text-[var(--c-text)] shadow-xl lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
             >
                 <div className="relative isolate flex min-h-[20rem] flex-col justify-between gap-8 overflow-hidden bg-[var(--c-dark)] p-7 text-[var(--c-on-dark)] lg:p-10">
                     {image ? (
@@ -134,8 +132,7 @@ export function PillarTabs({ content, ctx }: { content: Record<string, Json>; ct
                     {cards.map((c, i) => (
                         <li
                             key={i}
-                            style={{ animationDelay: `${150 + i * 130}ms` }}
-                            className="flex gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--c-text)_10%,transparent)] bg-[var(--c-surface)] p-4 transition duration-300 fill-mode-backwards hover:border-[var(--c-primary)]/40 hover:shadow-md motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-right-6 motion-safe:hover:translate-x-1"
+                            className="flex gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--c-text)_10%,transparent)] bg-[var(--c-surface)] p-4 transition duration-300 hover:border-[var(--c-primary)]/40 hover:shadow-md motion-safe:hover:translate-x-1"
                         >
                             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--c-primary)] font-[family-name:var(--font-head)] text-sm font-extrabold text-white">{i + 1}</span>
                             <span className="block">
@@ -160,8 +157,7 @@ export function PillarTabs({ content, ctx }: { content: Record<string, Json>; ct
                             {rows.map((r, i) => (
                                 <li
                                     key={i}
-                                    style={{ animationDelay: `${300 + i * 130}ms` }}
-                                    className={`grid items-stretch gap-1.5 fill-mode-backwards motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 lg:gap-2 ${flow}`}
+                                    className={`grid items-stretch gap-1.5 lg:gap-2 ${flow}`}
                                 >
                                     <p className="rounded-xl border border-[color-mix(in_srgb,var(--c-text)_12%,transparent)] bg-[var(--c-background)] p-3.5 text-sm font-bold leading-snug">
                                         <small className="mb-1 block text-[10px] font-extrabold uppercase tracking-wider text-[var(--c-muted)] lg:hidden">{heads[0]}</small>

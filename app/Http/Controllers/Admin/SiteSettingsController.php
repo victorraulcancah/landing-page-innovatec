@@ -175,14 +175,37 @@ class SiteSettingsController extends Controller
             'text' => ['nullable', 'string', 'max:200'],
             'legal' => ['nullable', 'string', 'max:200'],
             'show_contact' => ['required', 'boolean'],
+            'claims_enabled' => ['required', 'boolean'],
+            'claims_label' => ['nullable', 'string', 'max:60'],
+            'provider_name' => ['nullable', 'string', 'max:150'],
+            'provider_ruc' => ['nullable', 'regex:/^\d{11}$/'],
+            'provider_address' => ['nullable', 'string', 'max:200'],
+            'docs' => ['nullable', 'array', 'max:8'],
+            'docs.*.label' => ['nullable', 'string', 'max:80'],
+            'docs.*.file' => ['nullable', 'string', 'max:500'],
             'bg_color' => ['nullable', 'string', 'max:20'],
             'text_color' => ['nullable', 'string', 'max:20'],
-        ], ['*.regex' => 'Usa un color en formato #RRGGBB.']);
+        ], ['*.regex' => 'Usa un color en formato #RRGGBB.', 'provider_ruc.regex' => 'El RUC tiene 11 números.']);
+
+        // Documentos: solo archivos subidos desde el panel (PDF, Word…). Sin nombre ni archivo, se descartan.
+        $docs = collect($data['docs'] ?? [])
+            ->map(fn ($d) => [
+                'label' => SectionTypes::str($d['label'] ?? '', 80),
+                'file' => SectionTypes::fileUrl($d['file'] ?? null, 'document'),
+            ])
+            ->filter(fn ($d) => $d['label'] !== '' || $d['file'] !== null)
+            ->values()->all();
 
         return [
             'text' => SectionTypes::str($data['text'] ?? '', 200),
             'legal' => SectionTypes::str($data['legal'] ?? '', 200),
             'show_contact' => $data['show_contact'],
+            'claims_enabled' => $data['claims_enabled'],
+            'claims_label' => SectionTypes::str($data['claims_label'] ?? '', 60) ?: 'Libro de Reclamaciones',
+            'provider_name' => SectionTypes::str($data['provider_name'] ?? '', 150),
+            'provider_ruc' => SectionTypes::str($data['provider_ruc'] ?? '', 11),
+            'provider_address' => SectionTypes::str($data['provider_address'] ?? '', 200),
+            'docs' => $docs,
             'bg_color' => SectionTypes::color_value($data['bg_color'] ?? null, true),
             'text_color' => SectionTypes::color_value($data['text_color'] ?? null, true),
         ];

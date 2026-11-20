@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\ClaimController as AdminClaimController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SiteSettingsController;
+use App\Http\Controllers\Site\ClaimController;
 use App\Http\Controllers\Site\LandingController;
 use App\Http\Controllers\Site\LeadController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +15,7 @@ use Inertia\Inertia;
 // Landing publica: muestra la campaña activa.
 Route::get('/', [LandingController::class, 'show'])->name('home');
 Route::post('/contacto', [LeadController::class, 'store'])->middleware('throttle:6,1')->name('leads.store');
+Route::post('/libro-de-reclamaciones', [ClaimController::class, 'store'])->middleware('throttle:4,1')->name('claims.store');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
@@ -48,6 +51,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('contactos', [AdminLeadController::class, 'index'])->name('leads.index');
     Route::put('contactos/{lead}', [AdminLeadController::class, 'update'])->name('leads.update');
     Route::delete('contactos/{lead}', [AdminLeadController::class, 'destroy'])->name('leads.destroy');
+
+    Route::get('reclamos', [AdminClaimController::class, 'index'])->name('claims.index');
+    Route::put('reclamos/{claim}', [AdminClaimController::class, 'update'])->name('claims.update');
 
     Route::post('medios', [MediaController::class, 'store'])->name('media.store');
     Route::post('medios/archivo', [MediaController::class, 'file'])->name('media.file');

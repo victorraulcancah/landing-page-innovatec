@@ -600,10 +600,11 @@ class CampaignAdminTest extends TestCase
         $campaign = Campaign::where('status', 'active')->first();
         $pains = $campaign->sections()->where('type', 'pains')->first();
 
-        // De fábrica: 6 tarjetas, justo después de la franja de servicios.
+        // De fábrica: 6 tarjetas, después de la franja de servicios y del autodiagnóstico.
         $this->assertCount(6, $pains->content['items']);
         $types = $campaign->sections()->orderBy('position')->pluck('type')->all();
-        $this->assertSame('pains', $types[array_search('marquee', $types, true) + 1]);
+        $this->assertSame('quiz', $types[array_search('marquee', $types, true) + 1]);
+        $this->assertSame('pains', $types[array_search('quiz', $types, true) + 1]);
 
         // Todo se edita desde el panel, y se pueden agregar más tarjetas; lo peligroso se descarta.
         $items = $pains->content['items'];

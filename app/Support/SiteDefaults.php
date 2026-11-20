@@ -133,6 +133,14 @@ class SiteDefaults
             'text' => 'UCO360 · Tu área de TI externa',
             'legal' => 'PROINNOVATEC by Grupo CAME',
             'show_contact' => false,
+            // Libro de Reclamaciones virtual: el enlace del pie y los datos del proveedor que salen en cada hoja.
+            'claims_enabled' => true,
+            'claims_label' => 'Libro de Reclamaciones',
+            'provider_name' => '',
+            'provider_ruc' => '',
+            'provider_address' => '',
+            // Documentos legales en PDF (Términos y Condiciones, política de privacidad…): se pueden ver y descargar.
+            'docs' => [['label' => 'Términos y Condiciones', 'file' => null]],
             'bg_color' => null,
             'text_color' => null,
         ];

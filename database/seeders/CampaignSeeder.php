@@ -65,20 +65,7 @@ class CampaignSeeder extends Seeder
                 'items' => VisualesSeeder::SERVICES,
                 'speed' => 'normal',
             ]],
-            ['pains', 'situaciones', '¿Te pasa esto?', true, PainsDefaults::pains()],
-            ['comparison', 'por-que-uco360', 'Por qué UCO360', true, [
-                'title' => '¿Por qué elegir UCO360?',
-                'subtitle' => 'A medida que tu empresa crece, necesita una gestión tecnológica que acompañe sus nuevos desafíos. UCO360 es tu área de TI externa: un equipo de especialistas que atiende a tus usuarios, previene fallas, administra tu infraestructura, protege tu información y coordina con tus proveedores, por una tarifa fija mensual.',
-                'left_label' => 'Técnico freelance («apaga-incendios»)',
-                'right_label' => 'UCO360 — Tu área de TI externa',
-                'rows' => [
-                    ['topic' => 'Enfoque de trabajo', 'left' => 'Reactivo: actúa recién cuando tu personal dejó de trabajar.', 'right' => 'Preventivo: mantenimiento programado y monitoreo continuo.'],
-                    ['topic' => 'Equipo de TI', 'left' => 'Dependencia de una sola persona; si se ausenta, tu empresa espera.', 'right' => 'Equipo de TI multidisciplinario siempre disponible sin interrupciones.'],
-                    ['topic' => 'Proveedores (Internet/ERP)', 'left' => 'Se culpan entre sí y tú pierdes horas haciendo de intermediario.', 'right' => 'Gestión integral: nos encargamos de tus proveedores hasta darte solución.'],
-                    ['topic' => 'Copias de seguridad', 'left' => 'Copias sin verificar que fallan cuando ocurre una emergencia.', 'right' => 'Protección comprobada: supervisión continua y pruebas de recuperación.'],
-                    ['topic' => 'Presencia y control', 'left' => 'Visitas eventuales sin inventario ni claridad para la Gerencia.', 'right' => 'Acompañamiento continuo: visita semanal e informe ejecutivo mensual.'],
-                ],
-            ]],
+            // El autodiagnóstico va antes de «¿Te suena familiar…?».
             ['quiz', 'autodiagnostico', 'Autodiagnóstico', true, [
                 'title' => '¿Qué tan expuesta está tu empresa?',
                 'subtitle' => 'Marca lo que se parece a tu empresa.',
@@ -97,6 +84,20 @@ class CampaignSeeder extends Seeder
                 'selected_label' => 'Lo que marcaste',
                 'cta_label' => 'Revisar mis {n} puntos con un experto',
                 'cta_empty' => 'Agenda tu diagnóstico',
+            ]],
+            ['pains', 'situaciones', '¿Te pasa esto?', true, PainsDefaults::pains()],
+            ['comparison', 'por-que-uco360', 'Por qué UCO360', true, [
+                'title' => '¿Por qué elegir UCO360?',
+                'subtitle' => 'A medida que tu empresa crece, necesita una gestión tecnológica que acompañe sus nuevos desafíos. UCO360 es tu área de TI externa: un equipo de especialistas que atiende a tus usuarios, previene fallas, administra tu infraestructura, protege tu información y coordina con tus proveedores, por una tarifa fija mensual.',
+                'left_label' => 'Técnico freelance («apaga-incendios»)',
+                'right_label' => 'UCO360 — Tu área de TI externa',
+                'rows' => [
+                    ['topic' => 'Enfoque de trabajo', 'left' => 'Reactivo: actúa recién cuando tu personal dejó de trabajar.', 'right' => 'Preventivo: mantenimiento programado y monitoreo continuo.'],
+                    ['topic' => 'Equipo de TI', 'left' => 'Dependencia de una sola persona; si se ausenta, tu empresa espera.', 'right' => 'Equipo de TI multidisciplinario siempre disponible sin interrupciones.'],
+                    ['topic' => 'Proveedores (Internet/ERP)', 'left' => 'Se culpan entre sí y tú pierdes horas haciendo de intermediario.', 'right' => 'Gestión integral: nos encargamos de tus proveedores hasta darte solución.'],
+                    ['topic' => 'Copias de seguridad', 'left' => 'Copias sin verificar que fallan cuando ocurre una emergencia.', 'right' => 'Protección comprobada: supervisión continua y pruebas de recuperación.'],
+                    ['topic' => 'Presencia y control', 'left' => 'Visitas eventuales sin inventario ni claridad para la Gerencia.', 'right' => 'Acompañamiento continuo: visita semanal e informe ejecutivo mensual.'],
+                ],
             ]],
             // Los 4 pilares en versión corta: quedan ocultos porque «Qué incluye cada mes» los explica con detalle.
             ['features', 'servicios', 'Servicios', false, [
