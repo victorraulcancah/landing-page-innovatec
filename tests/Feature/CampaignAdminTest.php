@@ -500,12 +500,16 @@ class CampaignAdminTest extends TestCase
         $this->assertSame(0.2, $devices->firstWhere('name', 'Cámara CCTV')['weight']);
         $this->assertSame(1.5, $devices->firstWhere('name', 'Firewall')['weight']);
 
-        // El plan inicial suma los 29.55 UCO de la maqueta, y 1 UCO = S/ 50 con mínimo de S/ 1,500.
-        $total = $devices->sum(fn ($d) => $d['qty'] * $d['weight']);
-        $this->assertEqualsWithDelta(29.55, $total, 0.001);
+        // Todos los equipos arrancan en 0 (el visitante elige lo suyo); 1 UCO = S/ 50 con mínimo de S/ 1,500.
+        $this->assertSame(0, $devices->sum('qty'));
         $quote = \App\Support\QuoteDefaults::quote();
         $this->assertSame(50, $quote['uco_price']);
         $this->assertSame(1500, $quote['min_price']);
+
+        // El plan de la maqueta (15 PC, 15 licencias, 1 sede…) suma 29.55 UCO y se cobra el mínimo.
+        $maqueta = [15, 15, 1, 1, 2, 4, 2, 2, 1, 1, 2, 4, 1, 1];
+        $total = $devices->values()->sum(fn ($d, $i) => $maqueta[$i] * $d['weight']);
+        $this->assertEqualsWithDelta(29.55, $total, 0.001);
         $this->assertSame(1500, (int) max($quote['min_price'], $total * $quote['uco_price']));
     }
 
@@ -745,11 +749,11 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('Ver más detalle', $saved['more_label']);
     }
 
-    public function test_el_nombre_el_ruc_y_el_celular_se_validan(): void
+    public function test_el_nombre_la_empresa_y_el_celular_se_validan(): void
     {
         $this->seed(\Database\Seeders\CampaignSeeder::class);
         $campaign = Campaign::where('status', 'active')->first();
-        $ok = ['campaign_id' => $campaign->id, 'name' => 'Ana Pérez', 'company' => '20100070970', 'phone' => '987 654 321'];
+        $ok = ['campaign_id' => $campaign->id, 'name' => 'Ana Pérez', 'company' => 'ACME SAC', 'phone' => '987654321'];
 
         // Las reglas se prueban directamente: el formulario limita los envíos por minuto.
         $rules = \App\Support\LeadRules::class;
@@ -760,17 +764,17 @@ class CampaignAdminTest extends TestCase
             $this->assertTrue($rules::isName($good), "Nombre válido rechazado: {$good}");
         }
 
-        foreach (['85646894651', '20100070971', '2010007097', '856468946515146', '@@@'] as $bad) {
+        foreach (['85646894651', '20100070970', '12345', '@@@', 'A'] as $bad) {
             $this->assertFalse($rules::isCompany($bad), "Empresa inválida aceptada: {$bad}");
         }
-        foreach (['20100070970', '20131312955', 'Grupo 360 SAC', '3M Perú S.A.'] as $good) {
+        foreach (['ACME SAC', 'Grupo 360 SAC', '3M Perú S.A.', 'Hotel Los Andes'] as $good) {
             $this->assertTrue($rules::isCompany($good), "Empresa válida rechazada: {$good}");
         }
 
-        foreach (['326596556565656', '12345', '887654321', '99abc9999', '9876543210'] as $bad) {
+        foreach (['326596556565656', '12345', '887654321', '99abc9999', '9876543210', '+51987654321', '+57 3001234567'] as $bad) {
             $this->assertFalse($rules::isPhone($bad), "Celular inválido aceptado: {$bad}");
         }
-        foreach (['987654321', '987 654 321', '+51 987-654-321', '51987654321', '+57 3001234567'] as $good) {
+        foreach (['987654321', '987 654 321', '912345678'] as $good) {
             $this->assertTrue($rules::isPhone($good), "Celular válido rechazado: {$good}");
         }
 
@@ -911,12 +915,12 @@ class CampaignAdminTest extends TestCase
         $message = 'Cotizador (referencial): 29.55 UCO → S/ 1,500.00 / mes + IGV. Equipos: 15 PC / Laptop, 1 Sede / Site.';
 
         $this->post(route('leads.store'), [
-            'name' => 'Ana Pérez', 'company' => '20100070970', 'phone' => '999888777',
+            'name' => 'Ana Pérez', 'company' => 'ACME SAC', 'phone' => '999888777',
             'message' => $message, 'website_url' => '', 'campaign_id' => $campaign->id,
         ])->assertSessionHasNoErrors();
 
         $lead = Lead::first();
-        $this->assertSame('20100070970', $lead->company);
+        $this->assertSame('ACME SAC', $lead->company);
         $this->assertSame($message, $lead->message);
         $this->assertSame($campaign->id, $lead->campaign_id);
     }

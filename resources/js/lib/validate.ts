@@ -21,60 +21,30 @@ export function isValidName(value: string): boolean {
     return v.length >= 2 && /^[\p{L}\p{M}][\p{L}\p{M}\s.'’-]*$/u.test(v);
 }
 
-// ---- Empresa: un RUC (11 dígitos) o el nombre de la empresa ---------------------------------------------------
+// ---- Empresa: el nombre de la empresa (letras, números y signos comunes) ------------------------------------
 
-/** Sin letras se escribe un RUC: solo dígitos (máximo 11). Con letras es un nombre: letras, números y signos comunes. */
 export function cleanCompany(value: string): string {
-    if (!HAS_LETTER.test(value)) {
-        let digits = 0;
-        return [...value.replace(/[^\d\s-]/g, '')]
-            .filter((ch) => (/\d/.test(ch) ? ++digits <= 11 : true))
-            .join('')
-            .replace(/^\s+/, '')
-            .slice(0, 20);
-    }
     return value
         .replace(/[^\p{L}\p{M}\p{N}\s.,&'’\-/()]/gu, '')
+        .replace(/\s{2,}/g, ' ')
         .replace(/^\s+/, '')
         .slice(0, 150);
 }
 
-/** RUC peruano: 11 dígitos que empiezan con 10, 15, 16, 17 o 20 y cumplen el dígito verificador (módulo 11). */
-export function isValidRuc(value: string): boolean {
-    const d = value.replace(/[\s-]+/g, '');
-    if (!/^(10|15|16|17|20)\d{9}$/.test(d)) return false;
-    const weights = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
-    const sum = weights.reduce((acc, w, i) => acc + Number(d[i]) * w, 0);
-    return (11 - (sum % 11)) % 10 === Number(d[10]);
-}
-
+/** Un nombre de empresa lleva al menos una letra (no se acepta solo números). */
 export function isValidCompany(value: string): boolean {
     const v = value.trim();
-    if (!v || v.length > 150) return false;
-    if (!HAS_LETTER.test(v)) return isValidRuc(v);
-    return /^[\p{L}\p{M}\p{N}\s.,&'’\-/()]+$/u.test(v);
+    return v.length >= 2 && v.length <= 150 && HAS_LETTER.test(v) && /^[\p{L}\p{M}\p{N}\s.,&'’\-/()]+$/u.test(v);
 }
 
-// ---- Celular / WhatsApp ----------------------------------------------------------------------------------------
+// ---- Celular / WhatsApp: 9 números ---------------------------------------------------------------------------------
 
-/**
- * Solo números, «+» al inicio, espacios y guiones. Corta el largo: 9 dígitos (celular peruano), 11 si empieza con 51,
- * y hasta 15 si lleva «+» (otro país).
- */
+/** Solo números, máximo 9. */
 export function cleanPhone(value: string): string {
-    const kept = value.replace(/[^\d+\-()\s]/g, '').replace(/(?!^)\+/g, '');
-    const digits = kept.replace(/\D/g, '');
-    const cap = kept.trimStart().startsWith('+') ? 15 : digits.startsWith('0051') ? 13 : digits.startsWith('51') ? 11 : 9;
-    let count = 0;
-    return [...kept]
-        .filter((ch) => (/\d/.test(ch) ? ++count <= cap : true))
-        .join('')
-        .replace(/^\s+/, '')
-        .slice(0, 24);
+    return value.replace(/\D/g, '').slice(0, 9);
 }
 
-/** Celular peruano de 9 dígitos que empieza con 9 (con o sin +51), o un número de otro país con «+». */
+/** Celular peruano: 9 números que empiezan con 9. */
 export function isValidPhone(value: string): boolean {
-    const compact = value.trim().replace(/[\s\-()]+/g, '');
-    return /^(?:\+?51|0051)?9\d{8}$/.test(compact) || /^\+(?!51)\d{8,15}$/.test(compact);
+    return /^9\d{8}$/.test(value.replace(/[\s-]+/g, ''));
 }

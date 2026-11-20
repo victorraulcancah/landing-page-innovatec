@@ -40,8 +40,8 @@ class FormDefaults
 
         return [
             $f('name', 'Nombre completo', 'Tu nombre y apellido', '', true),
-            $f('company', 'RUC o nombre de tu empresa', 'RUC o nombre comercial', '', true),
-            $f('phone', 'Celular o WhatsApp', '999 999 999', '', true),
+            $f('company', 'Nombre de tu empresa', 'Nombre comercial', '', true),
+            $f('phone', 'Celular o WhatsApp', '987654321', '', true),
             $f('email', 'Correo electrónico', 'correo@tuempresa.com', '', true),
             $f('choice', '¿Cómo ven sus equipos hoy?', '', "Llamamos a un técnico cuando algo falla\nTenemos soporte pero no se da abasto\nNo tenemos a nadie fijo viendo esto\nQueremos cambiar de proveedor actual"),
             $f('choice', 'Tamaño aproximado', '', "De 10 a 25 computadoras\nDe 26 a 60 computadoras\nDe 61 a 120 computadoras\nMás de 120 computadoras / Varios locales"),

@@ -160,8 +160,8 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
                                     className="lp-input"
                                     type={INPUT[f.kind].type}
                                     autoComplete={INPUT[f.kind].auto}
-                                    inputMode={f.kind === 'phone' ? 'tel' : undefined}
-                                    maxLength={f.kind === 'phone' ? 20 : undefined}
+                                    inputMode={f.kind === 'phone' ? 'numeric' : undefined}
+                                    maxLength={f.kind === 'phone' ? 9 : undefined}
                                     placeholder={f.placeholder}
                                     required={f.required}
                                     value={value}

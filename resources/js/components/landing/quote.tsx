@@ -104,7 +104,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
         e.preventDefault();
         const missing = {
             name: t('error_name', 'Escribe tu nombre.'),
-            company: t('error_company', 'Escribe el RUC o el nombre de tu empresa.'),
+            company: t('error_company', 'Escribe el nombre de tu empresa.'),
             phone: t('error_phone', 'Escribe tu número de WhatsApp.'),
         } as const;
         form.clearErrors();
@@ -122,11 +122,11 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                 invalid = true;
             }
             if (!isValidCompany(form.data.company)) {
-                form.setError('company', t('error_company_format', 'Escribe un RUC válido de 11 dígitos o el nombre de tu empresa.'));
+                form.setError('company', t('error_company_format', 'Escribe el nombre de tu empresa (con letras).'));
                 invalid = true;
             }
             if (!isValidPhone(form.data.phone)) {
-                form.setError('phone', t('error_phone_format', 'Escribe un celular válido de 9 dígitos (ej. 987 654 321).'));
+                form.setError('phone', t('error_phone_format', 'Escribe un celular de 9 números que empiece con 9 (ej. 987654321).'));
                 invalid = true;
             }
         }
@@ -186,7 +186,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
             <div className="lp-quote__tabs" role="tablist" aria-label="Grupos de equipos">
                 {groups.map((g) => (
                     <button key={g} type="button" role="tab" aria-selected={tab === g} onClick={() => setTab(g)}>
-                        {g} ({devices.filter((d) => d.group === g).length})
+                        {g}
                     </button>
                 ))}
                 {t('all_label', 'Ver los {n} ítems') && (
@@ -269,13 +269,13 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                             {err.name && <span className="lp-error">{err.name}</span>}
                         </div>
                         <div>
-                            <label htmlFor={`${uid}-company`}>{t('company_label', 'RUC o nombre de tu empresa *')}</label>
+                            <label htmlFor={`${uid}-company`}>{t('company_label', 'Nombre de tu empresa *')}</label>
                             <input id={`${uid}-company`} className="lp-input" autoComplete="organization" inputMode="text" maxLength={150} value={form.data.company} aria-invalid={err.company ? true : undefined} onChange={(e) => form.setData('company', cleanCompany(e.target.value))} />
                             {err.company && <span className="lp-error">{err.company}</span>}
                         </div>
                         <div>
                             <label htmlFor={`${uid}-phone`}>{t('phone_label', 'Número de WhatsApp *')}</label>
-                            <input id={`${uid}-phone`} className="lp-input" type="tel" inputMode="tel" maxLength={20} autoComplete="tel" value={form.data.phone} aria-invalid={err.phone ? true : undefined} onChange={(e) => form.setData('phone', cleanPhone(e.target.value))} />
+                            <input id={`${uid}-phone`} className="lp-input" type="tel" inputMode="numeric" maxLength={9} autoComplete="tel" value={form.data.phone} aria-invalid={err.phone ? true : undefined} onChange={(e) => form.setData('phone', cleanPhone(e.target.value))} />
                             {err.phone && <span className="lp-error">{err.phone}</span>}
                         </div>
                         <div className="lp-quote__go">

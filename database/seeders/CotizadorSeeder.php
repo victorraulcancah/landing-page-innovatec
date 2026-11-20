@@ -26,9 +26,56 @@ class CotizadorSeeder extends Seeder
         $this->cotizador($campaign);
         $this->calculadora($campaign);
         $this->rubros($campaign);
+        $this->cotizadorSimple($campaign);
         $this->call(PainsSeeder::class);
         $this->call(PillarsSeeder::class);
         $this->call(LeadFormSeeder::class);
+    }
+
+    /**
+     * Quita del cotizador los planes rápidos y el número de la pestaña «Todos», pero solo si siguen siendo los de
+     * fábrica: lo que ya se editó en el panel no se toca. Se puede repetir.
+     */
+    private function cotizadorSimple(Campaign $campaign): void
+    {
+        $factoryPresets = "15 PC · 1 local\n30 PC · 2 locales\n60 PC · 3 locales";
+
+        foreach ($campaign->sections()->where('type', 'quote')->get() as $quote) {
+            $content = $quote->content ?? [];
+            $changed = false;
+
+            if (str_replace("\r\n", "\n", trim((string) ($content['presets'] ?? ''))) === $factoryPresets) {
+                $content['presets'] = '';
+                $changed = true;
+            }
+            $factory = [
+                'company_label' => ['RUC o nombre de tu empresa *', 'Nombre de tu empresa *'],
+                'error_company' => ['Escribe el RUC o el nombre de tu empresa.', 'Escribe el nombre de tu empresa.'],
+                'error_company_format' => ['Escribe un RUC válido de 11 dígitos o el nombre de tu empresa.', 'Escribe el nombre de tu empresa (con letras).'],
+                'error_phone_format' => ['Escribe un celular válido de 9 dígitos (ej. 987 654 321).', 'Escribe un celular de 9 números que empiece con 9 (ej. 987654321).'],
+            ];
+            foreach ($factory as $key => [$before, $after]) {
+                if (($content[$key] ?? null) === $before) {
+                    $content[$key] = $after;
+                    $changed = true;
+                }
+            }
+            // Las cantidades iniciales de fábrica pasan a 0; si ya se cambiaron en el panel, no se tocan.
+            $factoryQty = [15, 15, 1, 1, 2, 4, 2, 2, 1, 1, 2, 4, 1, 1];
+            $devices = $content['devices'] ?? [];
+            if (count($devices) === count($factoryQty) && array_map(fn ($d) => (int) ($d['qty'] ?? -1), $devices) === $factoryQty) {
+                $content['devices'] = array_map(fn ($d) => [...$d, 'qty' => 0], $devices);
+                $changed = true;
+            }
+            if (($content['all_label'] ?? null) === 'Todos ({n})') {
+                $content['all_label'] = 'Todos';
+                $changed = true;
+            }
+
+            if ($changed) {
+                $quote->update(['content' => SectionTypes::sanitizeContent('quote', $content)]);
+            }
+        }
     }
 
     /** Agrega los rubros bajo los botones de la portada solo si todavía no los tiene (no pisa lo que se editó). */
