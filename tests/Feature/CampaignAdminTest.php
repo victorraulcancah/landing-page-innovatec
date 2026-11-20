@@ -508,7 +508,7 @@ class CampaignAdminTest extends TestCase
 
         // El plan de la maqueta (15 PC, 15 licencias, 1 sede…) suma 29.55 UCO y se cobra el mínimo.
         $maqueta = [15, 15, 1, 1, 2, 4, 2, 2, 1, 1, 2, 4, 1, 1];
-        $total = $devices->values()->sum(fn ($d, $i) => $maqueta[$i] * $d['weight']);
+        $total = $devices->values()->map(fn ($d, $i) => $maqueta[$i] * $d['weight'])->sum();
         $this->assertEqualsWithDelta(29.55, $total, 0.001);
         $this->assertSame(1500, (int) max($quote['min_price'], $total * $quote['uco_price']));
     }
@@ -899,7 +899,7 @@ class CampaignAdminTest extends TestCase
         $fields = collect(SectionTypes::schemaForClient()['quote']['content'])->pluck('key');
 
         foreach (['uco_price', 'min_price', 'currency', 'presets', 'devices', 'uco_label', 'clear_label', 'all_label', 'units_label', 'empty_label',
-            'name_label', 'company_label', 'phone_label', 'error_name', 'error_company', 'error_phone', 'gate_title', 'gate_button',
+            'name_label', 'phone_label', 'error_name', 'error_phone', 'error_name_format', 'error_phone_format', 'gate_title', 'gate_button',
             'result_label', 'result_unit', 'min_note', 'benefits', 'whatsapp_cta', 'diag_cta', 'disclaimer', 'summary_prefix', 'reveal', 'show_uco'] as $key) {
             $this->assertTrue($fields->contains($key), "Falta editar {$key} en el panel");
         }

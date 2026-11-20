@@ -4345,7 +4345,7 @@ textarea.lp-input {
 
 @container (min-width: 44rem) {
     .lp-quote__fields {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .lp-quote__gate-title {
         font-size: 0.95rem;

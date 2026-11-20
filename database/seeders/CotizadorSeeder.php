@@ -48,10 +48,13 @@ class CotizadorSeeder extends Seeder
                 $content['presets'] = '';
                 $changed = true;
             }
+            // El cotizador ya no pide la empresa: sus textos dejan de guardarse (al guardar, la limpieza los descarta).
+            foreach (['company_label', 'error_company', 'error_company_format'] as $obsolete) {
+                if (array_key_exists($obsolete, $content)) {
+                    $changed = true;
+                }
+            }
             $factory = [
-                'company_label' => ['RUC o nombre de tu empresa *', 'Nombre de tu empresa *'],
-                'error_company' => ['Escribe el RUC o el nombre de tu empresa.', 'Escribe el nombre de tu empresa.'],
-                'error_company_format' => ['Escribe un RUC válido de 11 dígitos o el nombre de tu empresa.', 'Escribe el nombre de tu empresa (con letras).'],
                 'error_phone_format' => ['Escribe un celular válido de 9 dígitos (ej. 987 654 321).', 'Escribe un celular de 9 números que empiece con 9 (ej. 987654321).'],
             ];
             foreach ($factory as $key => [$before, $after]) {

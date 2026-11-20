@@ -1,5 +1,5 @@
 import { track } from '@/lib/analytics';
-import { cleanCompany, cleanName, cleanPhone, isValidCompany, isValidName, isValidPhone } from '@/lib/validate';
+import { cleanName, cleanPhone, isValidName, isValidPhone } from '@/lib/validate';
 import { ctaHref, ctaOf, flag, list, text, whatsappHref, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json } from '@/types/cms';
@@ -68,12 +68,13 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
     const open = text(c, 'reveal') === 'open';
 
     const initial = (plan: number) => devices.map((d) => d.plans[plan] ?? d.qty);
-    const [qty, setQty] = useState<number[]>(() => initial(0));
+    // Sin planes rápidos, cada equipo arranca con su cantidad inicial (0 de fábrica); con planes, con el primero.
+    const [qty, setQty] = useState<number[]>(() => (plans.length > 0 ? initial(0) : devices.map((d) => d.qty)));
     const [plan, setPlan] = useState<number | null>(plans.length > 0 ? 0 : null);
     const [tab, setTab] = useState<string>(groups[0] ?? 'all');
     const [unlocked, setUnlocked] = useState(false);
 
-    const form = useForm({ name: '', company: '', phone: '', message: '', website_url: '', campaign_id: campaignId });
+    const form = useForm({ name: '', phone: '', message: '', website_url: '', campaign_id: campaignId });
 
     const totalUco = Math.round(devices.reduce((sum, d, i) => sum + (qty[i] ?? 0) * d.weight, 0) * 100) / 100;
     const raw = totalUco * ucoPrice;
@@ -104,7 +105,6 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
         e.preventDefault();
         const missing = {
             name: t('error_name', 'Escribe tu nombre.'),
-            company: t('error_company', 'Escribe el nombre de tu empresa.'),
             phone: t('error_phone', 'Escribe tu número de WhatsApp.'),
         } as const;
         form.clearErrors();
@@ -115,14 +115,10 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                 invalid = true;
             }
         });
-        // Si todo está escrito, se revisa que también sea correcto: nombre con letras, RUC válido y celular de 9 dígitos.
+        // Si todo está escrito, se revisa que también sea correcto: nombre con letras y celular de 9 números.
         if (!invalid) {
             if (!isValidName(form.data.name)) {
                 form.setError('name', t('error_name_format', 'Escribe tu nombre solo con letras.'));
-                invalid = true;
-            }
-            if (!isValidCompany(form.data.company)) {
-                form.setError('company', t('error_company_format', 'Escribe el nombre de tu empresa (con letras).'));
                 invalid = true;
             }
             if (!isValidPhone(form.data.phone)) {
@@ -267,11 +263,6 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
                             <label htmlFor={`${uid}-name`}>{t('name_label', 'Nombre completo *')}</label>
                             <input id={`${uid}-name`} className="lp-input" autoComplete="name" maxLength={120} value={form.data.name} aria-invalid={err.name ? true : undefined} onChange={(e) => form.setData('name', cleanName(e.target.value))} />
                             {err.name && <span className="lp-error">{err.name}</span>}
-                        </div>
-                        <div>
-                            <label htmlFor={`${uid}-company`}>{t('company_label', 'Nombre de tu empresa *')}</label>
-                            <input id={`${uid}-company`} className="lp-input" autoComplete="organization" inputMode="text" maxLength={150} value={form.data.company} aria-invalid={err.company ? true : undefined} onChange={(e) => form.setData('company', cleanCompany(e.target.value))} />
-                            {err.company && <span className="lp-error">{err.company}</span>}
                         </div>
                         <div>
                             <label htmlFor={`${uid}-phone`}>{t('phone_label', 'Número de WhatsApp *')}</label>

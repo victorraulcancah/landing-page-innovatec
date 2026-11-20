@@ -3,7 +3,7 @@ import { track } from '@/lib/analytics';
 import { ctaHref, ctaOf, flag, sectionLook, text, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json, type ThemeData } from '@/types/cms';
-import { ArrowRight, Play, Square, X } from 'lucide-react';
+import { ArrowRight, Check, Play, Square, X } from 'lucide-react';
 import { type CSSProperties, useEffect, useId, useRef, useState } from 'react';
 
 const num = (c: Record<string, Json>, key: string, fallback: number): number => {
@@ -198,6 +198,36 @@ export function Quiz({ section, ctx }: { section: PublicSection; ctx: CtaContext
                     <span style={{ '--s': ratio } as CSSProperties} />
                 </div>
                 <p className="lp-quiz__msg">{message}</p>
+
+                {/* Lo que el visitante ya marcó: se ve aquí, con la opción de quitar cada punto. */}
+                {count > 0 && (
+                    <div className="mt-4 text-left duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2">
+                        <p className="mb-2.5 flex items-center gap-2 font-[family-name:var(--font-head)] text-xs font-extrabold uppercase tracking-wider text-[var(--line)]">
+                            <Check size={14} strokeWidth={3} aria-hidden />
+                            {text(c, 'selected_label') || 'Lo que marcaste'} ({count})
+                        </p>
+                        <ul className="grid gap-2">
+                            {items.map((item, i) =>
+                                checked[i] ? (
+                                    <li key={i}>
+                                        <button
+                                            type="button"
+                                            onClick={() => toggle(i)}
+                                            aria-label={`Quitar: ${item}`}
+                                            className="group/chip flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[var(--line)]/70 bg-[var(--line)]/12 py-2 pl-3.5 pr-2.5 text-left text-sm font-semibold leading-snug transition duration-300 hover:bg-[var(--line)]/25 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2"
+                                        >
+                                            <span>{item}</span>
+                                            <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[var(--line)] text-[var(--bg)] transition duration-200 group-hover/chip:scale-110">
+                                                <X size={12} strokeWidth={3} aria-hidden />
+                                            </span>
+                                        </button>
+                                    </li>
+                                ) : null,
+                            )}
+                        </ul>
+                    </div>
+                )}
+
                 {label && (
                     <a className="lp-btn" href={ctaHref({ label, action: 'lead_form', value: '' }, ctx)} onClick={prefill}>
                         {label}

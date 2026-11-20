@@ -94,6 +94,7 @@ class CampaignSeeder extends Seeder
                 'msg_low' => 'Exposición moderada: conviene ordenar estos puntos antes de que fallen.',
                 'msg_high' => 'Exposición alta: una falla te tomaría por sorpresa.',
                 'msg_critical' => 'Riesgo crítico: tu empresa depende de la suerte.',
+                'selected_label' => 'Lo que marcaste',
                 'cta_label' => 'Revisar mis {n} puntos con un experto',
                 'cta_empty' => 'Agenda tu diagnóstico',
             ]],
