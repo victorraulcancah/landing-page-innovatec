@@ -74,7 +74,9 @@ function whatsappMessage(contact: ContactData, fields: FormField[], data: { name
         const isExtra = f.kind === 'choice' || f.kind === 'text';
         const value = isExtra ? data.extras[++extra] : data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'];
         if (!value?.trim() || f.kind === 'message') continue;
-        lines.push(`${f.label.replace(/\s*\(opcional\)\s*$/i, '')}: ${value.trim()}`);
+        // Etiquetas cortas para los datos de la persona; las preguntas extra llevan su propia pregunta.
+        const label = ({ name: 'Nombre', company: 'Empresa', phone: 'WhatsApp', email: 'Correo' } as Record<string, string>)[f.kind] ?? f.label.replace(/\s*\(opcional\)\s*$/i, '');
+        lines.push(`${label}: ${value.trim()}`);
     }
     const concern = data.message.trim();
     return [contact.whatsapp_message?.trim(), lines.length ? `\n${lines.join('\n')}` : '', concern ? `\nConsulta: ${concern}` : ''].filter(Boolean).join('\n').trim();
@@ -228,7 +230,6 @@ export function LeadForm({ campaignId, content, contact, preview }: LeadFormProp
                                     <a href={consentLink} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2">
                                         {text(content, 'form_consent_link_label')}
                                     </a>
-                                    .
                                 </>
                             )}
                         </span>
