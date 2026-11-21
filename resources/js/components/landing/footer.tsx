@@ -1,7 +1,7 @@
-import { DocModal, docFileName } from '@/components/landing/doc-modal';
-import { mapLinks, resolveColor, readableOn, sectionLook, whatsappHref } from '@/lib/landing';
-import { type ContactData, type FooterData, type FooterDoc, type ThemeData } from '@/types/cms';
-import { BookOpen, Download, ExternalLink, FileText, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { DocModal } from '@/components/landing/doc-modal';
+import { mapLinks, resolveColor, readableOn, safeHref, sectionLook, whatsappHref } from '@/lib/landing';
+import { type ContactData, type FooterColumn, type FooterData, type FooterDoc, type FooterLink, type ThemeData } from '@/types/cms';
+import { ExternalLink, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { type CSSProperties, useState } from 'react';
 
 export function ContactList({ contact }: { contact: ContactData }) {
@@ -68,66 +68,109 @@ export function Footer({ footer, contact, theme }: { footer: FooterData; contact
     const look = sectionLook({ bg_color: bg, text_color: fg, accent_color: null, align: 'left', padding: 'md', width: 'normal', image_position: 'right' }, theme);
     const [doc, setDoc] = useState<FooterDoc | null>(null);
 
-    // El botón de cada documento se muestra siempre; el texto y el PDF son opcionales.
     const docs = (footer.docs ?? []).filter((d) => d.label);
+    const norm = (s: string) => s.trim().toLowerCase();
     const provider = [footer.provider_name, footer.provider_ruc && `RUC ${footer.provider_ruc}`, footer.provider_address].filter(Boolean).join(' · ');
-    const hasLinks = footer.claims_enabled || docs.length > 0;
     const line = 'border-[color-mix(in_srgb,var(--fg)_16%,transparent)]';
+
+    // Columnas de enlaces (Ajustes del sitio → Pie de página). Lo que existe pero ninguna columna enlaza (el Libro de
+    // Reclamaciones y los documentos legales) se agrega al final de la última columna, para que nada deje de verse.
+    const base = footer.columns ?? [];
+    const linked = base.flatMap((c) => c.links);
+    const extra: FooterLink[] = [
+        ...(footer.claims_enabled && !linked.some((l) => l.kind === 'claims') ? [{ label: footer.claims_label || 'Libro de Reclamaciones', kind: 'claims' as const, value: '' }] : []),
+        ...docs.filter((d) => !linked.some((l) => l.kind === 'doc' && norm(l.value || l.label) === norm(d.label))).map((d) => ({ label: d.label, kind: 'doc' as const, value: d.label })),
+    ];
+    const columns: FooterColumn[] = extra.length === 0 ? base : base.length === 0 ? [{ title: 'Servicio al cliente', links: extra }] : [...base.slice(0, -1), { ...base[base.length - 1], links: [...base[base.length - 1].links, ...extra] }];
+
+    const itemClass = 'cursor-pointer text-left opacity-85 transition hover:underline hover:underline-offset-4 hover:opacity-100';
+    const renderLink = (l: FooterLink) => {
+        switch (l.kind) {
+            case 'claims':
+            case 'lookup':
+                return footer.claims_enabled ? (
+                    <a href={route(l.kind === 'claims' ? 'claims.create' : 'claims.lookup')} className={itemClass}>
+                        {l.label}
+                    </a>
+                ) : null;
+            case 'doc': {
+                const d = docs.find((x) => norm(x.label) === norm(l.value || l.label));
+                return d ? (
+                    <button type="button" onClick={() => setDoc(d)} aria-haspopup="dialog" className={itemClass}>
+                        {l.label}
+                    </button>
+                ) : null;
+            }
+            case 'anchor':
+                return (
+                    <a href={`${route('home')}#${l.value}`} className={itemClass}>
+                        {l.label}
+                    </a>
+                );
+            case 'whatsapp':
+                return (
+                    <a href={whatsappHref(contact, l.value || undefined)} target="_blank" rel="noopener noreferrer" className={itemClass}>
+                        {l.label}
+                    </a>
+                );
+            case 'phone':
+                return (
+                    <a href={`tel:${(l.value || contact.phone).replace(/[^\d+]/g, '')}`} className={itemClass}>
+                        {l.label}
+                    </a>
+                );
+            case 'email':
+                return (
+                    <a href={`mailto:${l.value || contact.email}`} className={itemClass}>
+                        {l.label}
+                    </a>
+                );
+            default: {
+                const href = safeHref(l.value);
+                return (
+                    <a href={href} {...(href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={itemClass}>
+                        {l.label}
+                    </a>
+                );
+            }
+        }
+    };
 
     return (
         <footer className="lp-footer" style={look.style}>
-            <div className="lp-footer__inner">
-                <div>
-                    {footer.text && <p className="lp-footer__text">{footer.text}</p>}
-                    {footer.legal && <p className="lp-footer__legal">{footer.legal}</p>}
-                    {contact.website && <p className="lp-footer__legal">{contact.website}</p>}
-                </div>
-                {footer.show_contact && <ContactList contact={contact} />}
-
-                {/* Libro de Reclamaciones y documentos legales (se editan en Ajustes del sitio → Pie de página). */}
-                {hasLinks && (
-                    <nav aria-label="Información legal" className={`col-span-full flex flex-wrap items-center gap-x-7 gap-y-4 border-t pt-5 ${line}`}>
-                        {footer.claims_enabled && (
-                            <a
-                                href={route('claims.create')}
-                                className={`group inline-flex items-center gap-3 rounded-xl border bg-white/5 py-2 pl-2 pr-4 text-left text-sm font-bold transition hover:bg-white/10 ${line}`}
-                            >
-                                <span className="grid size-9 place-items-center rounded-lg bg-[#be123c] text-white transition group-hover:scale-105">
-                                    <BookOpen size={20} aria-hidden />
-                                </span>
-                                {footer.claims_label || 'Libro de Reclamaciones'}
-                            </a>
-                        )}
-                        {docs.map((d, i) => (
-                            <div key={i} className={`inline-flex items-stretch overflow-hidden rounded-xl border bg-white/5 ${line}`}>
-                                <button
-                                    type="button"
-                                    onClick={() => setDoc(d)}
-                                    aria-haspopup="dialog"
-                                    className="group inline-flex cursor-pointer items-center gap-3 py-2 pl-2 pr-4 text-left text-sm font-bold transition hover:bg-white/10"
-                                >
-                                    <span className="grid size-9 place-items-center rounded-lg bg-white/15 transition group-hover:scale-105">
-                                        <FileText size={20} aria-hidden />
-                                    </span>
-                                    {d.label}
-                                </button>
-                                {d.file && (
-                                    <a
-                                        href={d.file}
-                                        download={docFileName(d.label)}
-                                        title={`Descargar ${d.label} (PDF)`}
-                                        aria-label={`Descargar ${d.label} (PDF)`}
-                                        className={`grid w-11 place-items-center border-l transition hover:bg-white/10 ${line}`}
-                                    >
-                                        <Download size={18} aria-hidden />
-                                    </a>
-                                )}
+            <div className="mx-auto max-w-[80rem] px-5">
+                <div className={`grid gap-x-8 gap-y-10 border-t pt-8 sm:grid-cols-2 lg:[grid-template-columns:var(--cols)] ${line}`} style={{ '--cols': `minmax(0,1.25fr) repeat(${Math.max(columns.length, 1)}, minmax(0,1fr))` } as CSSProperties}>
+                    <div className="sm:col-span-2 lg:col-span-1">
+                        {footer.text && <p className="lp-footer__text">{footer.text}</p>}
+                        {footer.legal && <p className="lp-footer__legal">{footer.legal}</p>}
+                        {contact.website && <p className="lp-footer__legal">{contact.website}</p>}
+                        {footer.show_contact && (
+                            <div className="mt-5">
+                                <ContactList contact={contact} />
                             </div>
-                        ))}
-                    </nav>
-                )}
+                        )}
+                    </div>
 
-                {provider && <p className={`col-span-full text-xs opacity-70 ${hasLinks ? '' : `border-t pt-5 ${line}`}`}>{provider}</p>}
+                    {columns.map((c, i) => {
+                        const items = c.links.map((l, k) => ({ key: `${i}-${k}`, node: renderLink(l) })).filter((x) => x.node);
+                        if (!c.title && items.length === 0) return null;
+                        return (
+                            <nav key={i} aria-label={c.title || 'Enlaces'}>
+                                {c.title && <h2 className="font-[family-name:var(--font-head)] text-[0.95rem] font-extrabold tracking-wide">{c.title}</h2>}
+                                <ul className="mt-4 grid gap-2.5 text-sm">
+                                    {items.map((x) => (
+                                        <li key={x.key} className="flex items-start gap-2.5">
+                                            <span aria-hidden className="mt-[0.6rem] size-1 shrink-0 rounded-full bg-current opacity-50" />
+                                            {x.node}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
+                        );
+                    })}
+                </div>
+
+                {provider && <p className="mt-10 text-xs opacity-70">{provider}</p>}
             </div>
 
             {doc && <DocModal doc={doc} onClose={() => setDoc(null)} />}

@@ -120,6 +120,10 @@ export type AnalyticsData = {
 
 export type FooterDoc = { label: string; text?: string; file: string | null };
 
+export type FooterLink = { label: string; kind: 'anchor' | 'url' | 'claims' | 'lookup' | 'doc' | 'whatsapp' | 'phone' | 'email'; value: string };
+
+export type FooterColumn = { title: string; links: FooterLink[] };
+
 export type FooterData = {
     text: string;
     legal: string;
@@ -130,6 +134,7 @@ export type FooterData = {
     provider_ruc: string;
     provider_address: string;
     docs: FooterDoc[];
+    columns: FooterColumn[];
     bg_color: string | null;
     text_color: string | null;
 };

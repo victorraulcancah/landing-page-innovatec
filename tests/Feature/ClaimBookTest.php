@@ -186,6 +186,44 @@ class ClaimBookTest extends TestCase
         $this->assertNotNull($claim->answered_at);
     }
 
+    public function test_el_pie_se_arma_en_columnas_de_enlaces_editables(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $footer = Setting::get('footer');
+
+        // De fábrica: 3 columnas, y el Libro y los Términos están en «Servicio al cliente».
+        $this->assertSame(['Conócenos', 'Soluciones', 'Servicio al cliente'], array_column($footer['columns'], 'title'));
+        $kinds = array_column($footer['columns'][2]['links'], 'kind');
+        $this->assertContains('claims', $kinds);
+        $this->assertContains('doc', $kinds);
+
+        $this->put(route('site.update', 'footer'), [
+            ...$footer,
+            'columns' => [
+                ['title' => 'Empresa', 'links' => [
+                    ['label' => 'Inicio', 'kind' => 'anchor', 'value' => '#inicio'],
+                    ['label' => 'Blog', 'kind' => 'url', 'value' => 'https://proinnovatec.com/blog'],
+                    ['label' => 'Malo', 'kind' => 'url', 'value' => 'javascript:alert(1)'],
+                    ['label' => '', 'kind' => 'anchor', 'value' => 'sin-texto'],
+                ]],
+                ['title' => '', 'links' => []],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $saved = Setting::get('footer')['columns'];
+        $this->assertCount(1, $saved);
+        $links = $saved[0]['links'];
+        $this->assertCount(3, $links);
+        $this->assertSame('inicio', $links[0]['value']);
+        $this->assertSame('https://proinnovatec.com/blog', $links[1]['value']);
+        $this->assertSame('', $links[2]['value']);
+
+        $this->put(route('site.update', 'footer'), [...$footer, 'columns' => [['title' => 'X', 'links' => [['label' => 'Y', 'kind' => 'inventado', 'value' => '']]]]])
+            ->assertSessionHasErrors('columns.0.links.0.kind');
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->where('footer.columns.0.title', 'Empresa'));
+    }
+
     public function test_el_pie_guarda_documentos_pdf_y_los_datos_del_proveedor(): void
     {
         $this->actingAs(User::factory()->create());

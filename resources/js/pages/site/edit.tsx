@@ -72,7 +72,7 @@ export default function SiteEdit(props: Props) {
 
                 <ColorTokensProvider value={{ labels: props.colorTokens, theme: props.theme as unknown as Record<string, string> }}>
                     {tab === 'navbar' && <NavbarForm navbar={props.navbar} ctaActions={props.ctaActions} anchors={props.anchors} />}
-                    {tab === 'footer' && <FooterForm footer={props.footer} />}
+                    {tab === 'footer' && <FooterForm footer={props.footer} anchors={props.anchors} />}
                 </ColorTokensProvider>
                 {tab === 'theme' && <ThemeForm theme={props.theme} themeColors={props.themeColors} fonts={props.fonts} radii={props.radii} motions={props.motions} />}
                 {tab === 'contact' && <ContactForm contact={props.contact} />}
@@ -445,7 +445,45 @@ const FOOTER_DOC_FIELDS: FieldDef[] = [
     },
 ];
 
-function FooterForm({ footer }: { footer: FooterData }) {
+/** Columnas de enlaces del pie: cada una con su título y sus enlaces (a una sección, un enlace, el libro, un documento…). */
+const FOOTER_COLUMN_FIELDS: FieldDef[] = [
+    {
+        key: 'columns',
+        label: 'Columnas',
+        type: 'list',
+        itemLabel: 'title',
+        fields: [
+            { key: 'title', label: 'Título de la columna', type: 'text', max: 60 },
+            {
+                key: 'links',
+                label: 'Enlaces de la columna',
+                type: 'list',
+                itemLabel: 'label',
+                fields: [
+                    { key: 'label', label: 'Texto del enlace', type: 'text', max: 80 },
+                    {
+                        key: 'kind',
+                        label: 'A dónde lleva',
+                        type: 'select',
+                        options: {
+                            anchor: 'Una sección de la página',
+                            url: 'Un enlace (https://… o /ruta)',
+                            claims: 'Libro de Reclamaciones',
+                            lookup: 'Consultar mi reclamo',
+                            doc: 'Un documento legal (por su nombre)',
+                            whatsapp: 'WhatsApp',
+                            phone: 'Llamar por teléfono',
+                            email: 'Escribir un correo',
+                        },
+                    },
+                    { key: 'value', label: 'Destino: nombre de la sección (ej. pilares), dirección, o nombre del documento. Libro, teléfono y WhatsApp no lo necesitan.', type: 'text', max: 300 },
+                ],
+            },
+        ],
+    },
+];
+
+function FooterForm({ footer, anchors }: { footer: FooterData; anchors: Props['anchors'] }) {
     const { data, setData, put, processing, isDirty, errors } = useForm<FooterData>({ ...footer });
 
     return (
@@ -467,6 +505,23 @@ function FooterForm({ footer }: { footer: FooterData }) {
                 </div>
             </div>
             <Check id="footer_contact" label="Mostrar datos de contacto en el pie" checked={data.show_contact} onChange={(v) => setData('show_contact', v)} />
+
+            <fieldset className="grid gap-3 rounded-lg border p-4">
+                <legend className="px-1 text-sm font-medium">Columnas de enlaces</legend>
+                <p className="text-muted-foreground text-sm">
+                    El pie se muestra en columnas, cada una con su título y su lista de enlaces. El Libro de Reclamaciones y los documentos legales que no pongas en ninguna columna se agregan solos al final de la última.
+                </p>
+                {anchors.length > 0 && (
+                    <p className="text-muted-foreground text-sm">
+                        Secciones de la página que puedes enlazar: <span className="text-foreground font-mono text-xs">{anchors.map((a) => a.anchor).join(', ')}</span>
+                    </p>
+                )}
+                <SchemaForm
+                    fields={FOOTER_COLUMN_FIELDS}
+                    values={{ columns: data.columns as unknown as Json }}
+                    onChange={(v) => setData('columns', (v.columns as unknown as FooterData['columns']) ?? [])}
+                />
+            </fieldset>
 
             <fieldset className="grid gap-4 rounded-lg border p-4">
                 <legend className="px-1 text-sm font-medium">Libro de Reclamaciones</legend>

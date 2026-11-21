@@ -149,10 +149,42 @@ class SiteDefaults
             // Documentos legales (Términos y Condiciones, política de privacidad…): cada uno abre una ventana con su texto
             // y, si tiene PDF, se puede ver y descargar. El botón se muestra aunque todavía no tenga texto ni PDF.
             'docs' => [['label' => 'Términos y Condiciones', 'text' => '', 'file' => null]],
+            // Columnas de enlaces del pie: cada una con su título y su lista de enlaces (se editan en el panel).
+            'columns' => [
+                ['title' => 'Conócenos', 'links' => [
+                    ['label' => 'Por qué UCO360', 'kind' => 'anchor', 'value' => 'por-que-uco360'],
+                    ['label' => 'Autodiagnóstico', 'kind' => 'anchor', 'value' => 'autodiagnostico'],
+                    ['label' => 'Contacto', 'kind' => 'anchor', 'value' => 'contacto'],
+                ]],
+                ['title' => 'Soluciones', 'links' => [
+                    ['label' => 'Servicios', 'kind' => 'anchor', 'value' => 'pilares'],
+                    ['label' => 'Qué incluye', 'kind' => 'anchor', 'value' => 'que-incluye'],
+                    ['label' => 'Tarifa y cotizador', 'kind' => 'anchor', 'value' => 'inicio'],
+                    ['label' => 'Preguntas frecuentes', 'kind' => 'anchor', 'value' => 'preguntas'],
+                ]],
+                ['title' => 'Servicio al cliente', 'links' => [
+                    ['label' => 'Libro de Reclamaciones', 'kind' => 'claims', 'value' => ''],
+                    ['label' => 'Consultar mi reclamo', 'kind' => 'lookup', 'value' => ''],
+                    ['label' => 'Términos y Condiciones', 'kind' => 'doc', 'value' => 'Términos y Condiciones'],
+                    ['label' => 'Hablar por WhatsApp', 'kind' => 'whatsapp', 'value' => ''],
+                ]],
+            ],
             'bg_color' => null,
             'text_color' => null,
         ];
     }
+
+    /** Qué puede abrir cada enlace de las columnas del pie. */
+    public const FOOTER_LINK_KINDS = [
+        'anchor' => 'Sección de la página (ancla)',
+        'url' => 'Enlace (https://… o /ruta)',
+        'claims' => 'Libro de Reclamaciones',
+        'lookup' => 'Consultar mi reclamo',
+        'doc' => 'Documento legal (por su nombre)',
+        'whatsapp' => 'Abrir WhatsApp',
+        'phone' => 'Llamar por teléfono',
+        'email' => 'Escribir un correo',
+    ];
 
     /**
      * Mezcla recursiva en la que las listas se reemplazan completas

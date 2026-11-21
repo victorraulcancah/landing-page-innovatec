@@ -201,9 +201,37 @@ class SiteSettingsController extends Controller
             'docs.*.label' => ['nullable', 'string', 'max:80'],
             'docs.*.text' => ['nullable', 'string', 'max:60000'],
             'docs.*.file' => ['nullable', 'string', 'max:500'],
+            'columns' => ['nullable', 'array', 'max:6'],
+            'columns.*.title' => ['nullable', 'string', 'max:60'],
+            'columns.*.links' => ['nullable', 'array', 'max:12'],
+            'columns.*.links.*.label' => ['nullable', 'string', 'max:80'],
+            'columns.*.links.*.kind' => ['nullable', Rule::in(array_keys(SiteDefaults::FOOTER_LINK_KINDS))],
+            'columns.*.links.*.value' => ['nullable', 'string', 'max:300'],
             'bg_color' => ['nullable', 'string', 'max:20'],
             'text_color' => ['nullable', 'string', 'max:20'],
         ], ['*.regex' => 'Usa un color en formato #RRGGBB.', 'provider_ruc.regex' => 'El RUC tiene 11 números.']);
+
+        // Columnas de enlaces: un enlace sin texto se descarta; las direcciones solo pueden ser https, http o rutas propias.
+        $columns = collect($data['columns'] ?? [])
+            ->map(fn ($c) => [
+                'title' => SectionTypes::str($c['title'] ?? '', 60),
+                'links' => collect($c['links'] ?? [])
+                    ->map(function ($l) {
+                        $kind = array_key_exists($l['kind'] ?? '', SiteDefaults::FOOTER_LINK_KINDS) ? $l['kind'] : 'anchor';
+                        $value = SectionTypes::str($l['value'] ?? '', 300);
+                        if ($kind === 'anchor') {
+                            $value = ltrim($value, '#');
+                        } elseif ($kind === 'url' && ! preg_match('~^(https?://|/|#)~i', $value)) {
+                            $value = '';
+                        }
+
+                        return ['label' => SectionTypes::str($l['label'] ?? '', 80), 'kind' => $kind, 'value' => $value];
+                    })
+                    ->filter(fn ($l) => $l['label'] !== '')
+                    ->values()->all(),
+            ])
+            ->filter(fn ($c) => $c['title'] !== '' || $c['links'] !== [])
+            ->values()->all();
 
         // Documentos: nombre, texto con formato (se limpia al guardar) y un archivo subido desde el panel (PDF, Word…).
         // Sin nombre, texto ni archivo, se descartan.
@@ -226,6 +254,7 @@ class SiteSettingsController extends Controller
             'provider_ruc' => SectionTypes::str($data['provider_ruc'] ?? '', 11),
             'provider_address' => SectionTypes::str($data['provider_address'] ?? '', 200),
             'docs' => $docs,
+            'columns' => $columns,
             'bg_color' => SectionTypes::color_value($data['bg_color'] ?? null, true),
             'text_color' => SectionTypes::color_value($data['text_color'] ?? null, true),
         ];
