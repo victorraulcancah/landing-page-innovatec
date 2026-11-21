@@ -181,7 +181,7 @@ class CampaignSeeder extends Seeder
             'pilares' => ['bg_color' => 'surface', 'align' => 'center'],
             'por-que-uco360' => ['bg_color' => 'surface'],
             'autodiagnostico' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
-            'que-incluye' => ['bg_color' => 'surface'],
+            'que-incluye' => ['bg_color' => 'surface', 'padding' => 'sm'],
             'contacto' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
         ];
 
