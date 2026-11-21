@@ -1,4 +1,3 @@
-import { ClaimModal } from '@/components/landing/claim-modal';
 import { PdfModal } from '@/components/landing/pdf-modal';
 import { mapLinks, resolveColor, readableOn, sectionLook, whatsappHref } from '@/lib/landing';
 import { type ContactData, type FooterData, type ThemeData } from '@/types/cms';
@@ -63,11 +62,10 @@ export function LocationMap({ contact }: { contact: ContactData }) {
     );
 }
 
-export function Footer({ footer, contact, theme, preview = false }: { footer: FooterData; contact: ContactData; theme: ThemeData; preview?: boolean }) {
+export function Footer({ footer, contact, theme }: { footer: FooterData; contact: ContactData; theme: ThemeData }) {
     const bg = resolveColor(footer.bg_color, theme) ?? theme.dark;
     const fg = resolveColor(footer.text_color, theme) ?? readableOn(bg, theme);
     const look = sectionLook({ bg_color: bg, text_color: fg, accent_color: null, align: 'left', padding: 'md', width: 'normal', image_position: 'right' }, theme);
-    const [claimOpen, setClaimOpen] = useState(false);
     const [pdf, setPdf] = useState<{ title: string; file: string } | null>(null);
 
     const docs = (footer.docs ?? []).filter((d) => d.file && d.label);
@@ -89,17 +87,15 @@ export function Footer({ footer, contact, theme, preview = false }: { footer: Fo
                 {hasLinks && (
                     <nav aria-label="Información legal" className={`col-span-full flex flex-wrap items-center gap-x-7 gap-y-4 border-t pt-5 ${line}`}>
                         {footer.claims_enabled && (
-                            <button
-                                type="button"
-                                onClick={() => setClaimOpen(true)}
-                                aria-haspopup="dialog"
-                                className={`group inline-flex cursor-pointer items-center gap-3 rounded-xl border bg-white/5 py-2 pl-2 pr-4 text-left text-sm font-bold transition hover:bg-white/10 ${line}`}
+                            <a
+                                href={route('claims.create')}
+                                className={`group inline-flex items-center gap-3 rounded-xl border bg-white/5 py-2 pl-2 pr-4 text-left text-sm font-bold transition hover:bg-white/10 ${line}`}
                             >
                                 <span className="grid size-9 place-items-center rounded-lg bg-[#be123c] text-white transition group-hover:scale-105">
                                     <BookOpen size={20} aria-hidden />
                                 </span>
                                 {footer.claims_label || 'Libro de Reclamaciones'}
-                            </button>
+                            </a>
                         )}
                         {docs.map((d, i) => (
                             <div key={i} className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -122,7 +118,6 @@ export function Footer({ footer, contact, theme, preview = false }: { footer: Fo
                 {provider && <p className={`col-span-full text-xs opacity-70 ${hasLinks ? '' : `border-t pt-5 ${line}`}`}>{provider}</p>}
             </div>
 
-            {claimOpen && <ClaimModal footer={footer} preview={preview} onClose={() => setClaimOpen(false)} />}
             {pdf && <PdfModal title={pdf.title} file={pdf.file} onClose={() => setPdf(null)} />}
         </footer>
     );

@@ -15,7 +15,13 @@ use Inertia\Inertia;
 // Landing publica: muestra la campaña activa.
 Route::get('/', [LandingController::class, 'show'])->name('home');
 Route::post('/contacto', [LeadController::class, 'store'])->middleware('throttle:6,1')->name('leads.store');
+
+// Libro de Reclamaciones virtual: la hoja, su constancia (dirección firmada) y la consulta de seguimiento.
+Route::get('/libro-de-reclamaciones', [ClaimController::class, 'create'])->name('claims.create');
 Route::post('/libro-de-reclamaciones', [ClaimController::class, 'store'])->middleware('throttle:4,1')->name('claims.store');
+Route::get('/libro-de-reclamaciones/consultar', [ClaimController::class, 'lookup'])->name('claims.lookup');
+Route::post('/libro-de-reclamaciones/consultar', [ClaimController::class, 'search'])->middleware('throttle:10,1')->name('claims.search');
+Route::get('/libro-de-reclamaciones/constancia/{claim}', [ClaimController::class, 'receipt'])->middleware('signed')->name('claims.receipt');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
@@ -54,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('reclamos', [AdminClaimController::class, 'index'])->name('claims.index');
     Route::put('reclamos/{claim}', [AdminClaimController::class, 'update'])->name('claims.update');
+    Route::get('reclamos/adjuntos/{attachment}', [AdminClaimController::class, 'attachment'])->name('claims.attachment');
 
     Route::post('medios', [MediaController::class, 'store'])->name('media.store');
     Route::post('medios/archivo', [MediaController::class, 'file'])->name('media.file');
