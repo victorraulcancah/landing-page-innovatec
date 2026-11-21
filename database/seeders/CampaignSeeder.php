@@ -6,6 +6,7 @@ use App\Models\Campaign;
 use App\Support\FormDefaults;
 use App\Support\PainsDefaults;
 use App\Support\PillarsDefaults;
+use App\Support\QuizDefaults;
 use App\Support\QuoteDefaults;
 use App\Support\SectionTypes;
 use Illuminate\Database\Seeder;
@@ -66,25 +67,7 @@ class CampaignSeeder extends Seeder
                 'speed' => 'normal',
             ]],
             // El autodiagnóstico va antes de «¿Te suena familiar…?».
-            ['quiz', 'autodiagnostico', 'Autodiagnóstico', true, [
-                'title' => '¿Qué tan expuesta está tu empresa?',
-                'subtitle' => 'Marca lo que se parece a tu empresa.',
-                'items' => [
-                    ['text' => 'Dependo de una sola persona para toda mi tecnología'],
-                    ['text' => 'Nunca probé restaurar un backup'],
-                    ['text' => 'No sé cuántas computadoras y licencias tengo'],
-                    ['text' => 'Ex trabajadores podrían seguir entrando a mi correo o sistema'],
-                    ['text' => 'Cuando falla el internet o el ERP, yo hago de intermediario'],
-                    ['text' => 'No sé cuánto gastaré en TI este mes'],
-                ],
-                'msg_zero' => 'Marca lo que se parece a tu empresa y mira tu nivel de exposición.',
-                'msg_low' => 'Exposición moderada: conviene ordenar estos puntos antes de que fallen.',
-                'msg_high' => 'Exposición alta: una falla te tomaría por sorpresa.',
-                'msg_critical' => 'Riesgo crítico: tu empresa depende de la suerte.',
-                'selected_label' => 'Lo que marcaste',
-                'cta_label' => 'Revisar mis {n} puntos con un experto',
-                'cta_empty' => 'Agenda tu diagnóstico',
-            ]],
+            ['quiz', 'autodiagnostico', 'Autodiagnóstico', true, QuizDefaults::quiz()],
             ['pains', 'situaciones', '¿Te pasa esto?', true, PainsDefaults::pains()],
             ['comparison', 'por-que-uco360', 'Por qué UCO360', true, [
                 'title' => '¿Por qué elegir UCO360?',
@@ -163,7 +146,8 @@ class CampaignSeeder extends Seeder
                 ...FormDefaults::cta(),
                 'button' => ['label' => 'Escríbenos por WhatsApp', 'action' => 'whatsapp', 'value' => ''],
             ]],
-            ['popup', 'popup', null, true, [
+            // La ventana emergente queda oculta: la reemplaza el chat de WhatsApp (se puede volver a mostrar desde el panel).
+            ['popup', 'popup', null, false, [
                 'title' => '¿Hablamos de tu TI?',
                 'text' => 'Agenda tu diagnóstico y revisa con nosotros cómo está tu empresa.',
                 'button' => ['label' => 'Agenda tu diagnóstico', 'action' => 'lead_form', 'value' => ''],

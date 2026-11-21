@@ -30,6 +30,8 @@ class CotizadorSeeder extends Seeder
         $this->call(PainsSeeder::class);
         $this->call(PillarsSeeder::class);
         $this->call(LeadFormSeeder::class);
+        $this->call(QuizSeeder::class);
+        $this->call(WhatsappChatSeeder::class);
     }
 
     /**

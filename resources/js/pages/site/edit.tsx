@@ -301,7 +301,7 @@ function ThemeForm({ theme, themeColors, fonts, radii, motions }: { theme: Theme
 
 function ContactForm({ contact }: { contact: ContactData }) {
     const { data, setData, put, processing, errors, isDirty } = useForm<ContactData>({ ...contact });
-    const fields: [keyof ContactData, string, string?][] = [
+    const fields: ['whatsapp' | 'phone' | 'email' | 'website' | 'address', string][] = [
         ['whatsapp', 'WhatsApp (solo números; si son 9 dígitos se asume Perú, +51)'],
         ['phone', 'Teléfono'],
         ['email', 'Correo de contacto'],
@@ -326,6 +326,43 @@ function ContactForm({ contact }: { contact: ContactData }) {
                     </div>
                 ))}
             </div>
+            <fieldset className="grid gap-4 rounded-lg border p-4">
+                <legend className="px-1 text-sm font-medium">Chat de WhatsApp</legend>
+                <p className="text-muted-foreground text-sm">
+                    Botón verde flotante en la página. Pasados unos segundos abre un globo de conversación con el mensaje y el botón para chatear por WhatsApp (usa el número y el mensaje inicial de arriba).
+                </p>
+                <Check id="chat_enabled" label="Mostrar el botón y el globo de chat" checked={data.chat_enabled ?? true} onChange={(v) => setData('chat_enabled', v)} />
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="chat_title">Nombre en el globo</Label>
+                        <Input id="chat_title" value={data.chat_title ?? ''} maxLength={60} onChange={(e) => setData('chat_title', e.target.value)} />
+                        <Err message={errors.chat_title} />
+                    </div>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="chat_button">Texto del botón</Label>
+                        <Input id="chat_button" value={data.chat_button ?? ''} maxLength={40} onChange={(e) => setData('chat_button', e.target.value)} />
+                        <Err message={errors.chat_button} />
+                    </div>
+                    <div className="grid gap-1.5 sm:col-span-2">
+                        <Label htmlFor="chat_message">Mensaje del globo</Label>
+                        <Textarea id="chat_message" rows={2} value={data.chat_message ?? ''} maxLength={240} onChange={(e) => setData('chat_message', e.target.value)} />
+                        <Err message={errors.chat_message} />
+                    </div>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="chat_delay">Segundos para que el globo se abra solo</Label>
+                        <Input id="chat_delay" type="number" min={0} max={300} value={data.chat_delay ?? 8} onChange={(e) => setData('chat_delay', Number(e.target.value))} />
+                        <p className="text-muted-foreground text-sm">0 = solo se abre cuando la persona pulsa el botón.</p>
+                        <Err message={errors.chat_delay} />
+                    </div>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="chat_position">Posición</Label>
+                        <NativeSelect id="chat_position" value={data.chat_position ?? 'right'} onChange={(e) => setData('chat_position', e.target.value as 'right' | 'left')}>
+                            <option value="right">Abajo a la derecha</option>
+                            <option value="left">Abajo a la izquierda</option>
+                        </NativeSelect>
+                    </div>
+                </div>
+            </fieldset>
             <fieldset className="grid gap-4 rounded-lg border p-4">
                 <legend className="px-1 text-sm font-medium">Mapa de la ubicación</legend>
                 <p className="text-muted-foreground text-sm">

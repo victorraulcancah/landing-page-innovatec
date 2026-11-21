@@ -3,7 +3,7 @@ import { track } from '@/lib/analytics';
 import { ctaHref, ctaOf, flag, sectionLook, text, type CtaContext, type PublicSection } from '@/lib/landing';
 import { setPrefill } from '@/lib/prefill';
 import { type Json, type ThemeData } from '@/types/cms';
-import { ArrowRight, Check, Play, Square, X } from 'lucide-react';
+import { ArrowRight, Check, ClipboardList, Play, Square, X } from 'lucide-react';
 import { type CSSProperties, useEffect, useId, useRef, useState } from 'react';
 
 const num = (c: Record<string, Json>, key: string, fallback: number): number => {
@@ -159,23 +159,23 @@ export function Calculator({ section, ctx }: { section: PublicSection; ctx: CtaC
 
 export function Quiz({ section, ctx }: { section: PublicSection; ctx: CtaContext }) {
     const c = section.content;
-    const items = (Array.isArray(c.items) ? (c.items as Record<string, Json>[]) : []).map((i) => (typeof i.text === 'string' ? i.text : '')).filter(Boolean);
+    const items = (Array.isArray(c.items) ? (c.items as Record<string, Json>[]) : [])
+        .map((i) => ({ text: typeof i.text === 'string' ? i.text : '', rec: typeof i.recommendation === 'string' ? i.recommendation : '' }))
+        .filter((i) => i.text);
     const [checked, setChecked] = useState<boolean[]>(() => items.map(() => false));
     const uid = useId();
 
     const count = checked.filter(Boolean).length;
     const total = items.length;
-    const ratio = total ? count / total : 0;
-    const level = count === 0 ? 'zero' : ratio <= 0.34 ? 'low' : ratio <= 0.67 ? 'high' : 'critical';
-    const message = text(c, `msg_${level}`);
+    const picked = items.filter((_, i) => checked[i]);
+    const title = count === 1 ? text(c, 'result_title_one') : text(c, 'result_title').replace('{n}', String(count));
     const label = count > 0 ? text(c, 'cta_label').replace('{n}', String(count)) : text(c, 'cta_empty');
 
     const toggle = (i: number) => setChecked((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
 
     const prefill = () => {
         if (count === 0) return;
-        const picked = items.filter((_, i) => checked[i]).map((t) => `- ${t}`);
-        setPrefill(`Marqué ${count} de ${total} puntos en el autodiagnóstico:\n${picked.join('\n')}`);
+        setPrefill(`Marqué ${count} de ${total} puntos en el autodiagnóstico:\n${picked.map((p) => `- ${p.text}`).join('\n')}`);
     };
 
     return (
@@ -184,56 +184,47 @@ export function Quiz({ section, ctx }: { section: PublicSection; ctx: CtaContext
                 {items.map((item, i) => (
                     <li key={i} data-reveal="up" style={{ '--i': i } as CSSProperties}>
                         <input id={`${uid}-${i}`} type="checkbox" checked={checked[i] ?? false} onChange={() => toggle(i)} />
-                        <label htmlFor={`${uid}-${i}`}>{item}</label>
+                        <label htmlFor={`${uid}-${i}`}>{item.text}</label>
                     </li>
                 ))}
             </ul>
 
-            <div className={`lp-quiz__result lp-quiz__result--${level}`} aria-live="polite">
-                <p className="lp-quiz__score">
-                    <strong>{count}</strong>
-                    <span>/{total}</span>
-                </p>
-                <div className="lp-quiz__meter" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={count} aria-label="Puntos marcados">
-                    <span style={{ '--s': ratio } as CSSProperties} />
-                </div>
-                <p className="lp-quiz__msg">{message}</p>
+            {/* Tarjeta de recomendaciones: mide siempre lo mismo que la lista de la izquierda (no crece al marcar más);
+                si hay muchas, la lista de recomendaciones se desplaza dentro de la tarjeta. */}
+            <div className="relative lg:min-h-[24rem] lg:self-stretch">
+                <aside
+                    aria-live="polite"
+                    className="flex h-[30rem] flex-col rounded-[calc(var(--r)*1.4)] border border-[color-mix(in_srgb,var(--fg)_18%,transparent)] bg-[color-mix(in_srgb,var(--fg)_8%,var(--bg))] p-5 text-left sm:p-6 lg:absolute lg:inset-0 lg:h-auto"
+                >
+                    <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--line)]">{text(c, 'result_eyebrow')}</p>
+                    <h3 className="mt-2 font-[family-name:var(--font-head)] text-xl font-extrabold leading-tight sm:text-[1.6rem]">{count === 0 ? text(c, 'msg_zero') : title}</h3>
+                    {count > 0 && text(c, 'result_intro') && <p className="mt-2 text-sm opacity-80">{text(c, 'result_intro')}</p>}
 
-                {/* Lo que el visitante ya marcó: se ve aquí, con la opción de quitar cada punto. */}
-                {count > 0 && (
-                    <div className="w-full text-left duration-300 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2">
-                        <p className="mb-2.5 flex items-center gap-2 font-[family-name:var(--font-head)] text-xs font-extrabold uppercase tracking-wider text-[var(--line)]">
-                            <Check size={14} strokeWidth={3} aria-hidden />
-                            {text(c, 'selected_label') || 'Lo que marcaste'} ({count})
-                        </p>
-                        <ul className="grid gap-2">
-                            {items.map((item, i) =>
-                                checked[i] ? (
-                                    <li key={i}>
-                                        <button
-                                            type="button"
-                                            onClick={() => toggle(i)}
-                                            aria-label={`Quitar: ${item}`}
-                                            className="group/chip flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[var(--line)]/70 bg-[var(--line)]/12 py-2 pl-3.5 pr-2.5 text-left text-sm font-semibold leading-snug transition duration-300 hover:bg-[var(--line)]/25 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2"
-                                        >
-                                            <span>{item}</span>
-                                            <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[var(--line)] text-[var(--bg)] transition duration-200 group-hover/chip:scale-110">
-                                                <X size={12} strokeWidth={3} aria-hidden />
-                                            </span>
-                                        </button>
+                    <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1 [scrollbar-color:color-mix(in_srgb,var(--fg)_35%,transparent)_transparent] [scrollbar-width:thin]">
+                        {count > 0 ? (
+                            <ul className="grid gap-2">
+                                {picked.map((p) => (
+                                    <li key={p.text} className="flex items-start gap-2.5 rounded-lg border border-[color-mix(in_srgb,var(--fg)_22%,transparent)] bg-[color-mix(in_srgb,var(--fg)_6%,transparent)] px-3 py-2 text-[13.5px] font-medium leading-snug">
+                                        <Check size={15} strokeWidth={3} aria-hidden className="mt-0.5 shrink-0 text-[var(--line)]" />
+                                        <span>{p.rec || p.text}</span>
                                     </li>
-                                ) : null,
-                            )}
-                        </ul>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div aria-hidden className="grid h-full min-h-24 place-items-center opacity-25">
+                                <ClipboardList size={64} strokeWidth={1.2} />
+                            </div>
+                        )}
                     </div>
-                )}
 
-                {label && (
-                    <a className="lp-btn" href={ctaHref({ label, action: 'lead_form', value: '' }, ctx)} onClick={prefill}>
-                        {label}
-                        <ArrowRight size={18} aria-hidden />
-                    </a>
-                )}
+                    {label && (
+                        <a className="lp-btn mt-4 w-full justify-center" href={ctaHref({ label, action: 'lead_form', value: '' }, ctx)} onClick={prefill}>
+                            {label}
+                            <ArrowRight size={18} aria-hidden />
+                        </a>
+                    )}
+                    {text(c, 'result_note') && <p className="mt-3 text-xs opacity-70">{text(c, 'result_note')}</p>}
+                </aside>
             </div>
         </div>
     );

@@ -5,6 +5,7 @@ import { Calculator, Popup, PromoBar } from '@/components/landing/interactive';
 import { Navbar } from '@/components/landing/navbar';
 import { Quote } from '@/components/landing/quote';
 import { RENDERERS } from '@/components/landing/sections';
+import { WhatsappChat } from '@/components/landing/whatsapp-chat';
 import { eventForLink, startAnalytics, track } from '@/lib/analytics';
 import { fontHref, fontStack, radiusVars, sectionLook, type CtaContext, type PublicSection } from '@/lib/landing';
 import { useMotion } from '@/lib/use-motion';
@@ -131,6 +132,8 @@ export default function Landing({ campaign, sections: allSections, theme, navbar
             {popups.map((popup) => (
                 <Popup key={popup.id} section={popup} theme={theme} ctx={ctx} />
             ))}
+
+            <WhatsappChat contact={contact} />
         </div>
     );
 }

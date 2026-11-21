@@ -2378,10 +2378,6 @@ textarea.lp-input {
         align-items: start;
         gap: 2rem;
     }
-    .lp-quiz__result {
-        position: sticky;
-        top: calc(var(--nav-h) + 1.5rem);
-    }
 }
 
 .lp-quiz__list {
@@ -2455,67 +2451,7 @@ textarea.lp-input {
     background-size: 18px;
 }
 
-.lp-quiz__result {
-    padding: 1.5rem;
-    border-radius: calc(var(--r) * 1.4);
-    background: color-mix(in srgb, var(--fg) 8%, var(--bg));
-    border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
-    display: grid;
-    gap: 1rem;
-    justify-items: start;
-}
-
-.lp-quiz__score {
-    display: flex;
-    align-items: baseline;
-    gap: 0.15rem;
-    font-family: var(--font-head);
-}
-
-.lp-quiz__score strong {
-    font-size: 3.75rem;
-    line-height: 1;
-    font-weight: 800;
-    color: var(--line);
-    font-variant-numeric: tabular-nums;
-}
-
-.lp-quiz__score span {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: color-mix(in srgb, var(--fg) 65%, transparent);
-}
-
-.lp-quiz__meter {
-    width: 100%;
-    height: 10px;
-    border-radius: 10px;
-    overflow: hidden;
-    background: color-mix(in srgb, var(--fg) 18%, transparent);
-}
-
-.lp-quiz__meter span {
-    display: block;
-    height: 100%;
-    background: var(--line);
-    transform: scaleX(var(--s, 0));
-    transform-origin: left;
-    transition: transform 0.55s var(--ease-out);
-}
-
-.lp-quiz__msg {
-    font-weight: 700;
-}
-
-.lp-quiz__result--critical .lp-quiz__msg {
-    color: var(--danger);
-}
-
-.lp-quiz__result .lp-btn {
-    width: 100%;
-    white-space: normal;
-    text-align: center;
-}
+/* La tarjeta de recomendaciones (a la derecha) se arma con Tailwind en interactive.tsx. */
 
 /* ---- Qué incluye ------------------------------------------------------------------------- */
 

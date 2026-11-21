@@ -124,15 +124,31 @@ class SiteSettingsController extends Controller
             'website' => ['nullable', 'string', 'max:150'],
             'map_url' => ['nullable', 'string', 'max:500', 'regex:#^https://\S+$#i'],
             'map_embed' => ['nullable', 'string', 'max:1500'],
+            'chat_enabled' => ['required', 'boolean'],
+            'chat_title' => ['nullable', 'string', 'max:60'],
+            'chat_message' => ['nullable', 'string', 'max:240'],
+            'chat_button' => ['nullable', 'string', 'max:40'],
+            'chat_delay' => ['required', 'integer', 'min:0', 'max:300'],
+            'chat_position' => ['required', Rule::in(['right', 'left'])],
         ], [
             'map_url.regex' => 'Pega el enlace completo de Google Maps (empieza con https://).',
+            'chat_delay.max' => 'Máximo 300 segundos.',
         ]) + array_fill_keys(['whatsapp', 'whatsapp_message', 'phone', 'email', 'address', 'website', 'map_url', 'map_embed', 'map_coords'], '');
 
         $data['map_embed'] = $this->embedUrl((string) ($data['map_embed'] ?? ''));
         // El punto exacto sale del enlace; si se cambia o se borra, se recalcula.
         $data['map_coords'] = ($data['map_url'] ?? '') !== '' ? (MapLocator::coordinates($data['map_url']) ?? '') : '';
 
-        return array_map(fn ($v) => $v ?? '', $data);
+        $clean = array_map(fn ($v) => $v ?? '', $data);
+        $defaults = SiteDefaults::contact();
+        // Si se borra el texto del chat, vuelve el de fábrica (así el globo nunca queda vacío).
+        foreach (['chat_title', 'chat_message', 'chat_button'] as $key) {
+            $clean[$key] = SectionTypes::str($clean[$key], 240) ?: $defaults[$key];
+        }
+        $clean['chat_enabled'] = (bool) $clean['chat_enabled'];
+        $clean['chat_delay'] = (int) $clean['chat_delay'];
+
+        return $clean;
     }
 
     /** Acepta el código «Incorporar un mapa» de Google o solo su enlace; guarda únicamente la dirección del mapa. */

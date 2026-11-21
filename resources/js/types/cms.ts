@@ -103,6 +103,12 @@ export type ContactData = {
     email: string;
     address: string;
     website: string;
+    chat_enabled?: boolean;
+    chat_title?: string;
+    chat_message?: string;
+    chat_button?: string;
+    chat_delay?: number;
+    chat_position?: 'right' | 'left';
     map_url?: string;
     map_embed?: string;
     map_coords?: string;

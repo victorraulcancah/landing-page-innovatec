@@ -1,6 +1,7 @@
 import '../../css/landing.css';
 
 import { Footer } from '@/components/landing/footer';
+import { WhatsappChat } from '@/components/landing/whatsapp-chat';
 import { fontHref, fontStack, radiusVars } from '@/lib/landing';
 import { type ContactData, type FooterData, type NavbarData, type ThemeData } from '@/types/cms';
 import { Head, Link } from '@inertiajs/react';
@@ -64,6 +65,8 @@ export default function LibroLayout({ shell, title, children }: { shell: Shell; 
             <div className="print:hidden">
                 <Footer footer={footer} contact={contact} theme={theme} />
             </div>
+
+            <WhatsappChat contact={contact} />
         </div>
     );
 }

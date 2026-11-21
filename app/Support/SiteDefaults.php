@@ -113,6 +113,13 @@ class SiteDefaults
             'email' => 'ventas@proinnovatec.com',
             'address' => 'Av. Javier Prado Este Nro. 1166 Of 801 - San Isidro, Lima',
             'website' => 'www.proinnovatec.com',
+            // Chat de WhatsApp: botón flotante y globo de conversación (reemplaza a la ventana emergente de la landing).
+            'chat_enabled' => true,
+            'chat_title' => 'UCO360 · Soporte',
+            'chat_message' => '¿Hablamos de tu TI? Cuéntanos qué necesitas y te respondemos por WhatsApp.',
+            'chat_button' => 'Chatear por WhatsApp',
+            'chat_delay' => 8, // segundos para que el globo se abra solo; 0 = solo se abre al pulsar el botón
+            'chat_position' => 'right',
             // Vacíos = el mapa y el enlace se arman con la dirección. Se llenan para una ubicación exacta.
             'map_url' => '',
             'map_embed' => '',
