@@ -191,20 +191,20 @@ export function Quiz({ section, ctx }: { section: PublicSection; ctx: CtaContext
 
             {/* Tarjeta de recomendaciones: mide siempre lo mismo que la lista de la izquierda (no crece al marcar más);
                 si hay muchas, la lista de recomendaciones se desplaza dentro de la tarjeta. */}
-            <div className="relative lg:min-h-[24rem] lg:self-stretch">
+            <div className="relative lg:min-h-[28rem] lg:self-stretch">
                 <aside
                     aria-live="polite"
                     className="flex h-[30rem] flex-col rounded-[calc(var(--r)*1.4)] border border-[color-mix(in_srgb,var(--fg)_18%,transparent)] bg-[color-mix(in_srgb,var(--fg)_8%,var(--bg))] p-5 text-left sm:p-6 lg:absolute lg:inset-0 lg:h-auto"
                 >
                     <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--line)]">{text(c, 'result_eyebrow')}</p>
-                    <h3 className="mt-2 font-[family-name:var(--font-head)] text-xl font-extrabold leading-tight sm:text-[1.6rem]">{count === 0 ? text(c, 'msg_zero') : title}</h3>
-                    {count > 0 && text(c, 'result_intro') && <p className="mt-2 text-sm opacity-80">{text(c, 'result_intro')}</p>}
+                    <h3 className={`mt-1.5 font-[family-name:var(--font-head)] font-extrabold leading-tight ${count === 0 ? 'text-xl' : 'text-lg sm:text-xl'}`}>{count === 0 ? text(c, 'msg_zero') : title}</h3>
+                    {count > 0 && text(c, 'result_intro') && <p className="mt-1.5 text-[13px] opacity-80">{text(c, 'result_intro')}</p>}
 
-                    <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1 [scrollbar-color:color-mix(in_srgb,var(--fg)_35%,transparent)_transparent] [scrollbar-width:thin]">
+                    <div className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1 [scrollbar-color:color-mix(in_srgb,var(--fg)_35%,transparent)_transparent] [scrollbar-width:thin]">
                         {count > 0 ? (
-                            <ul className="grid gap-2">
+                            <ul className="grid gap-1.5">
                                 {picked.map((p) => (
-                                    <li key={p.text} className="flex items-start gap-2.5 rounded-lg border border-[color-mix(in_srgb,var(--fg)_22%,transparent)] bg-[color-mix(in_srgb,var(--fg)_6%,transparent)] px-3 py-2 text-[13.5px] font-medium leading-snug">
+                                    <li key={p.text} className="flex items-start gap-2.5 rounded-lg border border-[color-mix(in_srgb,var(--fg)_22%,transparent)] bg-[color-mix(in_srgb,var(--fg)_6%,transparent)] px-3 py-1.5 text-[13px] font-medium leading-snug">
                                         <Check size={15} strokeWidth={3} aria-hidden className="mt-0.5 shrink-0 text-[var(--line)]" />
                                         <span>{p.rec || p.text}</span>
                                     </li>
@@ -218,12 +218,12 @@ export function Quiz({ section, ctx }: { section: PublicSection; ctx: CtaContext
                     </div>
 
                     {label && (
-                        <a className="lp-btn mt-4 w-full justify-center" href={ctaHref({ label, action: 'lead_form', value: '' }, ctx)} onClick={prefill}>
+                        <a className="lp-btn mt-3 w-full justify-center" href={ctaHref({ label, action: 'lead_form', value: '' }, ctx)} onClick={prefill}>
                             {label}
                             <ArrowRight size={18} aria-hidden />
                         </a>
                     )}
-                    {text(c, 'result_note') && <p className="mt-3 text-xs opacity-70">{text(c, 'result_note')}</p>}
+                    {text(c, 'result_note') && <p className="mt-2.5 text-xs opacity-70">{text(c, 'result_note')}</p>}
                 </aside>
             </div>
         </div>

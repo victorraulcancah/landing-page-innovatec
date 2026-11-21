@@ -1,16 +1,18 @@
 import { track } from '@/lib/analytics';
-import { list, text } from '@/lib/landing';
+import { list, safeHref, text, whatsappHref } from '@/lib/landing';
 import { clearPrefill, getPrefill } from '@/lib/prefill';
 import { cleanCompany, cleanName, cleanPhone } from '@/lib/validate';
-import { type Json } from '@/types/cms';
+import { type ContactData, type Json } from '@/types/cms';
 import { useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { ArrowRight, LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
 interface LeadFormProps {
     campaignId: number | null;
     /** Contenido de la sección «Llamado final»: textos y campos del formulario, editables en el panel. */
     content: Record<string, Json>;
+    /** Se usa para armar el mensaje de WhatsApp (número y mensaje inicial de Ajustes del sitio). */
+    contact: ContactData;
     preview: boolean;
 }
 
@@ -22,17 +24,18 @@ interface FormField {
     placeholder: string;
     options: string[];
     required: boolean;
+    full: boolean;
 }
 
 const KINDS: Kind[] = ['name', 'company', 'phone', 'email', 'message', 'choice', 'text'];
 
 /** Respaldo para campañas antiguas que todavía no guardan sus campos (los de fábrica; luego se editan en el panel). */
 const FALLBACK: FormField[] = [
-    { kind: 'name', label: 'Nombre', placeholder: '', options: [], required: true },
-    { kind: 'company', label: 'Empresa', placeholder: '', options: [], required: false },
-    { kind: 'phone', label: 'Teléfono o WhatsApp', placeholder: '', options: [], required: false },
-    { kind: 'email', label: 'Correo', placeholder: '', options: [], required: false },
-    { kind: 'message', label: '¿Qué necesitas resolver? (opcional)', placeholder: '', options: [], required: false },
+    { kind: 'name', label: 'Nombre', placeholder: '', options: [], required: true, full: false },
+    { kind: 'company', label: 'Empresa', placeholder: '', options: [], required: false, full: false },
+    { kind: 'phone', label: 'Teléfono o WhatsApp', placeholder: '', options: [], required: false, full: false },
+    { kind: 'email', label: 'Correo', placeholder: '', options: [], required: false, full: false },
+    { kind: 'message', label: '¿Qué necesitas resolver? (opcional)', placeholder: '', options: [], required: false, full: true },
 ];
 
 const str = (v: Json | undefined): string => (typeof v === 'string' ? v : '');
@@ -51,6 +54,7 @@ function readFields(content: Record<string, Json>): FormField[] {
                 .map((o) => o.trim())
                 .filter(Boolean),
             required: r.required === true || str(r.kind) === 'name',
+            full: r.full === true || str(r.kind) === 'message',
         }));
 }
 
@@ -62,10 +66,28 @@ const INPUT = {
     text: { type: 'text', auto: 'off' },
 } as const;
 
-export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
+/** Mensaje de WhatsApp ya preparado con lo que la persona escribió (lo revisa antes de enviarlo). */
+function whatsappMessage(contact: ContactData, fields: FormField[], data: { name: string; company: string; email: string; phone: string; message: string; extras: string[] }): string {
+    const lines: string[] = [];
+    let extra = -1;
+    for (const f of fields) {
+        const isExtra = f.kind === 'choice' || f.kind === 'text';
+        const value = isExtra ? data.extras[++extra] : data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'];
+        if (!value?.trim() || f.kind === 'message') continue;
+        lines.push(`${f.label.replace(/\s*\(opcional\)\s*$/i, '')}: ${value.trim()}`);
+    }
+    const concern = data.message.trim();
+    return [contact.whatsapp_message?.trim(), lines.length ? `\n${lines.join('\n')}` : '', concern ? `\nConsulta: ${concern}` : ''].filter(Boolean).join('\n').trim();
+}
+
+export function LeadForm({ campaignId, content, contact, preview }: LeadFormProps) {
+    const [waUrl, setWaUrl] = useState<string | null>(null);
     const [sent, setSent] = useState(false);
     const fields = readFields(content);
     const extraCount = fields.filter((f) => f.kind === 'choice' || f.kind === 'text').length;
+    const whatsappMode = text(content, 'form_mode') === 'whatsapp';
+    const consentText = text(content, 'form_consent');
+    const consentLink = safeHref(text(content, 'form_consent_url'));
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         company: '',
@@ -73,6 +95,7 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
         phone: '',
         message: '',
         extras: Array.from({ length: extraCount }, () => ''),
+        accepted_consent: false as boolean,
         source: 'form',
         website_url: '',
         campaign_id: campaignId,
@@ -92,13 +115,18 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         if (preview) return;
+        // El mensaje de WhatsApp se arma con lo escrito antes de limpiar el formulario.
+        const url = whatsappMode ? whatsappHref(contact, whatsappMessage(contact, fields, data)) : null;
         post(route('leads.store'), {
             preserveScroll: true,
             onSuccess: () => {
                 track('generate_lead', { form: 'diagnostico' });
                 clearPrefill();
                 setSent(true);
+                setWaUrl(url);
                 reset();
+                // Se abre WhatsApp con el mensaje preparado; si el navegador lo bloquea, queda el botón.
+                if (url) window.open(url, '_blank', 'noopener');
             },
         });
     };
@@ -108,6 +136,12 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
             <div className="lp-thanks" role="status">
                 <h3>{text(content, 'thanks_title') || '¡Gracias! Recibimos tus datos.'}</h3>
                 <p>{text(content, 'thanks_text') || 'Nuestro equipo te escribirá para coordinar tu reunión de diagnóstico.'}</p>
+                {waUrl && (
+                    <a className="lp-btn" href={waUrl} target="_blank" rel="noopener noreferrer">
+                        {text(content, 'form_button') || 'Abrir WhatsApp'}
+                        <ArrowRight size={18} aria-hidden />
+                    </a>
+                )}
                 <button type="button" className="lp-btn lp-btn--ghost lp-btn--sm" onClick={() => setSent(false)}>
                     Enviar otro mensaje
                 </button>
@@ -118,6 +152,7 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
     const contactError = err.email || err.phone;
     const title = text(content, 'form_title');
     const note = text(content, 'form_note');
+    const footnote = text(content, 'form_footnote');
     let extraIndex = -1;
 
     return (
@@ -138,7 +173,7 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
                         else setData(f.kind as 'name' | 'company' | 'email' | 'phone' | 'message', f.kind === 'phone' ? cleanPhone(v) : f.kind === 'name' ? cleanName(v) : f.kind === 'company' ? cleanCompany(v) : v);
                     };
                     return (
-                        <div key={i} className={`lp-field ${f.kind === 'message' ? 'sm:col-span-2' : ''}`}>
+                        <div key={i} className={`lp-field ${f.full ? 'sm:col-span-2' : ''}`}>
                             <label htmlFor={id}>
                                 {f.label}
                                 {f.required && ' *'}
@@ -180,6 +215,32 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
                 })}
             </div>
 
+            {/* Consentimiento para el contacto por WhatsApp (se edita en el panel; vacío = no se pide). */}
+            {consentText && (
+                <div>
+                    <label className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug opacity-90">
+                        <input type="checkbox" checked={data.accepted_consent} onChange={(e) => setData('accepted_consent', e.target.checked)} aria-invalid={err.accepted_consent ? true : undefined} className="mt-0.5 size-4 shrink-0 accent-[var(--c-primary)]" />
+                        <span>
+                            {consentText}
+                            {consentLink !== '#' && text(content, 'form_consent_url') && text(content, 'form_consent_link_label') && (
+                                <>
+                                    {' '}
+                                    <a href={consentLink} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2">
+                                        {text(content, 'form_consent_link_label')}
+                                    </a>
+                                    .
+                                </>
+                            )}
+                        </span>
+                    </label>
+                    {err.accepted_consent && (
+                        <p className="lp-error mt-1" role="alert">
+                            {err.accepted_consent}
+                        </p>
+                    )}
+                </div>
+            )}
+
             {/* Campo trampa: las personas no lo ven; los bots lo llenan. */}
             <div className="lp-trap" aria-hidden="true">
                 <label htmlFor="lead-website">No llenar este campo</label>
@@ -189,7 +250,9 @@ export function LeadForm({ campaignId, content, preview }: LeadFormProps) {
             <button type="submit" className="lp-btn" disabled={processing || preview}>
                 {processing && <LoaderCircle className="animate-spin" aria-hidden />}
                 {processing ? 'Enviando…' : text(content, 'form_button') || 'Solicitar diagnóstico'}
+                {!processing && <ArrowRight size={18} aria-hidden />}
             </button>
+            {footnote && <p className="-mt-1 text-xs leading-snug opacity-70">{footnote}</p>}
             {preview && <p className="lp-error">Vista previa: el formulario no envía datos.</p>}
         </form>
     );

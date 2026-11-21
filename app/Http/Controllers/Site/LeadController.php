@@ -27,13 +27,23 @@ class LeadController extends Controller
         // El formulario de la página se valida con los campos que se configuraron en el panel; el cotizador y las
         // demás entradas usan la regla simple de siempre (nombre y al menos un correo o un teléfono).
         $configured = $request->input('source') === 'form';
-        $fields = $configured ? $this->fieldsFor($campaignId) : [];
+        $form = $configured ? $this->formContent($campaignId) : [];
+        $fields = $configured ? ($form['form_fields'] ?? FormDefaults::fields()) : [];
+        // Si el formulario pide el consentimiento (casilla), es obligatorio y queda registrado en el contacto.
+        $consent = $configured && trim((string) ($form['form_consent'] ?? '')) !== '';
 
         [$rules, $messages, $extraFields] = $configured ? $this->configuredRules($fields) : [$this->legacyRules(), $this->legacyMessages(), []];
+        if ($consent) {
+            $rules['accepted_consent'] = ['accepted'];
+            $messages['accepted_consent.accepted'] = 'Marca la casilla para continuar.';
+        }
 
         $data = $request->validate($rules, $messages);
 
         $extras = [];
+        if ($consent) {
+            $extras[] = ['label' => 'Aceptó el contacto por WhatsApp', 'value' => 'Sí'];
+        }
         foreach ($extraFields as $i => $f) {
             $value = trim((string) ($data['extras'][$i] ?? ''));
             if ($value !== '') {
@@ -79,14 +89,14 @@ class LeadController extends Controller
     }
 
     /** Los campos configurados en el «Llamado final» de la campaña; si no hay, los de fábrica. */
-    private function fieldsFor(?int $campaignId): array
+    private function formContent(?int $campaignId): array
     {
         $section = $campaignId
             ? Campaign::query()->find($campaignId)?->sections()->where('type', 'cta')->orderBy('position')->get()
                 ->first(fn ($s) => is_array($s->content['form_fields'] ?? null) && $s->content['form_fields'] !== [])
             : null;
 
-        return $section?->content['form_fields'] ?? FormDefaults::fields();
+        return $section?->content ?? [];
     }
 
     /**

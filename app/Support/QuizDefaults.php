@@ -17,7 +17,7 @@ class QuizDefaults
             'title' => '¿Qué tan expuesta está tu empresa?',
             'subtitle' => 'Marca lo que se parece a tu empresa.',
             'items' => [
-                $i('Dependo de una sola persona para toda mi tecnología', 'Documentar la tecnología y establecer continuidad del soporte.'),
+                $i('Dependo de una sola persona para toda mi tecnología', 'Documentar la tecnología y asegurar la continuidad del soporte.'),
                 $i('Nunca probé restaurar un backup', 'Revisar los respaldos y programar pruebas de recuperación.'),
                 $i('No sé cuántas computadoras y licencias tengo', 'Realizar un inventario y asignar responsables de activos.'),
                 $i('Ex trabajadores podrían seguir entrando a mi correo o sistema', 'Revisar cuentas y permisos, priorizando accesos sensibles.'),

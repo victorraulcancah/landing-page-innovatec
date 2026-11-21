@@ -26,6 +26,10 @@ class QuizSeeder extends Seeder
             // La recomendación de cada situación de fábrica (se reconoce por su texto).
             $byText = collect($defaults['items'])->keyBy('text');
             foreach ($content['items'] ?? [] as $i => $item) {
+                // También se actualiza la primera versión de fábrica (más larga) si no se tocó.
+                if (($item['recommendation'] ?? '') === 'Documentar la tecnología y establecer continuidad del soporte.') {
+                    $item['recommendation'] = '';
+                }
                 if (($item['recommendation'] ?? '') === '' && isset($byText[$item['text'] ?? ''])) {
                     $content['items'][$i]['recommendation'] = $byText[$item['text']]['recommendation'];
                     $changed = true;
