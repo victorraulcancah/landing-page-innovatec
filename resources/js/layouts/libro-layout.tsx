@@ -45,8 +45,7 @@ export default function LibroLayout({ shell, title, children }: { shell: Shell; 
             <header className="border-b border-[color-mix(in_srgb,var(--c-text)_12%,transparent)] bg-[var(--c-background)] text-[var(--c-text)] print:hidden">
                 <div className="mx-auto flex max-w-[80rem] items-center justify-between gap-4 px-5 py-3">
                     <Link href={route('home')} className="inline-flex items-center gap-3 font-[family-name:var(--font-head)] text-xl font-extrabold tracking-tight">
-                        {navbar.logo && <img src={navbar.logo} alt="" className="h-9 w-auto" />}
-                        <span>{navbar.brand_text}</span>
+                        {navbar.logo ? <img src={navbar.logo} alt={navbar.brand_text} className="h-9 w-auto" /> : <span>{navbar.brand_text}</span>}
                     </Link>
                     <Link
                         href={route('home')}

@@ -98,8 +98,13 @@ export default function LibroCreate({ options, days, ...shell }: Props) {
         accepted_truth: false, accepted_privacy: false, accepted_conforme: false,
         website_url: '',
     });
-    const { data, setData, errors, processing, progress } = form;
+    const { data, errors, processing, progress } = form;
     const err = errors as Record<string, string | undefined>;
+    // Al corregir un campo, su aviso de error desaparece.
+    const setData: typeof form.setData = (...args: unknown[]) => {
+        if (typeof args[0] === 'string') form.clearErrors(args[0] as keyof ClaimForm & string);
+        (form.setData as (...a: unknown[]) => void)(...args);
+    };
     const now = useNow();
     const dueDate = addWeekdays(now, days);
     const { provider_name, provider_ruc, provider_address } = shell.footer;
@@ -150,11 +155,11 @@ export default function LibroCreate({ options, days, ...shell }: Props) {
                             <input className={INPUT} {...ctl('address')} autoComplete="street-address" maxLength={255} placeholder="Ej.: Av. Javier Prado Este 1166, San Isidro" onChange={(e) => setData('address', e.target.value)} />
                         </Field>
                         <CheckRow id="is_minor" checked={data.is_minor} onChange={(v) => setData('is_minor', v)} className="sm:col-span-2 xl:col-span-3">
-                            El consumidor es menor de edad (se piden los datos del apoderado)
+                            El consumidor es menor de edad (se piden los datos del padre, madre o apoderado)
                         </CheckRow>
                         {data.is_minor && (
                             <div className="grid gap-5 rounded-xl bg-[var(--c-surface)] p-4 sm:col-span-2 sm:grid-cols-2 xl:col-span-3 xl:grid-cols-3">
-                                <Field label="Nombre del padre, madre o apoderado" id="guardian_name" error={err.guardian_name} required className="sm:col-span-2 xl:col-span-1">
+                                <Field label="Nombre del apoderado" id="guardian_name" error={err.guardian_name} required className="sm:col-span-2 xl:col-span-1">
                                     <input className={INPUT} {...ctl('guardian_name')} maxLength={150} onChange={(e) => setData('guardian_name', cleanName(e.target.value))} />
                                 </Field>
                                 <Field label="Tipo de documento" id="guardian_doc_type" error={err.guardian_doc_type} required>
@@ -315,7 +320,7 @@ export default function LibroCreate({ options, days, ...shell }: Props) {
                     </Block>
                 </form>
 
-                <aside className="grid gap-6 lg:self-stretch">
+                <aside className="grid content-start gap-6 lg:self-stretch">
                     <SideCard icon={ClipboardList} title="Información automática">
                         <dl>
                             <SideRow label="N.º de reclamación">
