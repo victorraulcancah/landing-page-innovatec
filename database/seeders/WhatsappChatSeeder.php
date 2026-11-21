@@ -16,7 +16,8 @@ class WhatsappChatSeeder extends Seeder
 {
     public function run(): void
     {
-        $stored = Setting::query()->where('key', 'contact')->value('value');
+        // Se lee con el modelo (convierte el JSON guardado en arreglo); así se conserva todo el contacto ya editado.
+        $stored = Setting::query()->where('key', 'contact')->first()?->value;
         if (is_array($stored) && array_key_exists('chat_enabled', $stored)) {
             return;
         }

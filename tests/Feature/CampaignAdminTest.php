@@ -281,7 +281,8 @@ class CampaignAdminTest extends TestCase
         $this->assertStringContainsString('Montos de ejemplo', $packages->content['note']);
         $this->assertSame(12, $popup->content['seconds']);
 
-        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 14));
+        // La ventana emergente queda oculta (la reemplaza el chat de WhatsApp), así que no cuenta entre las secciones visibles.
+        $this->get('/')->assertInertia(fn (Assert $page) => $page->has('sections', 13));
     }
 
     public function test_los_montos_de_ejemplo_no_pisan_lo_editado_en_el_panel(): void
@@ -795,45 +796,47 @@ class CampaignAdminTest extends TestCase
         $campaign = Campaign::where('status', 'active')->first();
         $cta = $campaign->sections()->where('type', 'cta')->first();
 
-        // De fábrica: los 7 campos del formulario del HTML, todos editables.
-        $this->assertCount(7, $cta->content['form_fields']);
-        $this->assertSame('Agenda tu diagnóstico', $cta->content['form_title']);
+        // De fábrica: el modelo «Solicita tu diagnóstico inicial» (nombre, empresa, WhatsApp y consulta), todo editable.
+        $this->assertSame(['name', 'company', 'phone', 'message'], array_column($cta->content['form_fields'], 'kind'));
+        $this->assertSame('Solicita tu diagnóstico inicial', $cta->content['form_title']);
+        $this->assertSame('whatsapp', $cta->content['form_mode']);
+        $this->assertSame('Continuar por WhatsApp', $cta->content['form_button']);
+        $this->assertNotSame('', $cta->content['form_consent']);
 
         $base = ['campaign_id' => $campaign->id, 'source' => 'form', 'name' => 'Ana Ruiz'];
+        $full = [...$base, 'company' => 'ACME SAC', 'phone' => '987654321'];
 
-        // Con los campos de fábrica el empresa, teléfono y correo son obligatorios y las opciones se validan.
-        $this->post(route('leads.store'), $base)->assertSessionHasErrors(['company', 'phone', 'email']);
-        $this->post(route('leads.store'), [...$base, 'company' => 'ACME SAC', 'phone' => '999111222', 'email' => 'ana@acme.pe', 'extras' => ['Inventada', 'De 26 a 60 computadoras']])
-            ->assertSessionHasErrors(['extras.0']);
+        // Empresa, WhatsApp y la casilla de consentimiento son obligatorios.
+        $this->post(route('leads.store'), $base)->assertSessionHasErrors(['company', 'phone', 'accepted_consent']);
+        $this->post(route('leads.store'), $full)->assertSessionHasErrors(['accepted_consent']);
 
-        $this->post(route('leads.store'), [...$base, 'company' => 'ACME SAC', 'phone' => '999111222', 'email' => 'ana@acme.pe', 'message' => 'Quiero revisar mi red',
-            'extras' => ['Tenemos soporte pero no se da abasto', 'De 26 a 60 computadoras']])->assertSessionHasNoErrors();
-
+        $this->post(route('leads.store'), [...$full, 'accepted_consent' => true, 'message' => 'Tenemos 20 computadoras y problemas con el Wi-Fi'])->assertSessionHasNoErrors();
         $lead = Lead::latest('id')->first();
         $this->assertSame('ACME SAC', $lead->company);
-        $this->assertSame('Quiero revisar mi red', $lead->message);
-        $this->assertSame([
-            ['label' => '¿Cómo ven sus equipos hoy?', 'value' => 'Tenemos soporte pero no se da abasto'],
-            ['label' => 'Tamaño aproximado', 'value' => 'De 26 a 60 computadoras'],
-        ], $lead->extras);
+        $this->assertSame('987654321', $lead->phone);
+        $this->assertSame('Tenemos 20 computadoras y problemas con el Wi-Fi', $lead->message);
+        // El consentimiento queda registrado en el contacto.
+        $this->assertSame([['label' => 'Aceptó el contacto por WhatsApp', 'value' => 'Sí']], $lead->extras);
 
-        // Desde el panel: la empresa pasa a opcional, se quita el correo y se agrega una pregunta nueva.
+        // Desde el panel: se quita la casilla, la empresa pasa a opcional y se agrega una pregunta con opciones.
         $fields = collect($cta->content['form_fields'])
-            ->reject(fn ($f) => $f['kind'] === 'email')
             ->map(fn ($f) => $f['kind'] === 'company' ? [...$f, 'required' => false] : $f)
-            ->push(['kind' => 'text', 'label' => '¿Cuántas sedes tienes?', 'placeholder' => '', 'options' => '', 'required' => true])
+            ->push(['kind' => 'choice', 'label' => 'Tamaño aproximado', 'placeholder' => '', 'options' => "De 10 a 25 computadoras\nDe 26 a 60 computadoras", 'required' => true, 'full' => false])
             ->values()->all();
         $this->put(route('sections.update', $cta), [
             'is_visible' => true, 'anchor' => 'contacto', 'nav_label' => 'Contacto',
-            'content' => [...$cta->content, 'form_title' => 'Cuéntanos de tu empresa', 'form_fields' => $fields],
+            'content' => [...$cta->content, 'form_title' => 'Cuéntanos de tu empresa', 'form_consent' => '', 'form_mode' => 'save', 'form_fields' => $fields],
             'style' => $cta->style,
         ])->assertSessionHasNoErrors();
-        $this->assertSame('Cuéntanos de tu empresa', $cta->fresh()->content['form_title']);
-        $this->assertCount(7, $cta->fresh()->content['form_fields']);
+        $cta->refresh();
+        $this->assertSame('Cuéntanos de tu empresa', $cta->content['form_title']);
+        $this->assertSame('save', $cta->content['form_mode']);
+        $this->assertCount(5, $cta->content['form_fields']);
 
-        $this->post(route('leads.store'), [...$base, 'phone' => '999111222'])->assertSessionHasErrors(['extras.2']);
-        $this->post(route('leads.store'), [...$base, 'phone' => '999111222', 'extras' => ['', '', '3 sedes']])->assertSessionHasNoErrors();
-        $this->assertSame([['label' => '¿Cuántas sedes tienes?', 'value' => '3 sedes']], Lead::latest('id')->first()->extras);
+        // Sin casilla ya no se exige; la pregunta nueva se valida contra sus opciones.
+        $this->post(route('leads.store'), [...$base, 'phone' => '987654321', 'extras' => ['Inventada']])->assertSessionHasErrors(['extras.0']);
+        $this->post(route('leads.store'), [...$base, 'phone' => '987654321', 'extras' => ['De 26 a 60 computadoras']])->assertSessionHasNoErrors();
+        $this->assertSame([['label' => 'Tamaño aproximado', 'value' => 'De 26 a 60 computadoras']], Lead::latest('id')->first()->extras);
 
         // El cotizador y las demás entradas siguen con la regla simple (sin pedir los campos del formulario).
         $this->post(route('leads.store'), ['campaign_id' => $campaign->id, 'name' => 'Luis', 'phone' => '988777666'])->assertSessionHasNoErrors();
@@ -855,7 +858,7 @@ class CampaignAdminTest extends TestCase
 
         $this->seed(\Database\Seeders\LeadFormSeeder::class);
         $cta->refresh();
-        $this->assertCount(7, $cta->content['form_fields']);
+        $this->assertCount(4, $cta->content['form_fields']);
         $this->assertSame('Pedir reunión', $cta->content['form_button']);
         $this->assertSame($content['title'], $cta->content['title']);
 
@@ -863,6 +866,84 @@ class CampaignAdminTest extends TestCase
         $cta->update(['content' => [...$cta->content, 'form_title' => 'Mi título']]);
         $this->seed(\Database\Seeders\LeadFormSeeder::class);
         $this->assertSame('Mi título', $cta->fresh()->content['form_title']);
+    }
+
+    public function test_el_seeder_del_formulario_actualiza_el_diseno_anterior_solo_si_nadie_lo_cambio(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $cta = $campaign->sections()->where('type', 'cta')->first();
+
+        // El formulario de la versión anterior (7 campos y sus textos), sin tocar.
+        $old = fn (string $kind, string $label, bool $required = false) => ['kind' => $kind, 'label' => $label, 'placeholder' => '', 'options' => '', 'required' => $required, 'full' => false];
+        $previous = [
+            $old('name', 'Nombre completo', true), $old('company', 'Nombre de tu empresa', true), $old('phone', 'Celular o WhatsApp', true), $old('email', 'Correo electrónico', true),
+            $old('choice', '¿Cómo ven sus equipos hoy?'), $old('choice', 'Tamaño aproximado'), $old('message', '¿Qué necesitas resolver? (opcional)'),
+        ];
+        $content = $cta->content;
+        foreach (['form_mode', 'form_consent', 'form_consent_link_label', 'form_consent_url', 'form_footnote'] as $key) {
+            unset($content[$key]);
+        }
+        $cta->update(['content' => [...$content, 'form_fields' => $previous, 'form_title' => 'Agenda tu diagnóstico', 'form_button' => 'Solicitar diagnóstico']]);
+
+        $this->seed(\Database\Seeders\LeadFormSeeder::class);
+        $new = $cta->fresh()->content;
+        $this->assertSame(['name', 'company', 'phone', 'message'], array_column($new['form_fields'], 'kind'));
+        $this->assertSame('Solicita tu diagnóstico inicial', $new['form_title']);
+        $this->assertSame('Continuar por WhatsApp', $new['form_button']);
+        $this->assertSame('whatsapp', $new['form_mode']);
+
+        // Un formulario personalizado se respeta: no se reemplaza ni pasa a WhatsApp.
+        $custom = [$old('name', 'Tu nombre', true), $old('phone', 'Teléfono', true)];
+        $cta->update(['content' => [...$new, 'form_fields' => $custom, 'form_mode' => 'whatsapp', 'form_consent' => 'Acepto']]);
+        $content = $cta->fresh()->content;
+        unset($content['form_mode']);
+        $cta->update(['content' => $content]);
+        $this->seed(\Database\Seeders\LeadFormSeeder::class);
+        $kept = $cta->fresh()->content;
+        $this->assertCount(2, $kept['form_fields']);
+        $this->assertSame('save', $kept['form_mode']);
+    }
+
+    public function test_el_chat_de_whatsapp_se_edita_y_el_seeder_oculta_la_ventana_emergente_una_sola_vez(): void
+    {
+        $this->login();
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $campaign = Campaign::where('status', 'active')->first();
+        $popup = $campaign->sections()->where('type', 'popup')->first();
+
+        // De fábrica la ventana emergente está oculta y el chat activo.
+        $this->assertFalse($popup->is_visible);
+        $contact = Setting::get('contact');
+        $this->assertTrue($contact['chat_enabled']);
+        $this->assertSame('Chatear por WhatsApp', $contact['chat_button']);
+
+        // Desde el panel se edita todo el chat.
+        $this->put(route('site.update', 'contact'), [...$contact, 'chat_title' => 'Ventas', 'chat_message' => 'Hola, ¿en qué te ayudamos?', 'chat_button' => 'Escríbenos', 'chat_delay' => 0, 'chat_position' => 'left', 'chat_enabled' => false])
+            ->assertSessionHasNoErrors();
+        $saved = Setting::get('contact');
+        $this->assertFalse($saved['chat_enabled']);
+        $this->assertSame(0, $saved['chat_delay']);
+        $this->assertSame('left', $saved['chat_position']);
+        $this->put(route('site.update', 'contact'), [...$contact, 'chat_position' => 'arriba'])->assertSessionHasErrors('chat_position');
+
+        // Una base anterior (sin ajustes de chat): el seeder activa el chat y oculta la ventana emergente solo la primera vez.
+        $stored = Setting::get('contact');
+        foreach (['chat_enabled', 'chat_title', 'chat_message', 'chat_button', 'chat_delay', 'chat_position'] as $key) {
+            unset($stored[$key]);
+        }
+        Setting::query()->where('key', 'contact')->delete();
+        Setting::put('contact', $stored);
+        $popup->update(['is_visible' => true]);
+
+        $this->seed(\Database\Seeders\WhatsappChatSeeder::class);
+        $this->assertFalse($popup->fresh()->is_visible);
+        $this->assertTrue(Setting::get('contact')['chat_enabled']);
+
+        // Si luego se vuelve a mostrar la ventana desde el panel, repetir el seeder no la oculta otra vez.
+        $popup->refresh()->update(['is_visible' => true]);
+        $this->seed(\Database\Seeders\WhatsappChatSeeder::class);
+        $this->assertTrue($popup->fresh()->is_visible);
     }
 
     public function test_los_rubros_de_la_portada_se_editan_y_el_seeder_no_pisa_lo_editado(): void
