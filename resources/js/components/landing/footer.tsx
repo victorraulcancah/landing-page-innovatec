@@ -1,6 +1,6 @@
-import { PdfModal } from '@/components/landing/pdf-modal';
+import { DocModal, docFileName } from '@/components/landing/doc-modal';
 import { mapLinks, resolveColor, readableOn, sectionLook, whatsappHref } from '@/lib/landing';
-import { type ContactData, type FooterData, type ThemeData } from '@/types/cms';
+import { type ContactData, type FooterData, type FooterDoc, type ThemeData } from '@/types/cms';
 import { BookOpen, Download, ExternalLink, FileText, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { type CSSProperties, useState } from 'react';
 
@@ -66,9 +66,10 @@ export function Footer({ footer, contact, theme }: { footer: FooterData; contact
     const bg = resolveColor(footer.bg_color, theme) ?? theme.dark;
     const fg = resolveColor(footer.text_color, theme) ?? readableOn(bg, theme);
     const look = sectionLook({ bg_color: bg, text_color: fg, accent_color: null, align: 'left', padding: 'md', width: 'normal', image_position: 'right' }, theme);
-    const [pdf, setPdf] = useState<{ title: string; file: string } | null>(null);
+    const [doc, setDoc] = useState<FooterDoc | null>(null);
 
-    const docs = (footer.docs ?? []).filter((d) => d.file && d.label);
+    // El botón de cada documento se muestra siempre; el texto y el PDF son opcionales.
+    const docs = (footer.docs ?? []).filter((d) => d.label);
     const provider = [footer.provider_name, footer.provider_ruc && `RUC ${footer.provider_ruc}`, footer.provider_address].filter(Boolean).join(' · ');
     const hasLinks = footer.claims_enabled || docs.length > 0;
     const line = 'border-[color-mix(in_srgb,var(--fg)_16%,transparent)]';
@@ -98,18 +99,29 @@ export function Footer({ footer, contact, theme }: { footer: FooterData; contact
                             </a>
                         )}
                         {docs.map((d, i) => (
-                            <div key={i} className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                                <span className="inline-flex items-center gap-2 font-bold">
-                                    <FileText size={18} aria-hidden />
+                            <div key={i} className={`inline-flex items-stretch overflow-hidden rounded-xl border bg-white/5 ${line}`}>
+                                <button
+                                    type="button"
+                                    onClick={() => setDoc(d)}
+                                    aria-haspopup="dialog"
+                                    className="group inline-flex cursor-pointer items-center gap-3 py-2 pl-2 pr-4 text-left text-sm font-bold transition hover:bg-white/10"
+                                >
+                                    <span className="grid size-9 place-items-center rounded-lg bg-white/15 transition group-hover:scale-105">
+                                        <FileText size={20} aria-hidden />
+                                    </span>
                                     {d.label}
-                                </span>
-                                <button type="button" onClick={() => setPdf({ title: d.label, file: d.file as string })} aria-haspopup="dialog" className="cursor-pointer font-semibold underline underline-offset-4 transition hover:opacity-75">
-                                    Ver
                                 </button>
-                                <a href={d.file as string} download={`${d.label.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '')}.pdf`} className="inline-flex items-center gap-1 font-semibold underline underline-offset-4 transition hover:opacity-75">
-                                    <Download size={14} aria-hidden />
-                                    Descargar
-                                </a>
+                                {d.file && (
+                                    <a
+                                        href={d.file}
+                                        download={docFileName(d.label)}
+                                        title={`Descargar ${d.label} (PDF)`}
+                                        aria-label={`Descargar ${d.label} (PDF)`}
+                                        className={`grid w-11 place-items-center border-l transition hover:bg-white/10 ${line}`}
+                                    >
+                                        <Download size={18} aria-hidden />
+                                    </a>
+                                )}
                             </div>
                         ))}
                     </nav>
@@ -118,7 +130,7 @@ export function Footer({ footer, contact, theme }: { footer: FooterData; contact
                 {provider && <p className={`col-span-full text-xs opacity-70 ${hasLinks ? '' : `border-t pt-5 ${line}`}`}>{provider}</p>}
             </div>
 
-            {pdf && <PdfModal title={pdf.title} file={pdf.file} onClose={() => setPdf(null)} />}
+            {doc && <DocModal doc={doc} onClose={() => setDoc(null)} />}
         </footer>
     );
 }

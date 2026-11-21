@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\Setting;
 use App\Support\MapLocator;
+use App\Support\RichText;
 use App\Support\SectionTypes;
 use App\Support\SiteDefaults;
 use Illuminate\Http\RedirectResponse;
@@ -182,18 +183,21 @@ class SiteSettingsController extends Controller
             'provider_address' => ['nullable', 'string', 'max:200'],
             'docs' => ['nullable', 'array', 'max:8'],
             'docs.*.label' => ['nullable', 'string', 'max:80'],
+            'docs.*.text' => ['nullable', 'string', 'max:60000'],
             'docs.*.file' => ['nullable', 'string', 'max:500'],
             'bg_color' => ['nullable', 'string', 'max:20'],
             'text_color' => ['nullable', 'string', 'max:20'],
         ], ['*.regex' => 'Usa un color en formato #RRGGBB.', 'provider_ruc.regex' => 'El RUC tiene 11 números.']);
 
-        // Documentos: solo archivos subidos desde el panel (PDF, Word…). Sin nombre ni archivo, se descartan.
+        // Documentos: nombre, texto con formato (se limpia al guardar) y un archivo subido desde el panel (PDF, Word…).
+        // Sin nombre, texto ni archivo, se descartan.
         $docs = collect($data['docs'] ?? [])
             ->map(fn ($d) => [
                 'label' => SectionTypes::str($d['label'] ?? '', 80),
+                'text' => RichText::clean($d['text'] ?? ''),
                 'file' => SectionTypes::fileUrl($d['file'] ?? null, 'document'),
             ])
-            ->filter(fn ($d) => $d['label'] !== '' || $d['file'] !== null)
+            ->filter(fn ($d) => $d['label'] !== '' || $d['text'] !== '' || $d['file'] !== null)
             ->values()->all();
 
         return [

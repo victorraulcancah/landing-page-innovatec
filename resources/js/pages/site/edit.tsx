@@ -402,7 +402,8 @@ const FOOTER_DOC_FIELDS: FieldDef[] = [
         itemLabel: 'label',
         fields: [
             { key: 'label', label: 'Nombre que ve el visitante (ej. Términos y Condiciones)', type: 'text', max: 80 },
-            { key: 'file', label: 'Archivo PDF', type: 'file', kind: 'document' },
+            { key: 'text', label: 'Texto del documento (se lee en la ventana que se abre al pulsar el botón)', type: 'richtext' },
+            { key: 'file', label: 'Archivo PDF (opcional: habilita «Ver PDF» y el ícono de descarga)', type: 'file', kind: 'document' },
         ],
     },
 ];
@@ -456,8 +457,8 @@ function FooterForm({ footer }: { footer: FooterData }) {
             </fieldset>
 
             <fieldset className="grid gap-3 rounded-lg border p-4">
-                <legend className="px-1 text-sm font-medium">Documentos legales (PDF)</legend>
-                <p className="text-muted-foreground text-sm">Términos y Condiciones, política de privacidad, etc. En el pie se muestran con «Ver» y «Descargar». Un documento sin archivo no se muestra.</p>
+                <legend className="px-1 text-sm font-medium">Documentos legales</legend>
+                <p className="text-muted-foreground text-sm">Términos y Condiciones, política de privacidad, etc. Cada uno es un botón en el pie que abre una ventana con su texto; si le subes un PDF, también se puede ver y descargar.</p>
                 <SchemaForm
                     fields={FOOTER_DOC_FIELDS}
                     values={{ docs: data.docs as unknown as Json }}

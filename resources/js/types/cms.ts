@@ -112,7 +112,7 @@ export type AnalyticsData = {
     ga_id: string;
 };
 
-export type FooterDoc = { label: string; file: string | null };
+export type FooterDoc = { label: string; text?: string; file: string | null };
 
 export type FooterData = {
     text: string;

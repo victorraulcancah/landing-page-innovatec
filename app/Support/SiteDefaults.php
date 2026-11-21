@@ -139,8 +139,9 @@ class SiteDefaults
             'provider_name' => '',
             'provider_ruc' => '',
             'provider_address' => '',
-            // Documentos legales en PDF (Términos y Condiciones, política de privacidad…): se pueden ver y descargar.
-            'docs' => [['label' => 'Términos y Condiciones', 'file' => null]],
+            // Documentos legales (Términos y Condiciones, política de privacidad…): cada uno abre una ventana con su texto
+            // y, si tiene PDF, se puede ver y descargar. El botón se muestra aunque todavía no tenga texto ni PDF.
+            'docs' => [['label' => 'Términos y Condiciones', 'text' => '', 'file' => null]],
             'bg_color' => null,
             'text_color' => null,
         ];

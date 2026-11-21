@@ -194,6 +194,7 @@ class ClaimBookTest extends TestCase
         // De fábrica: el pie trae el Libro de Reclamaciones y un documento «Términos y Condiciones» sin archivo.
         $this->assertTrue($footer['claims_enabled']);
         $this->assertSame('Términos y Condiciones', $footer['docs'][0]['label']);
+        $this->assertSame('', $footer['docs'][0]['text']);
         $this->assertNull($footer['docs'][0]['file']);
 
         $this->put(route('site.update', 'footer'), [...$footer, 'provider_ruc' => '12'])->assertSessionHasErrors('provider_ruc');
@@ -202,18 +203,22 @@ class ClaimBookTest extends TestCase
             ...$footer,
             'provider_name' => 'PROINNOVATEC S.A.C.', 'provider_ruc' => '20100070970', 'provider_address' => 'San Isidro, Lima',
             'docs' => [
-                ['label' => 'Términos y Condiciones', 'file' => '/uploads/terminos.pdf'],
-                ['label' => 'Peligroso', 'file' => '/uploads/virus.exe'],
-                ['label' => 'Externo', 'file' => 'https://malo.com/a.pdf'],
-                ['label' => '', 'file' => ''],
+                ['label' => 'Términos y Condiciones', 'text' => '<p>Texto de los <strong>términos</strong>.</p><script>alert(1)</script>', 'file' => '/uploads/terminos.pdf'],
+                ['label' => 'Peligroso', 'text' => '', 'file' => '/uploads/virus.exe'],
+                ['label' => 'Externo', 'text' => '', 'file' => 'https://malo.com/a.pdf'],
+                ['label' => '', 'text' => '<p>Solo texto</p>', 'file' => ''],
+                ['label' => '', 'text' => '', 'file' => ''],
             ],
         ])->assertSessionHasNoErrors();
 
         $saved = Setting::get('footer');
         $this->assertSame('/uploads/terminos.pdf', $saved['docs'][0]['file']);
+        $this->assertStringContainsString('<strong>términos</strong>', $saved['docs'][0]['text']);
+        $this->assertStringNotContainsString('<script', $saved['docs'][0]['text']);
         $this->assertNull($saved['docs'][1]['file']);
         $this->assertNull($saved['docs'][2]['file']);
-        $this->assertCount(3, $saved['docs']);
+        // Se conservan los que tienen nombre, texto o archivo; el totalmente vacío se descarta.
+        $this->assertCount(4, $saved['docs']);
         $this->assertSame('20100070970', $saved['provider_ruc']);
 
         $this->get('/')->assertInertia(fn (Assert $page) => $page
