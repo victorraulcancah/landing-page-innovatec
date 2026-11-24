@@ -1,3 +1,4 @@
+import { Rich } from '@/components/landing/rich';
 import { track } from '@/lib/analytics';
 import { cleanName, cleanPhone, isValidName, isValidPhone } from '@/lib/validate';
 import { ctaHref, ctaOf, flag, list, text, whatsappHref, type CtaContext, type PublicSection } from '@/lib/landing';
@@ -155,7 +156,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
             <header className="lp-quote__head">
                 <div>
                     <h2>{text(c, 'title') || 'Cotizador'}</h2>
-                    {text(c, 'subtitle') && <p>{text(c, 'subtitle')}</p>}
+                    {text(c, 'subtitle') && <Rich html={text(c, 'subtitle')} />}
                 </div>
                 <p className="lp-quote__base">
                     {text(c, 'badge_label') && <span>{text(c, 'badge_label')}</span>}

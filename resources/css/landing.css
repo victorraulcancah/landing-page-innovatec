@@ -3838,7 +3838,8 @@ textarea.lp-input {
     letter-spacing: -0.01em;
 }
 
-.lp-quote__head > div > p {
+.lp-quote__head > div > p,
+.lp-quote__head .lp-rich {
     margin-top: 0.35rem;
     font-size: 0.875rem;
     color: var(--fg-soft);
