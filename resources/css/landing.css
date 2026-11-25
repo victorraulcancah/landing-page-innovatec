@@ -2159,14 +2159,29 @@ textarea.lp-input {
 /* Con un recuadro de trabajo al lado (cotizador o calculadora), la columna de la derecha gana ancho. */
 @media (min-width: 1280px) {
     .lp-hero--aside .lp-hero__grid {
-        grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.45fr);
-        gap: 2.5rem;
+        max-width: 118rem;
+        padding-inline: clamp(1.25rem, 3vw, 4rem);
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+        gap: clamp(2rem, 3vw, 3.5rem);
     }
     .lp-hero--aside .lp-hero__aside {
-        margin-right: max(1rem, calc((100vw - 96rem) / 2 + 1rem));
+        margin-right: 0;
     }
+}
+
+/* Portada con recuadro al lado: textos más contenidos para que el recuadro respire. */
+@media (min-width: 1024px) {
     .lp-hero--aside h1 {
-        font-size: clamp(2.2rem, 0.8rem + 2.4vw, 3.4rem);
+        font-size: clamp(2rem, 0.9rem + 2vw, 3rem);
+        line-height: 1.06;
+    }
+    .lp-hero--aside .lp-hero__lead {
+        margin-top: 1.25rem;
+        font-size: 1rem;
+    }
+    .lp-hero--aside .lp-hero__actions,
+    .lp-hero--aside .lp-hero__audience {
+        margin-top: 1.5rem;
     }
 }
 
@@ -3841,8 +3856,13 @@ textarea.lp-input {
 .lp-quote__head > div > p,
 .lp-quote__head .lp-rich {
     margin-top: 0.35rem;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
     color: var(--fg-soft);
+}
+
+.lp-quote__head .lp-rich > * + * {
+    margin-top: 0.35rem;
 }
 
 /* El precio base: una sola línea con el filo de la línea. */
