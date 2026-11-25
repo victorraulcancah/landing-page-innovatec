@@ -2161,16 +2161,24 @@ textarea.lp-input {
     .lp-hero--aside .lp-hero__grid {
         max-width: 118rem;
         padding-inline: clamp(1.25rem, 3vw, 4rem);
-        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-        gap: clamp(2rem, 3vw, 3.5rem);
+        /* Mitad y mitad: el mensaje a la izquierda y el cotizador a la derecha, cada uno con su propio espacio. */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: center;
+        gap: clamp(2rem, 4vw, 5rem);
     }
     .lp-hero--aside .lp-hero__aside {
         margin-right: 0;
+    }
+    .lp-hero--aside .lp-quote {
+        max-width: none;
     }
 }
 
 /* Portada con recuadro al lado: textos más contenidos para que el recuadro respire. */
 @media (min-width: 1024px) {
+    .lp-hero--aside .lp-hero__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .lp-hero--aside h1 {
         font-size: clamp(2rem, 0.9rem + 2vw, 3rem);
         line-height: 1.06;
