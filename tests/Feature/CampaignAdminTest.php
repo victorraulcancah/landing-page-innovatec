@@ -1107,6 +1107,30 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('new', $lead->status);
     }
 
+    public function test_cada_lead_nuevo_avisa_por_correo_al_correo_de_contactanos(): void
+    {
+        Setting::put('contact', [...Setting::get('contact'), 'email' => 'ventas@uco360.test']);
+        $transport = app('mail.manager')->mailer()->getSymfonyTransport();
+        $before = count($transport->messages());
+
+        $this->post(route('leads.store'), ['name' => 'Ana Torres', 'company' => 'Textiles SAC', 'phone' => '987654321', 'message' => 'Quiero cotizar'])
+            ->assertRedirect()->assertSessionHas('lead_sent');
+
+        $sent = $transport->messages();
+        $this->assertCount($before + 1, $sent);
+        $mail = $sent[$before]->getOriginalMessage();
+        $this->assertSame('ventas@uco360.test', $mail->getTo()[0]->getAddress());
+        $this->assertStringContainsString('Ana Torres', $mail->getSubject());
+        $this->assertStringContainsString('987654321', $mail->getTextBody());
+        $this->assertStringContainsString('Quiero cotizar', $mail->getTextBody());
+
+        // Sin correo de contacto configurado, el lead se guarda igual y no se envía nada.
+        Setting::put('contact', [...Setting::get('contact'), 'email' => '']);
+        $this->post(route('leads.store'), ['name' => 'Luis Vega', 'phone' => '987654322'])->assertSessionHas('lead_sent');
+        $this->assertSame(2, Lead::count());
+        $this->assertCount($before + 1, $transport->messages());
+    }
+
     public function test_el_formulario_exige_nombre_y_algun_medio_de_contacto(): void
     {
         $this->post(route('leads.store'), ['name' => 'Sin contacto'])->assertSessionHasErrors(['email', 'phone']);
