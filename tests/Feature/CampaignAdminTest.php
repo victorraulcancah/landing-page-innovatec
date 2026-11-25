@@ -246,6 +246,18 @@ class CampaignAdminTest extends TestCase
         }
     }
 
+    public function test_un_titular_puede_guardar_su_alineacion_sin_otro_formato_peligroso(): void
+    {
+        $clean = SectionTypes::sanitizeContent('text', [
+            'title' => '<p style="text-align:center;position:fixed" onclick="x()">Titular <strong>fuerte</strong></p>',
+        ]);
+
+        $this->assertStringContainsString('text-align:center', $clean['title']);
+        $this->assertStringContainsString('<strong>fuerte</strong>', $clean['title']);
+        $this->assertStringNotContainsString('position', $clean['title']);
+        $this->assertStringNotContainsString('onclick', $clean['title']);
+    }
+
     public function test_los_titulares_y_textos_largos_usan_el_editor_y_las_listas_siguen_en_texto_plano(): void
     {
         $text = collect(SectionTypes::schemaForClient()['text']['content'])->keyBy('key');

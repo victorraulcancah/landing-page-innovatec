@@ -155,7 +155,7 @@ export function Quote({ section, ctx, campaignId, preview }: { section: PublicSe
         <div className="lp-quote" data-reveal="up">
             <header className="lp-quote__head">
                 <div>
-                    <h2>{text(c, 'title') || 'Cotizador'}</h2>
+                    <Rich as="h2" inline html={text(c, 'title') || 'Cotizador'} />
                     {text(c, 'subtitle') && <Rich html={text(c, 'subtitle')} />}
                 </div>
                 <p className="lp-quote__base">

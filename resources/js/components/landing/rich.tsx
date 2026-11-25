@@ -55,9 +55,15 @@ interface RichProps {
 }
 
 /** Texto escrito con el editor del panel, listo para la landing. */
+const TITLE_ALIGN = /^\s*<p[^>]*style="[^"]*text-align:\s*(left|center|right|justify)[^"]*"[^>]*>([\s\S]*)<\/p>\s*$/i;
+
 export function Rich({ html, inline = false, as: Tag = 'div', className = '', id, style, reveal }: RichProps) {
-    const safe = useMemo(() => sanitize(toRichHtml(html, inline), inline), [html, inline]);
+    // Un titular con alineación llega envuelto en <p style="text-align:…">: se aplica al propio h1/h2.
+    const titled = inline ? TITLE_ALIGN.exec(html) : null;
+    const align = titled?.[1].toLowerCase() as CSSProperties['textAlign'] | undefined;
+    const source = titled ? titled[2] : html;
+    const safe = useMemo(() => sanitize(toRichHtml(source, inline), inline), [source, inline]);
     if (!safe) return null;
 
-    return <Tag id={id} style={style} data-reveal={reveal} className={`lp-rich ${className}`.trim()} dangerouslySetInnerHTML={{ __html: safe }} />;
+    return <Tag id={id} style={align ? { ...style, textAlign: align } : style} data-reveal={reveal} className={`lp-rich ${className}`.trim()} dangerouslySetInnerHTML={{ __html: safe }} />;
 }

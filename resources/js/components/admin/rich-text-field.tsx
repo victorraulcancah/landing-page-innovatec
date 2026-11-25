@@ -84,7 +84,8 @@ export function RichTextField({ label, value, onChange, inline = false }: RichTe
                     ? { document: false, bulletList: false, orderedList: false, listItem: false, listKeymap: false, link: false }
                     : { link: { openOnClick: false, autolink: false, HTMLAttributes: { rel: 'noopener noreferrer', target: null } } }),
             }),
-            ...(inline ? [InlineDocument] : [TextAlign.configure({ types: ['paragraph'] })]),
+            ...(inline ? [InlineDocument] : []),
+            TextAlign.configure({ types: ['paragraph'] }),
             Tone,
             Highlight,
         ],
@@ -93,7 +94,8 @@ export function RichTextField({ label, value, onChange, inline = false }: RichTe
         },
         onUpdate: ({ editor: ed }) => {
             let html = ed.isEmpty ? '' : ed.getHTML();
-            if (inline) html = html.replace(/^<p[^>]*>([\s\S]*)<\/p>$/, '$1');
+            // Un titular no lleva párrafo; solo conserva el envoltorio cuando tiene alineación (centrado, derecha).
+            if (inline) html = html.replace(/^<p([^>]*)>([\s\S]*)<\/p>$/, (_, attrs: string, inner: string) => (/text-align/.test(attrs) ? `<p${attrs}>${inner}</p>` : inner));
             emitted.current = html;
             onChange(html);
         },
@@ -161,10 +163,14 @@ export function RichTextField({ label, value, onChange, inline = false }: RichTe
                             {divider('d2')}
                             {tool('Lista con viñetas', <List className="size-4" />, editor.isActive('bulletList'), () => run().toggleBulletList().run())}
                             {tool('Lista numerada', <ListOrdered className="size-4" />, editor.isActive('orderedList'), () => run().toggleOrderedList().run())}
-                            {divider('d3')}
-                            {tool('Alinear a la izquierda', <AlignLeft className="size-4" />, editor.isActive({ textAlign: 'left' }), () => run().setTextAlign('left').run())}
-                            {tool('Centrar', <AlignCenter className="size-4" />, editor.isActive({ textAlign: 'center' }), () => run().setTextAlign('center').run())}
-                            {tool('Alinear a la derecha', <AlignRight className="size-4" />, editor.isActive({ textAlign: 'right' }), () => run().setTextAlign('right').run())}
+                        </>
+                    )}
+                    {divider('d3')}
+                    {tool('Alinear a la izquierda', <AlignLeft className="size-4" />, editor.isActive({ textAlign: 'left' }), () => run().setTextAlign('left').run())}
+                    {tool('Centrar', <AlignCenter className="size-4" />, editor.isActive({ textAlign: 'center' }), () => run().setTextAlign('center').run())}
+                    {tool('Alinear a la derecha', <AlignRight className="size-4" />, editor.isActive({ textAlign: 'right' }), () => run().setTextAlign('right').run())}
+                    {!inline && (
+                        <>
                             {divider('d4')}
                             {tool('Enlace', <Link2 className="size-4" />, panel === 'link' || editor.isActive('link'), openLink)}
                             {tool('Quitar enlace', <Unlink className="size-4" />, false, () => run().unsetLink().run(), !editor.isActive('link'))}

@@ -1,3 +1,4 @@
+import { Rich } from '@/components/landing/rich';
 import { Visual, type VisualKind } from '@/components/landing/visuals';
 import { track } from '@/lib/analytics';
 import { ctaHref, ctaOf, flag, sectionLook, text, type CtaContext, type PublicSection } from '@/lib/landing';
@@ -112,9 +113,7 @@ export function Calculator({ section, ctx }: { section: PublicSection; ctx: CtaC
 
     return (
         <div className="lp-calc">
-            <h2 className="lp-calc__title" id={`h-${section.id}`}>
-                {text(c, 'title')}
-            </h2>
+            <Rich as="h2" inline className="lp-calc__title" id={`h-${section.id}`} html={text(c, 'title')} />
 
             <Slider def={{ id: `${uid}-p`, label: text(c, 'people_label'), unit: text(c, 'people_unit'), ...rp, onChange: setPeople, value: people }} />
             <Slider def={{ id: `${uid}-h`, label: text(c, 'hours_label'), unit: text(c, 'hours_unit'), ...rh, onChange: setHours, value: hours }} />
@@ -368,7 +367,7 @@ export function Popup({ section, theme, ctx }: { section: PublicSection; theme: 
                     </div>
                 )}
                 <div className="lp-popup__body">
-                    <h2 id={`pp-${section.id}`}>{text(c, 'title')}</h2>
+                    <Rich as="h2" inline id={`pp-${section.id}`} html={text(c, 'title')} />
                     {text(c, 'text') && <p>{text(c, 'text')}</p>}
                     {(button || dismiss) && (
                         <div className="lp-popup__actions">

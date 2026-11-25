@@ -53,7 +53,7 @@ class RichText
         $config->set('Core.Encoding', 'UTF-8');
         $config->set('AutoFormat.RemoveEmpty', true);
         $config->set('HTML.Allowed', $inline
-            ? 'strong,em,u,s,br,span[class]'
+            ? 'p[style],strong,em,u,s,br,span[class]'
             : 'p[style],br,strong,em,u,s,ul,ol,li,span[class],a[href|target|rel]');
         $config->set('CSS.AllowedProperties', ['text-align']);
         $config->set('Attr.AllowedClasses', [
