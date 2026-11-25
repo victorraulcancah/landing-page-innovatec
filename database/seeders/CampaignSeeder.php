@@ -94,7 +94,7 @@ class CampaignSeeder extends Seeder
                     ['badge' => 'Gestión TI', 'title' => 'Gestión y evolución tecnológica', 'text' => 'Inventario vivo de equipos y licencias, alerta de vencimientos, mejoras y proyectos de expansión.'],
                 ],
             ]],
-            ['pillars', 'pilares', 'Servicios', true, PillarsDefaults::pillars()],
+            ['pillars', 'servicios', 'Servicios', true, PillarsDefaults::pillars()],
             ['steps', 'como-funciona', null, true, [
                 'title' => 'Cómo implementamos UCO360 en tu empresa',
                 'subtitle' => '',
@@ -162,7 +162,7 @@ class CampaignSeeder extends Seeder
             'franja' => ['bg_color' => 'accent'],
             'inicio' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
             'situaciones' => ['align' => 'center'],
-            'pilares' => ['bg_color' => 'surface', 'align' => 'center'],
+            'servicios' => ['bg_color' => 'surface', 'align' => 'center'],
             'por-que-uco360' => ['bg_color' => 'surface'],
             'autodiagnostico' => ['bg_color' => 'dark', 'text_color' => 'on_dark', 'accent_color' => 'accent'],
             'que-incluye' => ['bg_color' => 'surface', 'padding' => 'sm'],

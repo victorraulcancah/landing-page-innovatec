@@ -36,7 +36,7 @@ class PillarsSeeder extends Seeder
             'type' => 'pillars',
             'position' => (int) $after + 1,
             'is_visible' => true,
-            'anchor' => 'pilares',
+            'anchor' => 'servicios',
             'nav_label' => 'Servicios',
             'content' => SectionTypes::sanitizeContent('pillars', PillarsDefaults::pillars()),
             'style' => SectionTypes::sanitizeStyle('pillars', ['bg_color' => 'surface', 'align' => 'center']),

@@ -157,7 +157,7 @@ class SiteDefaults
                     ['label' => 'Contacto', 'kind' => 'anchor', 'value' => 'contacto'],
                 ]],
                 ['title' => 'Soluciones', 'links' => [
-                    ['label' => 'Servicios', 'kind' => 'anchor', 'value' => 'pilares'],
+                    ['label' => 'Servicios', 'kind' => 'anchor', 'value' => 'servicios'],
                     ['label' => 'Qué incluye', 'kind' => 'anchor', 'value' => 'que-incluye'],
                     ['label' => 'Tarifa y cotizador', 'kind' => 'anchor', 'value' => 'inicio'],
                     ['label' => 'Preguntas frecuentes', 'kind' => 'anchor', 'value' => 'preguntas'],

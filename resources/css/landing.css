@@ -3948,6 +3948,7 @@ textarea.lp-input {
 /* Equipos con su contador */
 .lp-quote__grid {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.5rem;
     margin: 0;
     padding: 0;
@@ -3957,6 +3958,7 @@ textarea.lp-input {
 /* Con todos los equipos a la vista, la lista se desplaza por dentro con una barra fina. */
 .lp-quote__grid.is-all {
     max-height: 17rem;
+    overflow-x: hidden;
     overflow-y: auto;
     padding-right: 0.4rem;
     scrollbar-width: thin;
@@ -4247,6 +4249,27 @@ textarea.lp-input {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* En pantallas angostas el contador pasa debajo del nombre: así el texto usa todo el ancho y se lee completo. */
+@container (max-width: 26rem) {
+    .lp-quote__grid li {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .lp-quote__grid li > div:first-child {
+        flex: 1 1 100%;
+    }
+    .lp-quote__grid small {
+        white-space: normal;
+        overflow: visible;
+    }
+    .lp-quote__grid li .lp-quote__step {
+        margin-left: auto;
+    }
+    .lp-quote__grid.is-all {
+        max-height: 24rem;
+    }
 }
 
 @container (min-width: 34rem) {

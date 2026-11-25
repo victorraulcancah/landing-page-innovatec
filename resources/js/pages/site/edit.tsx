@@ -476,7 +476,7 @@ const FOOTER_COLUMN_FIELDS: FieldDef[] = [
                             email: 'Escribir un correo',
                         },
                     },
-                    { key: 'value', label: 'Destino: nombre de la sección (ej. pilares), dirección, o nombre del documento. Libro, teléfono y WhatsApp no lo necesitan.', type: 'text', max: 300 },
+                    { key: 'value', label: 'Destino: nombre de la sección (ej. servicios), dirección, o nombre del documento. Libro, teléfono y WhatsApp no lo necesitan.', type: 'text', max: 300 },
                 ],
             },
         ],

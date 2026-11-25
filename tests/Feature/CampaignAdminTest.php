@@ -654,7 +654,7 @@ class CampaignAdminTest extends TestCase
             'rows' => [['a' => 'Nadie sabe usar el sistema', 'b' => 'Capacitamos', 'c' => 'Todos lo usan bien']],
         ];
         $this->put(route('sections.update', $pillars), [
-            'is_visible' => true, 'anchor' => 'pilares', 'nav_label' => 'Servicios',
+            'is_visible' => true, 'anchor' => 'servicios', 'nav_label' => 'Servicios',
             'content' => [...$pillars->content, 'title' => 'Nuevo título', 'items' => $items],
             'style' => $pillars->style,
         ])->assertSessionHasNoErrors();
