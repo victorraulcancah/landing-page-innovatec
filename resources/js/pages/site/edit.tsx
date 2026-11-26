@@ -9,7 +9,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { type ContactData, type FieldDef, type FooterData, type Json, type NavbarData, type ThemeData, type AnalyticsData } from '@/types/cms';
+import { type ContactData, type FieldDef, type FooterData, type Json, type NavbarData, type ThemeData, type AnalyticsData, type ZohoData } from '@/types/cms';
 import { Head, useForm } from '@inertiajs/react';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
@@ -20,6 +20,7 @@ interface Props {
     contact: ContactData;
     footer: FooterData;
     analytics: AnalyticsData;
+    zoho: ZohoData;
     themeColors: Record<string, string>;
     colorTokens: Record<string, string>;
     fonts: Record<string, string>;
@@ -31,7 +32,7 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Ajustes del sitio', href: '/sitio' }];
 
-type Tab = 'navbar' | 'theme' | 'contact' | 'footer' | 'analytics';
+type Tab = 'navbar' | 'theme' | 'contact' | 'footer' | 'analytics' | 'zoho';
 
 const TABS: [Tab, string][] = [
     ['navbar', 'Barra de navegación'],
@@ -39,6 +40,7 @@ const TABS: [Tab, string][] = [
     ['contact', 'Contacto'],
     ['footer', 'Pie de página'],
     ['analytics', 'Analítica'],
+    ['zoho', 'Zoho CRM'],
 ];
 
 export default function SiteEdit(props: Props) {
@@ -77,6 +79,7 @@ export default function SiteEdit(props: Props) {
                 {tab === 'theme' && <ThemeForm theme={props.theme} themeColors={props.themeColors} fonts={props.fonts} radii={props.radii} motions={props.motions} />}
                 {tab === 'contact' && <ContactForm contact={props.contact} />}
                 {tab === 'analytics' && <AnalyticsForm analytics={props.analytics} />}
+                {tab === 'zoho' && <ZohoForm zoho={props.zoho} />}
             </div>
         </AppLayout>
     );
@@ -423,6 +426,32 @@ function AnalyticsForm({ analytics }: { analytics: AnalyticsData }) {
                 </ul>
                 <p>No cuenta tus visitas cuando tienes la sesión iniciada ni la vista previa, y respeta a quien activa «no me sigas» en su navegador.</p>
                 <p>Google Analytics usa cookies: conviene mencionarlo en tu política de privacidad.</p>
+            </div>
+
+            <SaveButton processing={processing} isDirty={isDirty} />
+        </form>
+    );
+}
+
+function ZohoForm({ zoho }: { zoho: ZohoData }) {
+    const { data, setData, put, processing, errors, isDirty } = useForm({ code: zoho.code ?? '' });
+
+    return (
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                put(route('site.update', 'zoho'), { preserveScroll: true });
+            }}
+            className="grid gap-6"
+        >
+            <div className="grid gap-1.5">
+                <Label htmlFor="zoho_code">Formulario web de Zoho CRM</Label>
+                <Textarea id="zoho_code" rows={5} value={data.code} placeholder="<script … src='https://crm.zoho.com/crm/WebFormServeServlet?rid=…'></script>" spellCheck={false} className="font-mono text-xs break-all" onChange={(e) => setData('code', e.target.value)} />
+                <p className="text-muted-foreground text-sm">
+                    Pega el script, el código HTML o el enlace (zcform.com/…) que te da Zoho. Tu formulario se ve igual; cada contacto nuevo se copia además a Zoho CRM. Vacío = no se envía.
+                </p>
+                <Err message={errors.code} />
+                {zoho.action && <p className="text-sm font-medium text-green-700 dark:text-green-400">Conectado con Zoho CRM.</p>}
             </div>
 
             <SaveButton processing={processing} isDirty={isDirty} />

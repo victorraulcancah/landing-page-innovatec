@@ -1,11 +1,12 @@
+import { DocModal } from '@/components/landing/doc-modal';
 import { track } from '@/lib/analytics';
 import { list, safeHref, text, whatsappHref } from '@/lib/landing';
 import { clearPrefill, getPrefill } from '@/lib/prefill';
 import { cleanCompany, cleanName, cleanPhone } from '@/lib/validate';
-import { type ContactData, type Json } from '@/types/cms';
+import { type ContactData, type FooterDoc, type Json } from '@/types/cms';
 import { useForm } from '@inertiajs/react';
 import { ArrowRight, LoaderCircle } from 'lucide-react';
-import { FormEventHandler, useEffect, useState } from 'react';
+import { FormEventHandler, Fragment, useEffect, useState } from 'react';
 
 interface LeadFormProps {
     campaignId: number | null;
@@ -14,6 +15,8 @@ interface LeadFormProps {
     /** Se usa para armar el mensaje de WhatsApp (número y mensaje inicial de Ajustes del sitio). */
     contact: ContactData;
     preview: boolean;
+    /** Documentos legales del pie: se enlazan sobre el botón de envío. */
+    docs?: FooterDoc[];
 }
 
 type Kind = 'name' | 'company' | 'phone' | 'email' | 'message' | 'choice' | 'text';
@@ -67,7 +70,11 @@ const INPUT = {
 } as const;
 
 /** Mensaje de WhatsApp ya preparado con lo que la persona escribió (lo revisa antes de enviarlo). */
-function whatsappMessage(contact: ContactData, fields: FormField[], data: { name: string; company: string; email: string; phone: string; message: string; extras: string[] }): string {
+function whatsappMessage(
+    contact: ContactData,
+    fields: FormField[],
+    data: { name: string; company: string; email: string; phone: string; message: string; extras: string[] },
+): string {
     const lines: string[] = [];
     let extra = -1;
     for (const f of fields) {
@@ -75,14 +82,21 @@ function whatsappMessage(contact: ContactData, fields: FormField[], data: { name
         const value = isExtra ? data.extras[++extra] : data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'];
         if (!value?.trim() || f.kind === 'message') continue;
         // Etiquetas cortas para los datos de la persona; las preguntas extra llevan su propia pregunta.
-        const label = ({ name: 'Nombre', company: 'Empresa', phone: 'WhatsApp', email: 'Correo' } as Record<string, string>)[f.kind] ?? f.label.replace(/\s*\(opcional\)\s*$/i, '');
+        const label =
+            ({ name: 'Nombre', company: 'Empresa', phone: 'WhatsApp', email: 'Correo' } as Record<string, string>)[f.kind] ??
+            f.label.replace(/\s*\(opcional\)\s*$/i, '');
         lines.push(`${label}: ${value.trim()}`);
     }
     const concern = data.message.trim();
-    return [contact.whatsapp_message?.trim(), lines.length ? `\n${lines.join('\n')}` : '', concern ? `\nConsulta: ${concern}` : ''].filter(Boolean).join('\n').trim();
+    return [contact.whatsapp_message?.trim(), lines.length ? `\n${lines.join('\n')}` : '', concern ? `\nConsulta: ${concern}` : '']
+        .filter(Boolean)
+        .join('\n')
+        .trim();
 }
 
-export function LeadForm({ campaignId, content, contact, preview }: LeadFormProps) {
+export function LeadForm({ campaignId, content, contact, preview, docs = [] }: LeadFormProps) {
+    const legal = docs.filter((d) => d.label);
+    const [openDoc, setOpenDoc] = useState<FooterDoc | null>(null);
     const [waUrl, setWaUrl] = useState<string | null>(null);
     const [sent, setSent] = useState(false);
     const fields = readFields(content);
@@ -158,103 +172,175 @@ export function LeadForm({ campaignId, content, contact, preview }: LeadFormProp
     let extraIndex = -1;
 
     return (
-        <form className="lp-form" onSubmit={submit} noValidate>
-            {(title || !content.form_fields) && <h3>{title || 'Agenda tu diagnóstico'}</h3>}
-            {note && <p className="-mt-1 text-sm opacity-75">{note}</p>}
+        <>
+            <form className="lp-form" onSubmit={submit} noValidate>
+                {(title || !content.form_fields) && <h3>{title || 'Agenda tu diagnóstico'}</h3>}
+                {note && <p className="-mt-1 text-sm opacity-75">{note}</p>}
 
-            <div className="grid items-start gap-x-4 gap-y-3.5 sm:grid-cols-2">
-                {fields.map((f, i) => {
-                    const id = `lead-${i}`;
-                    const isExtra = f.kind === 'choice' || f.kind === 'text';
-                    const index = isExtra ? ++extraIndex : -1;
-                    const error = isExtra ? err[`extras.${index}`] : f.kind === 'message' ? err.message : err[f.kind];
-                    const invalid = Boolean(error) || ((f.kind === 'email' || f.kind === 'phone') && Boolean(contactError));
-                    const value = isExtra ? data.extras[index] ?? '' : (data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'] ?? '');
-                    const onChange = (v: string) => {
-                        if (isExtra) setData('extras', data.extras.map((x, k) => (k === index ? v : x)));
-                        else setData(f.kind as 'name' | 'company' | 'email' | 'phone' | 'message', f.kind === 'phone' ? cleanPhone(v) : f.kind === 'name' ? cleanName(v) : f.kind === 'company' ? cleanCompany(v) : v);
-                    };
-                    return (
-                        <div key={i} className={`lp-field ${f.full ? 'sm:col-span-2' : ''}`}>
-                            <label htmlFor={id}>
-                                {f.label}
-                                {f.required && ' *'}
-                            </label>
-                            {f.kind === 'message' ? (
-                                <textarea id={id} className="lp-input" rows={3} placeholder={f.placeholder} value={value} maxLength={2000} aria-invalid={invalid || undefined} onChange={(e) => onChange(e.target.value)} />
-                            ) : f.kind === 'choice' ? (
-                                <select id={id} className="lp-input" value={value} aria-invalid={invalid || undefined} onChange={(e) => onChange(e.target.value)}>
-                                    <option value="">{f.placeholder || 'Selecciona una opción'}</option>
-                                    {f.options.map((o) => (
-                                        <option key={o} value={o}>
-                                            {o}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <input
-                                    id={id}
-                                    className="lp-input"
-                                    type={INPUT[f.kind].type}
-                                    autoComplete={INPUT[f.kind].auto}
-                                    inputMode={f.kind === 'phone' ? 'numeric' : undefined}
-                                    maxLength={f.kind === 'phone' ? 9 : undefined}
-                                    placeholder={f.placeholder}
-                                    required={f.required}
-                                    value={value}
-                                    aria-invalid={invalid || undefined}
-                                    aria-describedby={error ? `${id}-error` : undefined}
-                                    onChange={(e) => onChange(e.target.value)}
-                                />
-                            )}
-                            {error && (
-                                <p id={`${id}-error`} className="lp-error" role="alert">
-                                    {error}
-                                </p>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Consentimiento para el contacto por WhatsApp (se edita en el panel; vacío = no se pide). */}
-            {consentText && (
-                <div>
-                    <label className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug opacity-90">
-                        <input type="checkbox" checked={data.accepted_consent} onChange={(e) => setData('accepted_consent', e.target.checked)} aria-invalid={err.accepted_consent ? true : undefined} className="mt-0.5 size-4 shrink-0 accent-[var(--c-primary)]" />
-                        <span>
-                            {consentText}
-                            {consentLink !== '#' && text(content, 'form_consent_url') && text(content, 'form_consent_link_label') && (
-                                <>
-                                    {' '}
-                                    <a href={consentLink} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2">
-                                        {text(content, 'form_consent_link_label')}
-                                    </a>
-                                </>
-                            )}
-                        </span>
-                    </label>
-                    {err.accepted_consent && (
-                        <p className="lp-error mt-1" role="alert">
-                            {err.accepted_consent}
-                        </p>
-                    )}
+                <div className="grid items-start gap-x-4 gap-y-3.5 sm:grid-cols-2">
+                    {fields.map((f, i) => {
+                        const id = `lead-${i}`;
+                        const isExtra = f.kind === 'choice' || f.kind === 'text';
+                        const index = isExtra ? ++extraIndex : -1;
+                        const error = isExtra ? err[`extras.${index}`] : f.kind === 'message' ? err.message : err[f.kind];
+                        const invalid = Boolean(error) || ((f.kind === 'email' || f.kind === 'phone') && Boolean(contactError));
+                        const value = isExtra
+                            ? (data.extras[index] ?? '')
+                            : (data[f.kind as 'name' | 'company' | 'email' | 'phone' | 'message'] ?? '');
+                        const onChange = (v: string) => {
+                            if (isExtra)
+                                setData(
+                                    'extras',
+                                    data.extras.map((x, k) => (k === index ? v : x)),
+                                );
+                            else
+                                setData(
+                                    f.kind as 'name' | 'company' | 'email' | 'phone' | 'message',
+                                    f.kind === 'phone'
+                                        ? cleanPhone(v)
+                                        : f.kind === 'name'
+                                          ? cleanName(v)
+                                          : f.kind === 'company'
+                                            ? cleanCompany(v)
+                                            : v,
+                                );
+                        };
+                        return (
+                            <div key={i} className={`lp-field ${f.full ? 'sm:col-span-2' : ''}`}>
+                                <label htmlFor={id}>
+                                    {f.label}
+                                    {f.required && ' *'}
+                                </label>
+                                {f.kind === 'message' ? (
+                                    <textarea
+                                        id={id}
+                                        className="lp-input"
+                                        rows={3}
+                                        placeholder={f.placeholder}
+                                        value={value}
+                                        maxLength={2000}
+                                        aria-invalid={invalid || undefined}
+                                        onChange={(e) => onChange(e.target.value)}
+                                    />
+                                ) : f.kind === 'choice' ? (
+                                    <select
+                                        id={id}
+                                        className="lp-input"
+                                        value={value}
+                                        aria-invalid={invalid || undefined}
+                                        onChange={(e) => onChange(e.target.value)}
+                                    >
+                                        <option value="">{f.placeholder || 'Selecciona una opción'}</option>
+                                        {f.options.map((o) => (
+                                            <option key={o} value={o}>
+                                                {o}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input
+                                        id={id}
+                                        className="lp-input"
+                                        type={INPUT[f.kind].type}
+                                        autoComplete={INPUT[f.kind].auto}
+                                        inputMode={f.kind === 'phone' ? 'numeric' : undefined}
+                                        maxLength={f.kind === 'phone' ? 9 : undefined}
+                                        placeholder={f.placeholder}
+                                        required={f.required}
+                                        value={value}
+                                        aria-invalid={invalid || undefined}
+                                        aria-describedby={error ? `${id}-error` : undefined}
+                                        onChange={(e) => onChange(e.target.value)}
+                                    />
+                                )}
+                                {error && (
+                                    <p id={`${id}-error`} className="lp-error" role="alert">
+                                        {error}
+                                    </p>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
-            )}
 
-            {/* Campo trampa: las personas no lo ven; los bots lo llenan. */}
-            <div className="lp-trap" aria-hidden="true">
-                <label htmlFor="lead-website">No llenar este campo</label>
-                <input id="lead-website" type="text" tabIndex={-1} autoComplete="off" value={data.website_url} onChange={(e) => setData('website_url', e.target.value)} />
-            </div>
+                {/* Consentimiento para el contacto por WhatsApp (se edita en el panel; vacío = no se pide). */}
+                {consentText && (
+                    <div>
+                        <label className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug opacity-90">
+                            <input
+                                type="checkbox"
+                                checked={data.accepted_consent}
+                                onChange={(e) => setData('accepted_consent', e.target.checked)}
+                                aria-invalid={err.accepted_consent ? true : undefined}
+                                className="mt-0.5 size-4 shrink-0 accent-[var(--c-primary)]"
+                            />
+                            <span>
+                                {consentText}
+                                {consentLink !== '#' && text(content, 'form_consent_url') && text(content, 'form_consent_link_label') && (
+                                    <>
+                                        {' '}
+                                        <a
+                                            href={consentLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="font-semibold underline underline-offset-2"
+                                        >
+                                            {text(content, 'form_consent_link_label')}
+                                        </a>
+                                    </>
+                                )}
+                            </span>
+                        </label>
+                        {err.accepted_consent && (
+                            <p className="lp-error mt-1" role="alert">
+                                {err.accepted_consent}
+                            </p>
+                        )}
+                    </div>
+                )}
 
-            <button type="submit" className="lp-btn" disabled={processing || preview}>
-                {processing && <LoaderCircle className="animate-spin" aria-hidden />}
-                {processing ? 'Enviando…' : text(content, 'form_button') || 'Solicitar diagnóstico'}
-                {!processing && <ArrowRight size={18} aria-hidden />}
-            </button>
-            {footnote && <p className="-mt-1 text-xs leading-snug opacity-70">{footnote}</p>}
-            {preview && <p className="lp-error">Vista previa: el formulario no envía datos.</p>}
-        </form>
+                {/* Términos y Condiciones y demás documentos (se editan en Ajustes del sitio → Pie de página). */}
+                {legal.length > 0 && (
+                    <p className="text-[13px] leading-snug">
+                        <span className="opacity-75">Lee:</span>{' '}
+                        {legal.map((d, i) => (
+                            <Fragment key={d.label}>
+                                {i > 0 && ' · '}
+                                <button
+                                    type="button"
+                                    aria-haspopup="dialog"
+                                    onClick={() => setOpenDoc(d)}
+                                    className="cursor-pointer font-semibold underline underline-offset-2"
+                                >
+                                    {d.label}
+                                </button>
+                            </Fragment>
+                        ))}
+                    </p>
+                )}
+
+                {/* Campo trampa: las personas no lo ven; los bots lo llenan. */}
+                <div className="lp-trap" aria-hidden="true">
+                    <label htmlFor="lead-website">No llenar este campo</label>
+                    <input
+                        id="lead-website"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={data.website_url}
+                        onChange={(e) => setData('website_url', e.target.value)}
+                    />
+                </div>
+
+                <button type="submit" className="lp-btn" disabled={processing || preview}>
+                    {processing && <LoaderCircle className="animate-spin" aria-hidden />}
+                    {processing ? 'Enviando…' : text(content, 'form_button') || 'Solicitar diagnóstico'}
+                    {!processing && <ArrowRight size={18} aria-hidden />}
+                </button>
+                {footnote && <p className="-mt-1 text-xs leading-snug opacity-70">{footnote}</p>}
+                {preview && <p className="lp-error">Vista previa: el formulario no envía datos.</p>}
+            </form>
+            {openDoc && <DocModal doc={openDoc} onClose={() => setOpenDoc(null)} />}
+        </>
     );
 }

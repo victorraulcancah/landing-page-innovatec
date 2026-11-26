@@ -122,7 +122,7 @@ export default function Landing({ campaign, sections: allSections, theme, navbar
                             section.type === 'hero' && heroPanel ? (
                                 heroPanel.type === 'quote' ? <Quote section={heroPanel} ctx={ctx} campaignId={campaign.id} preview={preview} /> : <Calculator section={heroPanel} ctx={ctx} />
                             ) : undefined;
-                        return <Renderer key={section.id} section={section} theme={theme} ctx={ctx} contact={contact} campaignId={campaign.id} preview={preview} cut={cut} aside={aside} />;
+                        return <Renderer key={section.id} section={section} theme={theme} ctx={ctx} contact={contact} campaignId={campaign.id} preview={preview} cut={cut} aside={aside} docs={footer.docs} />;
                     })
                 )}
             </main>

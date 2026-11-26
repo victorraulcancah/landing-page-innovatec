@@ -118,6 +118,8 @@ export type AnalyticsData = {
     ga_id: string;
 };
 
+export type ZohoData = { code: string; action: string };
+
 export type FooterDoc = { label: string; text?: string; file: string | null };
 
 export type FooterLink = { label: string; kind: 'anchor' | 'url' | 'claims' | 'lookup' | 'doc' | 'whatsapp' | 'phone' | 'email'; value: string };

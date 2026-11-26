@@ -56,13 +56,14 @@ class SiteDefaults
             'contact' => self::contact(),
             'footer' => self::footer(),
             'analytics' => self::analytics(),
+            'zoho' => self::zoho(),
             default => [],
         };
     }
 
     public static function keys(): array
     {
-        return ['theme', 'navbar', 'contact', 'footer', 'analytics'];
+        return ['theme', 'navbar', 'contact', 'footer', 'analytics', 'zoho'];
     }
 
     public static function theme(): array
@@ -132,6 +133,13 @@ class SiteDefaults
     {
         // ID de medición de Google Analytics 4 (G-XXXXXXXXXX). Vacío = no se mide nada.
         return ['ga_id' => ''];
+    }
+
+    public static function zoho(): array
+    {
+        // Formulario web de Zoho CRM: «code» es lo que se pega en el panel; «action» y «fields» salen de ahí al guardar.
+        // Vacío = los contactos no se envían a Zoho.
+        return ['code' => '', 'action' => '', 'fields' => []];
     }
 
     public static function footer(): array

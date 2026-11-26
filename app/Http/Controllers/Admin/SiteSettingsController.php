@@ -9,6 +9,7 @@ use App\Support\MapLocator;
 use App\Support\RichText;
 use App\Support\SectionTypes;
 use App\Support\SiteDefaults;
+use App\Support\ZohoWebForm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -28,6 +29,7 @@ class SiteSettingsController extends Controller
             'contact' => Setting::get('contact'),
             'footer' => Setting::get('footer'),
             'analytics' => Setting::get('analytics'),
+            'zoho' => Setting::get('zoho'),
             'themeColors' => SiteDefaults::THEME_COLORS,
             'fonts' => SiteDefaults::FONTS,
             'radii' => SiteDefaults::RADII,
@@ -184,6 +186,26 @@ class SiteSettingsController extends Controller
         }
 
         return ['ga_id' => strtoupper($found[0])];
+    }
+
+    /** Formulario web de Zoho CRM: se pega su código o enlace y se guardan los datos que Zoho pide en cada envío. */
+    private function cleanZoho(Request $request): array
+    {
+        $data = $request->validate(['code' => ['nullable', 'string', 'max:60000']], ['code.max' => 'El código es demasiado largo: pega el script o el enlace del formulario.']);
+        $code = trim((string) ($data['code'] ?? ''));
+
+        if ($code === '') {
+            return SiteDefaults::zoho();
+        }
+
+        $form = ZohoWebForm::read($code);
+        if ($form === null) {
+            throw ValidationException::withMessages([
+                'code' => 'No pude leer un formulario web de Zoho ahí. Pega el script, el código HTML o el enlace que te da Zoho CRM.',
+            ]);
+        }
+
+        return ['code' => $code, ...$form];
     }
 
     private function cleanFooter(Request $request): array

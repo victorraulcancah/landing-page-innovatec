@@ -7,7 +7,7 @@ import { Quote } from '@/components/landing/quote';
 import { Rich } from '@/components/landing/rich';
 import { AUTO_VISUALS, Ticker, Visual, type VisualKind } from '@/components/landing/visuals';
 import { ctaHref, ctaOf, flag, list, sectionLook, splitStations, text, type CtaContext, type PublicSection } from '@/lib/landing';
-import { type ContactData, type Json, type SectionStyle, type ThemeData } from '@/types/cms';
+import { type ContactData, type FooterDoc, type Json, type SectionStyle, type ThemeData } from '@/types/cms';
 import { ArrowRight, Check, X } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 
@@ -22,6 +22,8 @@ export interface SectionProps {
     cut: 'up' | 'down' | null;
     /** Contenido que reemplaza la foto de la portada (p. ej. la calculadora). */
     aside?: ReactNode;
+    /** Documentos legales del pie (Términos y Condiciones…), para enlazarlos desde el formulario. */
+    docs?: FooterDoc[];
 }
 
 const str = (v: Json | undefined): string => (typeof v === 'string' ? v : '');
@@ -509,7 +511,7 @@ export function TextBlock({ section, theme, cut }: SectionProps) {
 
 // ---- Llamado final -----------------------------------------------------------
 
-export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: SectionProps) {
+export function Cta({ section, theme, ctx, contact, campaignId, preview, cut, docs }: SectionProps) {
     const c = section.content;
     const showForm = flag(c, 'show_form');
     const button = ctaOf(c, 'button');
@@ -542,7 +544,7 @@ export function Cta({ section, theme, ctx, contact, campaignId, preview, cut }: 
                 </div>
                 {showForm && (
                     <div className="lp-panel" data-reveal="up" style={{ '--i': 2 } as CSSProperties}>
-                        <LeadForm campaignId={campaignId} content={c} contact={contact} preview={preview} />
+                        <LeadForm campaignId={campaignId} content={c} contact={contact} preview={preview} docs={docs} />
                     </div>
                 )}
             </div>
