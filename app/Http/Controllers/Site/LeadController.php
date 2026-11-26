@@ -42,7 +42,8 @@ class LeadController extends Controller
 
         $extras = [];
         if ($consent) {
-            $extras[] = ['label' => 'Aceptó el contacto por WhatsApp', 'value' => 'Sí'];
+            // Se anota el texto exacto que la persona aceptó.
+            $extras[] = ['label' => 'Aceptó', 'value' => trim((string) $form['form_consent'])];
         }
         foreach ($extraFields as $i => $f) {
             $value = trim((string) ($data['extras'][$i] ?? ''));

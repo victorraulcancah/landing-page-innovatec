@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Lleva el formulario de contacto de una campaña ya creada al diseño «Solicita tu diagnóstico inicial» (nombre, empresa,
- * WhatsApp, consulta, casilla de consentimiento y botón «Continuar por WhatsApp»).
+ * WhatsApp, consulta y casilla de aceptación de Términos y Privacidad).
  *  - Sin campos guardados: se agregan todos.
  *  - Con los campos de la versión anterior sin tocar: se reemplazan por los nuevos (y sus textos, si tampoco se tocaron).
  *  - Con campos que ya se personalizaron: no se cambian; solo se agregan los ajustes nuevos en modo «solo guardar».

@@ -156,7 +156,10 @@ class SiteDefaults
             'provider_address' => '',
             // Documentos legales (Términos y Condiciones, política de privacidad…): cada uno abre una ventana con su texto
             // y, si tiene PDF, se puede ver y descargar. El botón se muestra aunque todavía no tenga texto ni PDF.
-            'docs' => [['label' => 'Términos y Condiciones', 'text' => '', 'file' => null]],
+            'docs' => [
+                ['label' => 'Términos y Condiciones', 'text' => '', 'file' => null],
+                ['label' => 'Política de Privacidad', 'text' => '', 'file' => null],
+            ],
             // Columnas de enlaces del pie: cada una con su título y su lista de enlaces (se editan en el panel).
             'columns' => [
                 ['title' => 'Conócenos', 'links' => [
@@ -174,6 +177,7 @@ class SiteDefaults
                     ['label' => 'Libro de Reclamaciones', 'kind' => 'claims', 'value' => ''],
                     ['label' => 'Consultar mi reclamo', 'kind' => 'lookup', 'value' => ''],
                     ['label' => 'Términos y Condiciones', 'kind' => 'doc', 'value' => 'Términos y Condiciones'],
+                    ['label' => 'Política de Privacidad', 'kind' => 'doc', 'value' => 'Política de Privacidad'],
                     ['label' => 'Hablar por WhatsApp', 'kind' => 'whatsapp', 'value' => ''],
                 ]],
             ],

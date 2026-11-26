@@ -31,15 +31,16 @@ class FormDefaults
     {
         return [
             'form_title' => 'Solicita tu diagnóstico inicial',
-            'form_note' => 'La consulta se prepara en WhatsApp. No se envía hasta que confirmes el mensaje.',
-            'form_button' => 'Continuar por WhatsApp',
-            'form_mode' => 'whatsapp',
-            'form_consent' => 'Confirmo que deseo contactar voluntariamente a UCO360 por WhatsApp.',
+            'form_note' => 'Déjanos tus datos y nos comunicaremos contigo.',
+            'form_button' => 'Solicitar diagnóstico',
+            'form_mode' => 'save',
+            // Los nombres de los documentos del pie que aparezcan aquí se muestran como enlaces.
+            'form_consent' => 'He leído y acepto lo indicado en Términos y Condiciones y Política de Privacidad',
             'form_consent_link_label' => 'Lee nuestra política de privacidad',
             'form_consent_url' => '',
-            'form_footnote' => 'El botón prepara un mensaje que podrás revisar antes de enviarlo.',
-            'thanks_title' => '¡Listo! Abre WhatsApp para enviar tu mensaje',
-            'thanks_text' => 'Guardamos tus datos y preparamos el mensaje. Si no se abrió solo, usa el botón.',
+            'form_footnote' => '',
+            'thanks_title' => '¡Gracias! Recibimos tus datos.',
+            'thanks_text' => 'Nuestro equipo te escribirá para coordinar tu reunión de diagnóstico.',
             'form_fields' => self::fields(),
         ];
     }

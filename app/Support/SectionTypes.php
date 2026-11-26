@@ -544,7 +544,7 @@ class SectionTypes
                         self::toggle('required', 'Obligatorio'),
                         self::toggle('full', 'Ocupa todo el ancho (si no, comparte la fila con el campo de al lado)'),
                     ], 'label'),
-                    self::text('form_consent', 'Casilla de consentimiento (vacío = no se pide)', 240),
+                    self::text('form_consent', 'Casilla de aceptación (vacío = no se pide). Escribe el nombre de un documento del pie para que sea un enlace', 240),
                     self::text('form_consent_link_label', 'Consentimiento: texto del enlace (ej. política de privacidad)', 60),
                     self::text('form_consent_url', 'Consentimiento: enlace (https://… o /ruta; vacío = sin enlace)', 300),
                     self::text('form_footnote', 'Formulario: nota debajo del botón', 240),

@@ -811,9 +811,9 @@ class CampaignAdminTest extends TestCase
         // De fábrica: el modelo «Solicita tu diagnóstico inicial» (nombre, empresa, WhatsApp y consulta), todo editable.
         $this->assertSame(['name', 'company', 'phone', 'message'], array_column($cta->content['form_fields'], 'kind'));
         $this->assertSame('Solicita tu diagnóstico inicial', $cta->content['form_title']);
-        $this->assertSame('whatsapp', $cta->content['form_mode']);
-        $this->assertSame('Continuar por WhatsApp', $cta->content['form_button']);
-        $this->assertNotSame('', $cta->content['form_consent']);
+        $this->assertSame('save', $cta->content['form_mode']);
+        $this->assertSame('Solicitar diagnóstico', $cta->content['form_button']);
+        $this->assertStringContainsString('Política de Privacidad', $cta->content['form_consent']);
 
         $base = ['campaign_id' => $campaign->id, 'source' => 'form', 'name' => 'Ana Ruiz'];
         $full = [...$base, 'company' => 'ACME SAC', 'phone' => '987654321'];
@@ -828,7 +828,7 @@ class CampaignAdminTest extends TestCase
         $this->assertSame('987654321', $lead->phone);
         $this->assertSame('Tenemos 20 computadoras y problemas con el Wi-Fi', $lead->message);
         // El consentimiento queda registrado en el contacto.
-        $this->assertSame([['label' => 'Aceptó el contacto por WhatsApp', 'value' => 'Sí']], $lead->extras);
+        $this->assertEquals([['label' => 'Aceptó', 'value' => $cta->content['form_consent']]], $lead->extras);
 
         // Desde el panel: se quita la casilla, la empresa pasa a opcional y se agrega una pregunta con opciones.
         $fields = collect($cta->content['form_fields'])
@@ -902,8 +902,8 @@ class CampaignAdminTest extends TestCase
         $new = $cta->fresh()->content;
         $this->assertSame(['name', 'company', 'phone', 'message'], array_column($new['form_fields'], 'kind'));
         $this->assertSame('Solicita tu diagnóstico inicial', $new['form_title']);
-        $this->assertSame('Continuar por WhatsApp', $new['form_button']);
-        $this->assertSame('whatsapp', $new['form_mode']);
+        $this->assertSame('Solicitar diagnóstico', $new['form_button']);
+        $this->assertSame('save', $new['form_mode']);
 
         // Un formulario personalizado se respeta: no se reemplaza ni pasa a WhatsApp.
         $custom = [$old('name', 'Tu nombre', true), $old('phone', 'Teléfono', true)];
@@ -915,6 +915,26 @@ class CampaignAdminTest extends TestCase
         $kept = $cta->fresh()->content;
         $this->assertCount(2, $kept['form_fields']);
         $this->assertSame('save', $kept['form_mode']);
+    }
+
+    public function test_la_migracion_quita_whatsapp_y_pide_aceptar_la_privacidad_sin_pisar_lo_editado(): void
+    {
+        $this->seed(\Database\Seeders\CampaignSeeder::class);
+        $cta = Campaign::where('status', 'active')->first()->sections()->where('type', 'cta')->first();
+        $cta->update(['content' => [...$cta->content, 'form_mode' => 'whatsapp', 'form_button' => 'Continuar por WhatsApp', 'form_note' => 'Mi nota']]);
+        Setting::put('footer', [...Setting::get('footer'), 'docs' => [['label' => 'Términos y Condiciones', 'text' => '<p>Míos</p>', 'file' => null]]]);
+
+        $migration = require database_path('migrations/2026_11_26_000001_add_privacy_acceptance_to_lead_form.php');
+        $migration->up();
+        $migration->up(); // repetirla no duplica nada
+
+        $content = $cta->fresh()->content;
+        $this->assertSame('save', $content['form_mode']);
+        $this->assertSame('Solicitar diagnóstico', $content['form_button']);
+        $this->assertSame('Mi nota', $content['form_note']);
+        $docs = Setting::get('footer')['docs'];
+        $this->assertSame(['Términos y Condiciones', 'Política de Privacidad'], array_column($docs, 'label'));
+        $this->assertSame('<p>Míos</p>', $docs[0]['text']);
     }
 
     public function test_el_chat_de_whatsapp_se_edita_y_el_seeder_oculta_la_ventana_emergente_una_sola_vez(): void

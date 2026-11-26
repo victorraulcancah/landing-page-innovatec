@@ -6,7 +6,7 @@ import { cleanCompany, cleanName, cleanPhone } from '@/lib/validate';
 import { type ContactData, type FooterDoc, type Json } from '@/types/cms';
 import { useForm } from '@inertiajs/react';
 import { ArrowRight, LoaderCircle } from 'lucide-react';
-import { FormEventHandler, Fragment, useEffect, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 interface LeadFormProps {
     campaignId: number | null;
@@ -15,7 +15,7 @@ interface LeadFormProps {
     /** Se usa para armar el mensaje de WhatsApp (número y mensaje inicial de Ajustes del sitio). */
     contact: ContactData;
     preview: boolean;
-    /** Documentos legales del pie: se enlazan sobre el botón de envío. */
+    /** Documentos legales del pie: se enlazan desde el texto de la casilla de aceptación. */
     docs?: FooterDoc[];
 }
 
@@ -92,6 +92,19 @@ function whatsappMessage(
         .filter(Boolean)
         .join('\n')
         .trim();
+}
+
+/** Parte el texto de la casilla en trozos: cada nombre de documento legal que aparezca se vuelve ese documento. */
+function consentParts(consent: string, docs: FooterDoc[]): (string | FooterDoc)[] {
+    let parts: (string | FooterDoc)[] = [consent];
+    for (const doc of docs) {
+        parts = parts.flatMap((part) => {
+            if (typeof part !== 'string') return [part];
+            const at = part.toLowerCase().indexOf(doc.label.toLowerCase());
+            return at < 0 ? [part] : [part.slice(0, at), doc, part.slice(at + doc.label.length)];
+        });
+    }
+    return parts.filter((part) => part !== '');
 }
 
 export function LeadForm({ campaignId, content, contact, preview, docs = [] }: LeadFormProps) {
@@ -263,19 +276,40 @@ export function LeadForm({ campaignId, content, contact, preview, docs = [] }: L
                     })}
                 </div>
 
-                {/* Consentimiento para el contacto por WhatsApp (se edita en el panel; vacío = no se pide). */}
+                {/* Casilla de aceptación (se edita en el panel; vacío = no se pide). Cada documento del pie que el texto
+                    mencione por su nombre (Términos y Condiciones…) es un enlace que abre su ventana. */}
                 {consentText && (
                     <div>
-                        <label className="flex cursor-pointer items-start gap-3 text-[13px] leading-snug opacity-90">
+                        <div className="flex items-start gap-3 text-[13px] leading-snug opacity-90">
                             <input
+                                id="lead-consent"
                                 type="checkbox"
+                                required
+                                aria-labelledby="lead-consent-text"
                                 checked={data.accepted_consent}
                                 onChange={(e) => setData('accepted_consent', e.target.checked)}
                                 aria-invalid={err.accepted_consent ? true : undefined}
-                                className="mt-0.5 size-4 shrink-0 accent-[var(--c-primary)]"
+                                className="mt-0.5 size-4 shrink-0 cursor-pointer accent-[var(--c-primary)]"
                             />
-                            <span>
-                                {consentText}
+                            <span id="lead-consent-text">
+                                {consentParts(consentText, legal).map((part, i) =>
+                                    typeof part === 'string' ? (
+                                        <label key={i} htmlFor="lead-consent" className="cursor-pointer">
+                                            {part}
+                                        </label>
+                                    ) : (
+                                        <button
+                                            key={i}
+                                            type="button"
+                                            aria-haspopup="dialog"
+                                            onClick={() => setOpenDoc(part)}
+                                            className="cursor-pointer font-semibold underline underline-offset-2"
+                                        >
+                                            {part.label}
+                                        </button>
+                                    ),
+                                )}{' '}
+                                *
                                 {consentLink !== '#' && text(content, 'form_consent_url') && text(content, 'form_consent_link_label') && (
                                     <>
                                         {' '}
@@ -290,33 +324,13 @@ export function LeadForm({ campaignId, content, contact, preview, docs = [] }: L
                                     </>
                                 )}
                             </span>
-                        </label>
+                        </div>
                         {err.accepted_consent && (
                             <p className="lp-error mt-1" role="alert">
                                 {err.accepted_consent}
                             </p>
                         )}
                     </div>
-                )}
-
-                {/* Términos y Condiciones y demás documentos (se editan en Ajustes del sitio → Pie de página). */}
-                {legal.length > 0 && (
-                    <p className="text-[13px] leading-snug">
-                        <span className="opacity-75">Lee:</span>{' '}
-                        {legal.map((d, i) => (
-                            <Fragment key={d.label}>
-                                {i > 0 && ' · '}
-                                <button
-                                    type="button"
-                                    aria-haspopup="dialog"
-                                    onClick={() => setOpenDoc(d)}
-                                    className="cursor-pointer font-semibold underline underline-offset-2"
-                                >
-                                    {d.label}
-                                </button>
-                            </Fragment>
-                        ))}
-                    </p>
                 )}
 
                 {/* Campo trampa: las personas no lo ven; los bots lo llenan. */}
